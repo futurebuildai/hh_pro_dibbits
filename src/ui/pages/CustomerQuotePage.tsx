@@ -25,7 +25,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 /**
  * What the homeowner sees.
  *
- * Deliberately not the portal: the contractor's brand, no Gable Supply, no
+ * Deliberately not the portal: the contractor's brand, no supplier identity, no
  * costs, no board furniture. It is a proposal, and it should read like one on
  * the phone it will almost certainly be opened on.
  *

@@ -249,7 +249,7 @@ export function OrderPage({ orderId, onBack, onOpenProject, onOpenQuote, onOpenT
         ) : null}
       </ul>
 
-      {/* Once Gable holds the order, tracking is the thing you actually want. */}
+      {/* Once the supplier holds the order, tracking is what you actually want. */}
       {order.salesOrderId ? (
         <button
           type="button"

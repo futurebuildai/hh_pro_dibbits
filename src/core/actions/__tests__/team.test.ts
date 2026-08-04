@@ -169,7 +169,7 @@ describe('a save that predates the team', () => {
   /**
    * Stores are persisted only once they change, and persistence attaches after
    * seeding — so a session that never touched the team and then died without a
-   * pagehide flush leaves `ln:team` absent while the board keys are present.
+   * pagehide flush leaves `hh:team` absent while the board keys are present.
    * Restore used to succeed with an empty team, which makes activeMember()
    * undefined and every capability check pass: an old save silently turned the
    * permission gate off.
@@ -179,7 +179,7 @@ describe('a save that predates the team', () => {
     flushPersistence();
 
     // The board survived; the team key never got written.
-    localStorage.removeItem('ln:team');
+    localStorage.removeItem('hh:team');
     teamStore.set({ members: { byId: {}, allIds: [] }, activeId: null });
 
     boot({ seed: 20_260_730 });

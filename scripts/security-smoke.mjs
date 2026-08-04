@@ -4,7 +4,7 @@
  * Every assertion here corresponds to a vulnerability that was actually
  * present and verified during review, not a hypothetical:
  *
- *  - `.lumbernow/secrets.json` was served over HTTP with no auth, handing out
+ *  - `.hhpro/secrets.json` was served over HTTP with no auth, handing out
  *    the dealer's Anthropic key to anyone who guessed the path.
  *  - The API middleware registered ahead of Vite's DNS-rebinding defence, so a
  *    forged Host header reached the key-spending proxy and the admin API.
@@ -15,6 +15,7 @@
 import { spawn } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import http from 'node:http';
+import net from 'node:net';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -52,34 +53,91 @@ function check(name, ok, detail) {
   if (!ok) failures.push(name);
 }
 
+/** Is anything already listening? A taken port means we would test IT, not us. */
+function portInUse(port) {
+  return new Promise((resolve) => {
+    const socket = net.connect({ host: '127.0.0.1', port });
+    socket.on('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.on('error', () => resolve(false));
+    socket.setTimeout(1000, () => {
+      socket.destroy();
+      resolve(false);
+    });
+  });
+}
+
 async function main() {
   // A canary secret, so "is the key reachable" is answered by content, not by
   // a status code that might be a coincidence.
-  const dataDir = join(ROOT, '.lumbernow');
+  const dataDir = join(ROOT, '.hhpro');
   mkdirSync(dataDir, { recursive: true });
   writeFileSync(join(dataDir, 'secrets.json'), JSON.stringify({ anthropicKey: CANARY }));
 
+  /**
+   * The port must be OURS before we attack it.
+   *
+   * `vite --strictPort` exits when the port is taken, but this script used to
+   * spawn it, ignore the exit, and then happily audit whatever else was
+   * listening. A leftover dev server from a sibling checkout answered every
+   * probe, so the run reported on a DIFFERENT APPLICATION — it produced a
+   * false red once, and the same path would produce a false green just as
+   * easily: a hardened stale server while the code under test is wide open.
+   *
+   * A security gate that can silently grade the wrong program is worse than
+   * no gate, so this refuses to start rather than guess.
+   */
+  if (await portInUse(PORT)) {
+    throw new Error(
+      `port ${PORT} is already serving something. This smoke would attack THAT server, ` +
+        'not the one it is meant to test. Stop it and re-run.',
+    );
+  }
+
+  // `detached` so the whole process GROUP can be killed. `server.kill()` alone
+  // reaps the `npx` wrapper and leaves the real vite child holding the port —
+  // that leak is what left a stale server running from a sibling checkout and
+  // sent an entire smoke run against the wrong application.
   const server = spawn('npx', ['vite'], {
     cwd: ROOT,
     stdio: 'ignore',
+    detached: true,
     env: { ...process.env, PORT: String(PORT) },
   });
 
+  let serverExited = null;
+  server.on('exit', (code) => {
+    serverExited = code;
+  });
+
   try {
+    let ready = false;
     for (let i = 0; i < 60; i++) {
+      if (serverExited !== null) {
+        throw new Error(
+          `the dev server exited (code ${serverExited}) before it served anything — ` +
+            'nothing below would have tested this repo.',
+        );
+      }
       try {
-        if ((await fetch(BASE)).ok) break;
+        if ((await fetch(BASE)).ok) {
+          ready = true;
+          break;
+        }
       } catch {
         /* not up yet */
       }
       await new Promise((r) => setTimeout(r, 250));
     }
+    if (!ready) throw new Error(`dev server never became ready on ${BASE}`);
 
     // --- The credential must not be fetchable, by any path -------------------
     for (const path of [
-      '/.lumbernow/secrets.json',
-      `/@fs${ROOT}/.lumbernow/secrets.json`,
-      '/.lumbernow/../.lumbernow/secrets.json',
+      '/.hhpro/secrets.json',
+      `/@fs${ROOT}/.hhpro/secrets.json`,
+      '/.hhpro/../.hhpro/secrets.json',
     ]) {
       const { body } = await rawGet(path);
       check(`credential not served at ${path.slice(0, 44)}`, !body.includes(CANARY), 'KEY LEAKED');
@@ -116,7 +174,7 @@ async function main() {
     // fallback had swallowed them and was answering 200 with index.html. A
     // status code cannot tell "mounted" apart from "fell through".
     const LOCAL = [
-      { path: '/', expect: (body) => body.includes('__LUMBERNOW_CONFIG__') },
+      { path: '/', expect: (body) => body.includes('__HHPRO_CONFIG__') },
       { path: '/api/anthropic/health', expect: (body) => JSON.parse(body).ok === true },
       {
         path: '/api/config',
@@ -136,8 +194,17 @@ async function main() {
       check(`localhost still served: ${path}`, ok, `got ${status} ${body.slice(0, 40)}`);
     }
   } finally {
-    server.kill();
-    rmSync(join(ROOT, '.lumbernow', 'secrets.json'), { force: true });
+    try {
+      process.kill(-server.pid, 'SIGTERM');
+    } catch {
+      server.kill();
+    }
+    // Wait for the port to actually come back, so a re-run does not trip the
+    // "already serving something" guard on our own dying server.
+    for (let i = 0; i < 20 && (await portInUse(PORT)); i++) {
+      await new Promise((r) => setTimeout(r, 150));
+    }
+    rmSync(join(ROOT, '.hhpro', 'secrets.json'), { force: true });
   }
 
   process.stdout.write(`\n${failures.length} security check(s) failed\n`);

@@ -332,7 +332,7 @@ describe('sending and signing', () => {
     // unitCost exists on the line for math, but no supplier identity travels
     // with the document.
     const serialized = JSON.stringify(sent);
-    expect(serialized).not.toContain('Gable');
+    expect(serialized).not.toContain('Cornerstone');
     expect(sent.contractor.companyName).toBe('Summit Ridge Builders');
   });
 });

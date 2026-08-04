@@ -24,7 +24,7 @@ export interface AdminPluginOptions {
 }
 
 /** The marker the HTML carries; the client reads it before first paint. */
-export const CONFIG_GLOBAL = '__LUMBERNOW_CONFIG__';
+export const CONFIG_GLOBAL = '__HHPRO_CONFIG__';
 
 export function renderConfigTags(config: ReturnType<typeof readConfig>): string {
   // JSON is escaped for a <script> context: a literal `</script>` inside a
@@ -44,7 +44,7 @@ export function renderConfigTags(config: ReturnType<typeof readConfig>): string 
 
 export function adminPlugin(options: AdminPluginOptions): Plugin {
   return {
-    name: 'lumbernow-admin',
+    name: 'hhpro-admin',
 
     // Branding and flags are in the document before the first byte of app JS.
     transformIndexHtml() {

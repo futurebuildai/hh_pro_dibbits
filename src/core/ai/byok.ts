@@ -21,13 +21,13 @@ import { type Result, err, ok } from '../lib/result';
  *    removable in one tap, and storable for this tab only when the machine
  *    isn't yours.
  *
- * Storage deliberately sits OUTSIDE the `ln:` namespace: everything under that
+ * Storage deliberately sits OUTSIDE the `hh:` namespace: everything under that
  * prefix gets enumerated by Demo Reset and copied wholesale into the
  * corrupt-state backup, and a credential should be in neither.
  */
 
-const STORAGE_KEY = 'lumbernow.anthropic-key';
-const SCOPE_KEY = 'lumbernow.anthropic-key-scope';
+const STORAGE_KEY = 'hhpro.anthropic-key';
+const SCOPE_KEY = 'hhpro.anthropic-key-scope';
 
 /** The header the client sends and the proxy reads. Never `x-api-key`, so a
  *  forwarded key can never be confused with the SDK's placeholder. */

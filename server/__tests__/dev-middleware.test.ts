@@ -140,7 +140,7 @@ describe('the app itself is untouched', () => {
 
     expect(response.status).toBe(200);
     expect(body).toContain('<!doctype');
-    expect(body).toContain('__LUMBERNOW_CONFIG__');
+    expect(body).toContain('__HHPRO_CONFIG__');
   });
 
   it('still falls back to the SPA for an unknown app route', async () => {

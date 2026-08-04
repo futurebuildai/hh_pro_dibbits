@@ -16,10 +16,10 @@ const ROBIN = 'tm_robin';
 
 function otherTabWrites(key: string, value: unknown): void {
   const raw = JSON.stringify(value);
-  localStorage.setItem(`ln:${key}`, raw);
+  localStorage.setItem(`hh:${key}`, raw);
   // Browsers never fire `storage` in the writing tab, so this is exactly what
   // a real second window produces here.
-  window.dispatchEvent(new StorageEvent('storage', { key: `ln:${key}`, newValue: raw }));
+  window.dispatchEvent(new StorageEvent('storage', { key: `hh:${key}`, newValue: raw }));
 }
 
 beforeEach(() => {

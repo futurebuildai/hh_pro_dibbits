@@ -10,7 +10,7 @@ coverage/
 
 # Dealer runtime config and the admin-stored LLM credential. Never tracked:
 # secrets.json holds a live API key.
-.lumbernow/
+.hhpro/
 
 *.log
 *.local

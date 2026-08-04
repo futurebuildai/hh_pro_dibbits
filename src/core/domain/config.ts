@@ -60,7 +60,7 @@ export interface DealerConfig {
 /** What ships when a dealer has configured nothing — today's hard-coded values. */
 export const DEFAULT_CONFIG: DealerConfig = {
   branding: {
-    companyName: 'Gable Supply',
+    companyName: 'Cornerstone Hardscape',
     brandColor: 'oklch(52% 0.19 255)',
   },
   assistant: {

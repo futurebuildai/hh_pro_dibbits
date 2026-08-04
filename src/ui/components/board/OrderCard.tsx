@@ -145,7 +145,7 @@ export function OrderCard({ card, now, onOpen, dragging, className, dragProps }:
 
         {(totals.awaitingQuoteCount > 0 || leadTimeRisk || card.supplierStatus) && (
           <div className="mt-2 flex flex-wrap gap-1.5">
-            {/* What Gable is doing right now — the board reads as live. */}
+            {/* What the supplier is doing right now — the board reads as live. */}
             {card.supplierStatus ? (
               <span
                 className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-medium"

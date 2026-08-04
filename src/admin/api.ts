@@ -9,7 +9,7 @@ import type { DealerConfig } from '@core/domain/config';
  * There is deliberately no "remember me".
  */
 
-const TOKEN_KEY = 'lumbernow.admin-token';
+const TOKEN_KEY = 'hhpro.admin-token';
 
 export interface AdminState {
   config: DealerConfig;

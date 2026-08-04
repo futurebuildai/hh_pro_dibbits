@@ -42,7 +42,7 @@ export function buildSystemPrompt(): string {
     })
     .join('\n');
 
-  return `You are the assistant inside LumberNow, a procurement portal a contractor uses to buy from their building-materials supplier, ${supplierName()}.
+  return `You are the assistant inside HH Pro, a procurement portal a contractor uses to buy from their hardscape and landscape materials supplier, ${supplierName()}.
 
 You are talking to ${acting?.name ?? account?.branding.contactName ?? 'the contractor'} at ${account?.name ?? 'their company'}. They are a professional. Write like a competent counter manager who knows them: direct, specific, no filler. Never open with "Great question" or "I'd be happy to."
 ${

@@ -326,7 +326,7 @@ describe('overdue reckoning', () => {
 describe('corrupt persisted state', () => {
   it('reseeds instead of restoring garbage', () => {
     flushPersistence();
-    localStorage.setItem('ln:orders', '{"byId": "not a map", "allIds": 7}');
+    localStorage.setItem('hh:orders', '{"byId": "not a map", "allIds": 7}');
 
     expect(() => boot({ seed: 20_260_730 })).not.toThrow();
     // A reseed, not a half-restore: the seeded board is back.
@@ -335,7 +335,7 @@ describe('corrupt persisted state', () => {
 
   it('reseeds on unparseable JSON without throwing', () => {
     flushPersistence();
-    localStorage.setItem('ln:scope', '{truncated');
+    localStorage.setItem('hh:scope', '{truncated');
     expect(() => boot({ seed: 20_260_730 })).not.toThrow();
     expect(listOf(scopeStore.get()).length).toBeGreaterThan(0);
   });
@@ -380,7 +380,7 @@ describe('the dealer name is configuration, not a literal', () => {
   /**
    * `companyName` is settable in the admin console, but the demo dealer's name
    * was written into ~40 contractor-facing sentences — so a deployment for
-   * anyone else told its contractors that "Gable Supply will price this".
+   * anyone else told its contractors that "Cornerstone Hardscape will price this".
    *
    * The behavioural half: a refusal a contractor actually reads.
    */
@@ -425,7 +425,7 @@ describe('the dealer name is configuration, not a literal', () => {
         const code = readFileSync(full, 'utf8')
           .replace(/\/\*[\s\S]*?\*\//g, '')
           .replace(/\/\/.*$/gm, '');
-        if (code.includes('Gable')) offenders.push(full.slice(root.length));
+        if (code.includes('Cornerstone')) offenders.push(full.slice(root.length));
       }
     };
     walk(root);

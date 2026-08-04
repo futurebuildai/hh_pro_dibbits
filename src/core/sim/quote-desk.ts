@@ -9,7 +9,7 @@ import { SIM } from './config';
 import type { SimContext } from './types';
 
 /**
- * Gable Supply's quote desk.
+ * The dealer's quote desk.
  *
  * Two things it has to get right to be believable: it takes hours rather than
  * milliseconds (an instant answer reads as a machine, and the whole premise is

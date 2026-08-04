@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## What Is This?
-LumberNow is an **AI-native procurement portal** for contractors buying from LBM (lumber & building materials) suppliers. Logged-in contractor experience only — there is no marketing website and no shopping cart, by design.
+HH Pro is an **AI-native procurement portal** for contractors buying from hardscape and landscape materials suppliers, running on the HardscapeOS ERP. Logged-in contractor experience only — there is no marketing website and no shopping cart, by design.
 
 The product replaces product-pages-and-carts with a **Procurement Board**: `Plan → Quote → Order → Invoice`.
 
@@ -277,7 +277,7 @@ contracted item.
 
 ## The simulator (M4)
 
-`src/core/sim/` plays Gable Supply. It is the only thing that writes
+`src/core/sim/` plays the dealer's ERP. It is the only thing that writes
 supplier-side facts — quotes, sales orders, invoices, tracking events — and
 handlers reach the stores through the narrow `SimStores` façade in `sim/types.ts`
 rather than calling contractor actions, whose guards are meant for a human.
@@ -464,12 +464,12 @@ out of it:
   fresh price" remedy loops forever.
 - **Cross-tab is real now, not a comment.** `attachCrossTabSync` adopts other
   tabs' storage writes (echo-proof: browsers never fire `storage` in the
-  writing tab); a heartbeat lease (`ln:leader`) makes exactly one tab pump the
+  writing tab); a heartbeat lease (`hh:leader`) makes exactly one tab pump the
   simulator. This is what makes the two-window accept demo true — before it,
   two schedulers double-fired every task and the second tab could clobber a
   signed QuoteAcceptance.
 - **Restore is validated, all-or-nothing.** Every persisted key must pass shape
-  validation or the whole save is stashed (`ln:corrupt-backup`), wiped, and
+  validation or the whole save is stashed (`hh:corrupt-backup`), wiped, and
   reseeded — restoring half a save is how cards end up with no supplier
   artifact. Boot self-heals (wipe + reseed on throw) and `ErrorBoundary` keeps
   a recovery path on screen. A missing `MIGRATIONS` step means "reseed on
@@ -585,9 +585,9 @@ key wins, else the server's `ANTHROPIC_API_KEY`, else 503.
 - **The header is read per request, not at client construction.** The session
   lives for the app's lifetime, so a key pasted mid-conversation has to work on
   the very next turn without a reload.
-- **Storage sits outside the `ln:` namespace** (`lumbernow.anthropic-key`).
-  Everything under `ln:` is enumerated by Demo Reset and copied wholesale into
-  `ln:corrupt-backup` — a credential belongs in neither. There is a test.
+- **Storage sits outside the `hh:` namespace** (`hhpro.anthropic-key`).
+  Everything under `hh:` is enumerated by Demo Reset and copied wholesale into
+  `hh:corrupt-backup` — a credential belongs in neither. There is a test.
 - **Shape-validated before it is stored and again at the proxy.** A typo
   becomes an immediate specific message instead of a 401 halfway through a
   stream, and a malformed header is never forwarded upstream.
@@ -660,7 +660,7 @@ resets the socket and the caller gets ECONNRESET instead of a reason.
 
 `companyName` was settable in the admin console while the demo dealer's name
 was hardcoded into ~40 contractor-facing sentences, so a deployment for anyone
-else still told its contractors that "Gable Supply will price this". Every such
+else still told its contractors that "Cornerstone Hardscape will price this". Every such
 sentence now goes through `supplierName()` (`core/config/runtime.ts`).
 
 - **Build the sentence where it is rendered.** Module-level string constants
@@ -681,9 +681,9 @@ sentence now goes through `supplierName()` (`core/config/runtime.ts`).
 A **different user from the contractor**: the dealer's own staff, configuring a
 deployment after it ships rather than a developer configuring it in code.
 
-**Two stores, two files, on purpose.** `.lumbernow/config.json` is PUBLIC —
+**Two stores, two files, on purpose.** `.hhpro/config.json` is PUBLIC —
 every value in it is served to every visitor, because it is branding, terms,
-and flags. `.lumbernow/secrets.json` (0600) holds the LLM credential and has
+and flags. `.hhpro/secrets.json` (0600) holds the LLM credential and has
 no route out of the process. They are separate FILES, not separate keys, so a
 mistake that serialises "the config" cannot serialise the secret: `DealerConfig`
 has no field that could carry one. There is a test that asserts a payload
@@ -695,9 +695,9 @@ about a bad paste immediately instead of through a contractor's failed message.
 Nothing returns it — the admin UI gets `present` and a mask. A test walks
 several routes asserting the key never appears in any response body.
 
-**The gate fails closed.** No `LUMBERNOW_ADMIN_TOKEN` means every admin request
+**The gate fails closed.** No `HHPRO_ADMIN_TOKEN` means every admin request
 is refused; undefined must never mean "no check". Compared with
-`timingSafeEqual`, loopback-only unless `LUMBERNOW_ADMIN_ALLOW_REMOTE=true`.
+`timingSafeEqual`, loopback-only unless `HHPRO_ADMIN_ALLOW_REMOTE=true`.
 It is a development gate and says so in its own docstring: one shared secret,
 no identity, no audit, no rotation. The upgrade path is to replace
 `authorize()` alone.
@@ -850,13 +850,13 @@ card itself.
 
 **`npm run security`.** Two real vulnerabilities, both verified live:
 
-- **The credential was served as a static file.** `.lumbernow/` lives inside
-  the Vite root, so `GET /.lumbernow/secrets.json` returned the dealer's
+- **The credential was served as a static file.** `.hhpro/` lives inside
+  the Vite root, so `GET /.hhpro/secrets.json` returned the dealer's
   Anthropic key over plain HTTP — no token, no loopback check, the entire
   write-only design defeated by a path guess. Fixed with `server.fs.deny`,
   which covers static serving, `/@fs/`, and the transform pipeline. **The
-  patterns must be `**/.lumbernow/**`** — Vite matches absolute paths, and a
-  bare `.lumbernow/**` matches nothing, which is exactly how the first fix
+  patterns must be `**/.hhpro/**`** — Vite matches absolute paths, and a
+  bare `.hhpro/**` matches nothing, which is exactly how the first fix
   failed silently.
 - **API middleware sat in front of Vite's DNS-rebinding defence.** Vite
   installs `hostCheckMiddleware` AFTER `configureServer` hooks run, so anything
@@ -872,6 +872,25 @@ test asserted nothing and passed — it uses raw `http.request` now. And **asser
 on content, not status**: the SPA fallback answers 200 for unknown paths, so
 "`.git/config` returns 200" proved nothing; the check greps for git content,
 and the credential checks grep for a canary.
+
+### A gate must know it is grading its own program
+
+`npm run security` spawned `npx vite` and never checked that the spawn won the
+port. A leftover dev server from a SIBLING CHECKOUT was still listening, so the
+whole run attacked that server instead — it reported on a different
+application entirely. It surfaced as a false red (the stale server injected the
+other product's config global), but the same path yields a false green just as
+easily: a hardened stale server while the code under test is wide open.
+
+Two fixes, and the second is what caused the first:
+- The smoke refuses to start if anything is already listening on its port, and
+  aborts if its own dev server exits before serving.
+- `server.kill()` reaped only the `npx` wrapper and left the real vite child
+  holding the port. It spawns `detached` and kills the process GROUP now, then
+  waits for the port to come back so a re-run does not trip its own guard.
+
+Verified both ways: occupied port exits 1 with a message naming the problem,
+free port exits 0.
 
 ### Other invariants from that review
 - **Usage accounting never touches the credential file.** It used to

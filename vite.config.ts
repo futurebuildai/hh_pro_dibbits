@@ -18,15 +18,15 @@ export default defineConfig(({ mode }) => {
       adminPlugin({
         // Absent = the admin console refuses every request. Failing closed is
         // the only safe default for a surface that accepts a credential.
-        adminToken: env.LUMBERNOW_ADMIN_TOKEN,
-        allowRemote: env.LUMBERNOW_ADMIN_ALLOW_REMOTE === 'true',
+        adminToken: env.HHPRO_ADMIN_TOKEN,
+        allowRemote: env.HHPRO_ADMIN_ALLOW_REMOTE === 'true',
       }),
     ],
     server: {
       fs: {
         /**
-         * The dev server serves the project root, and `.lumbernow/` lives
-         * inside it — so `GET /.lumbernow/secrets.json` handed out the
+         * The dev server serves the project root, and `.hhpro/` lives
+         * inside it — so `GET /.hhpro/secrets.json` handed out the
          * dealer's Anthropic key over plain HTTP with no token and no
          * loopback check, defeating the entire write-only design. Verified
          * before this line existed.
@@ -37,9 +37,9 @@ export default defineConfig(({ mode }) => {
          * were never meant to be fetched.
          */
         // Patterns are matched against the ABSOLUTE path, so they need the
-        // leading `**/` — without it `.lumbernow/**` matches nothing and the
+        // leading `**/` — without it `.hhpro/**` matches nothing and the
         // key stays reachable, which is exactly what the first attempt did.
-        deny: ['.env', '.env.*', '*.{crt,pem}', '**/.lumbernow/**', '**/.git/**'],
+        deny: ['.env', '.env.*', '*.{crt,pem}', '**/.hhpro/**', '**/.git/**'],
       },
       // Nothing here is bound to a fixed port — the Claude proxy is same-origin
       // middleware on whatever port this serves, and there are no OAuth or

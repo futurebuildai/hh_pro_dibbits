@@ -1,4 +1,4 @@
-# LumberNow: the five-year line
+# HH Pro: the five-year line
 
 *Synthesized 2026-07-31 from a 12-agent research + strategy panel: three market
 researchers (dealer portals, construction AI, contractor–dealer economics), six
@@ -31,7 +31,7 @@ dealer executive, a software-hating framer, and a moat-focused investor.*
 The panel's six visions collapsed into one strategy claiming three assets no
 competitor can hold simultaneously:
 
-1. **Dealer-funded distribution** — the embed. LumberNow is not a destination;
+1. **Dealer-funded distribution** — the embed. HH Pro is not a destination;
    it appears inside the dealer's existing logged-in site, white-labeled, sold
    by the outside sales rep the contractor already trusts. Dealer ecommerce
    dies at the login screen; the embed never presents one.
@@ -75,7 +75,7 @@ with one tap. Start logging the **correction corpus** immediately (every
   verbatim consent → funds. No competitor can assemble it.
 - **The price-expiry change order** — the LBM-specific killer. The domain
   already treats a lapsed dealer price as unpriced; when the dealer reprices, a
-  CO drafts itself as a diff between the two states only LumberNow holds: the
+  CO drafts itself as a diff between the two states only HH Pro holds: the
   supplier's repricing event and the homeowner's signed baseline. Signed with
   the existing ceremony.
 - **The price-lock book** — every `priceExpiresAt` across every job managed as

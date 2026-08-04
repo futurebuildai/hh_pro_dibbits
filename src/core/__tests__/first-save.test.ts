@@ -51,7 +51,7 @@ describe('the very first boot', () => {
     boot({ reset: true, seed: SEED });
 
     const missing = PERSISTED_STORES.map((entry) => entry.key).filter(
-      (key) => localStorage.getItem(`ln:${key}`) === null,
+      (key) => localStorage.getItem(`hh:${key}`) === null,
     );
 
     expect(missing, 'a second tab reads these — an absent one reseeds the demo').toEqual([]);

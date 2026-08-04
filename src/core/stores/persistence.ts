@@ -16,7 +16,7 @@ import type { Store } from './store';
  *   another window and the contractor's board updates live" actually true.
  *   Echoes cannot loop: the browser never fires `storage` in the writing tab,
  *   and re-writing an identical string fires no event elsewhere.
- * - A leadership lease (`ln:leader`, heartbeat-renewed) ensures exactly one
+ * - A leadership lease (`hh:leader`, heartbeat-renewed) ensures exactly one
  *   tab pumps the simulator. Everyone else adopts the leader's writes.
  *
  * The migration path matters for a demo tool specifically: schema changes are
@@ -25,7 +25,7 @@ import type { Store } from './store';
  * future-versioned payload wipes and reseeds rather than limping along.
  */
 
-const KEY_PREFIX = 'ln:';
+const KEY_PREFIX = 'hh:';
 let quotaWarned = false;
 const META_KEY = `${KEY_PREFIX}meta`;
 

@@ -116,7 +116,7 @@ function SignIn({
   return (
     <Centered>
       <div className="w-full max-w-sm">
-        <p className="font-semibold text-[19px] tracking-tight">LumberNow admin</p>
+        <p className="font-semibold text-[19px] tracking-tight">HH Pro admin</p>
         <p className="mt-1 text-[13px] text-text-muted">
           Dealer configuration for this deployment.
         </p>
@@ -147,8 +147,8 @@ function SignIn({
         </Button>
 
         <p className="mt-4 text-[11.5px] leading-relaxed text-text-subtle">
-          The token is set as <span className="text-data">LUMBERNOW_ADMIN_TOKEN</span> on the
-          server. It is kept for this browser tab only and is never written to disk.
+          The token is set as <span className="text-data">HHPRO_ADMIN_TOKEN</span> on the server. It
+          is kept for this browser tab only and is never written to disk.
         </p>
       </div>
     </Centered>
@@ -175,7 +175,7 @@ function Console({
   /**
    * The server degrades a bad colour to the default rather than rejecting the
    * whole config — right for a hand-edited file, wrong as a silent outcome
-   * here, where it would replace the dealer's saved colour with LumberNow's.
+   * here, where it would replace the dealer's saved colour with the product default.
    * So the console refuses to send it.
    */
   const colorValid = isValidColor(draft.branding.brandColor);
@@ -224,7 +224,7 @@ function Console({
       <header className="sticky top-0 z-20 border-border border-b bg-surface/95 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-3">
           <div>
-            <p className="font-semibold text-[15px] tracking-tight">LumberNow admin</p>
+            <p className="font-semibold text-[15px] tracking-tight">HH Pro admin</p>
             <p className="text-[12px] text-text-muted">{draft.branding.companyName}</p>
           </div>
           <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-# LumberNow — User Guide
+# HH Pro — User Guide
 
 A walkthrough of the contractor portal as it stands today, following the work a
 real contractor would actually do: look at what needs attention, build a scope,
@@ -11,7 +11,7 @@ see your pricing, and move an order forward.
 > [What isn't built yet](#what-isnt-built-yet) rather than being implied.
 
 **You are:** Dana Reyes of **Summit Ridge Builders**, a Pro-tier charge account
-at **Gable Supply** on Net-30 terms.
+at **Cornerstone Hardscape** on Net-30 terms.
 
 ---
 
@@ -114,7 +114,7 @@ anything you already had.
 
 This is the one that keeps a job from leaving the portal. Describe the custom
 door, the odd trim profile, the special-order rail kit. It goes on the order
-**unpriced** with an `SO-` tag, and routes automatically to Gable's quote desk
+**unpriced** with an `SO-` tag, and routes automatically to Cornerstone Hardscape's quote desk
 for a firm number.
 
 It is deliberately *not* given a made-up price. A number nobody has stood behind
@@ -150,16 +150,16 @@ language — because dragging a card is about to put work on someone's desk or
 commit you to a purchase. You should never find that out afterwards.
 
 > **Invoice is the supplier's move.** You can't drag a card there. Orders arrive
-> in Invoice when Gable delivers and bills them.
+> in Invoice when Cornerstone Hardscape delivers and bills them.
 
 ---
 
-## 5. Gable Supply works while you don't
+## 5. Cornerstone Hardscape works while you don't
 
 Once you send an order, the card tells you what's happening on their side without
 you opening anything.
 
-![The card shows what Gable is doing](screenshots/10-at-quote-desk.png)
+![The card shows what Cornerstone Hardscape is doing](screenshots/10-at-quote-desk.png)
 
 The desk takes hours, not milliseconds — a person is pricing it, and an instant
 answer would be a lie. Which is a problem for a demo, so:
@@ -181,7 +181,7 @@ Skip forward twice and the quote comes back:
 ![The quote comes back priced, and the block clears](screenshots/12-quote-priced.png)
 
 Compare this card to before. The total went from **$1,160.04 to $2,228.61** —
-Gable priced the special-order rail kit. The "1 needs pricing" warning is gone,
+Cornerstone Hardscape priced the special-order rail kit. The "1 needs pricing" warning is gone,
 replaced by **"✓ Priced — ready to order"**. The lead time updated to the 24 days
 the desk actually quoted. And the move that was blocked five minutes ago now
 works.
@@ -190,7 +190,7 @@ works.
 
 ![What the supplier did while you weren't looking](screenshots/13-activity.png)
 
-The bell counts things Gable did. Sim events are frequent at speed, so they
+The bell counts things Cornerstone Hardscape did. Sim events are frequent at speed, so they
 accumulate here behind a badge rather than interrupting you with toasts.
 
 Note the timestamps: sent at 1:24 PM, acknowledged at 2:54, priced at 7:54.
@@ -207,10 +207,10 @@ in supplier time. Come back and it's waiting for you.
 
 ### Dealer pricing doesn't last forever
 
-Gable holds a quoted price for 14 days, because lumber moves. When it lapses,
+Cornerstone Hardscape holds a quoted price for 14 days, because lumber moves. When it lapses,
 the order that was ready to place becomes blocked again — and says so plainly:
 
-> Gable's pricing on 1 item has expired (Trex Transcend rail kit — Pebble Grey).
+> Cornerstone Hardscape's pricing on 1 item has expired (Trex Transcend rail kit — Pebble Grey).
 > Send this order back to the quote desk for a fresh price.
 
 That's deliberately worded differently from "needs dealer pricing." A price that
@@ -225,11 +225,11 @@ Open any order and tap **Customer quote**.
 
 ![The quote studio: markup, labor, and your margin](screenshots/14-quote-studio.png)
 
-This is your document, not Gable's. Set a material markup, add labor and
+This is your document, not Cornerstone Hardscape's. Set a material markup, add labor and
 overhead, and your **gross margin stays on screen the whole time** — this is the
 one place in the app where the number that matters is yours.
 
-The **Valid until** date is capped by Gable's pricing. If their quote expires in
+The **Valid until** date is capped by Cornerstone Hardscape's pricing. If their quote expires in
 9 days, you can't offer your customer 30 — you'd be holding a price nobody is
 protecting you on. The app says so rather than letting you find out later.
 
@@ -237,7 +237,7 @@ protecting you on. The app says so rather than letting you find out later.
 
 ![What the homeowner sees — contractor-branded](screenshots/15-customer-quote.png)
 
-Your brand, your phone number, your license. **Gable Supply appears nowhere**,
+Your brand, your phone number, your license. **Cornerstone Hardscape appears nowhere**,
 and neither does your cost. It's a proposal, and it reads like one on the phone
 it'll actually be opened on.
 
@@ -276,7 +276,7 @@ one**, so a superseded proposal can't still be accepted.
 
 ## 7. Tracking what's on the way
 
-Once Gable holds an order, open it and tap **Track this order**.
+Once Cornerstone Hardscape holds an order, open it and tap **Track this order**.
 
 ![Tracking an order through fulfillment](screenshots/19-order-tracking.png)
 
@@ -299,7 +299,7 @@ Two things you can do from here while they still make sense:
 
 ![Open invoices with aging — including counter sales](screenshots/20-pay.png)
 
-Everything you owe Gable, aged the way an AR statement does it. Tap a bucket to
+Everything you owe Cornerstone Hardscape, aged the way an AR statement does it. Tap a bucket to
 filter.
 
 Note the second line: **"In-store purchase · Counter sale."** Material bought at
@@ -349,7 +349,7 @@ list into order lines**. Give it the list however you already have it —
   or attach a PDF
 
 It matches each line to a real SKU, prices it through your account, and puts it
-on an order. Anything Gable doesn't carry goes on as a special-order line —
+on an order. Anything Cornerstone Hardscape doesn't carry goes on as a special-order line —
 unpriced, flagged for the quote desk — rather than being quietly swapped for
 something else.
 
@@ -368,7 +368,7 @@ the Trex?"*, *"what's blocking the Anderson order?"*
 | **Runs and tells you** | Adding, removing, and re-quantifying lines; setting dates; drafting a customer quote — all your own draft, all reversible |
 | **Asks first, every time** | Sending to the quote desk, placing an order, sending a customer quote, paying an invoice |
 
-Anything that reaches Gable Supply or moves money stops and waits for you.
+Anything that reaches Cornerstone Hardscape or moves money stops and waits for you.
 You'll see exactly what it's about to do, and it doesn't happen unless you tap
 **Approve**.
 
@@ -486,11 +486,11 @@ guarded by the same rules whether the button is on screen or not.
 | Stage | What it means | How an order leaves it |
 |---|---|---|
 | **Plan** | Building the scope. Your account pricing is live here. | You send it to the quote desk, or place it directly if it's fully priced. |
-| **Quote** | With Gable's quote desk for pricing. Required when the scope has special-order lines. | Pricing comes back, then you place it. |
-| **Order** | Placed with Gable. Delivery or will-call tracking. | Gable delivers and bills it. |
+| **Quote** | With Cornerstone Hardscape's quote desk for pricing. Required when the scope has special-order lines. | Pricing comes back, then you place it. |
+| **Order** | Placed with Cornerstone Hardscape. Delivery or will-call tracking. | Cornerstone Hardscape delivers and bills it. |
 | **Invoice** | Delivered and billed. | You pay it. |
 
-**Scope locks once Gable has the order.** You can edit freely in Plan; once an
+**Scope locks once Cornerstone Hardscape has the order.** You can edit freely in Plan; once an
 order is at the quote desk or placed, the lines are read-only and the reason is
 shown. Pull it back to Plan to change it.
 
@@ -536,7 +536,7 @@ doesn't:
 |---|---|
 | Full catalog browsing as its own destination | M3.5 |
 | AI-generated takeoffs from drawings or dimensions | separate widget, later |
-| A real ERP connection (today Gable Supply is simulated) | M9+ |
+| A real ERP connection (today Cornerstone Hardscape is simulated) | M9+ |
 
 The **Catalog** tab is still a placeholder that says what it will be. It
 doesn't fake a working feature.

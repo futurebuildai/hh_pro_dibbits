@@ -10,7 +10,7 @@ import type { Presentation } from './project';
  *
  * This is the sell side, and it is a different document from anything the
  * supplier produces: the contractor's brand, the contractor's margin, and the
- * homeowner's decisions. Gable Supply's name appears nowhere on it — the
+ * homeowner's decisions. The supplier's name appears nowhere on it — the
  * contractor's cost is theirs, not their customer's business.
  */
 

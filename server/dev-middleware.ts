@@ -47,7 +47,7 @@ export function mountApiBehindHostCheck(server: ViteDevServer, routes: string[])
 
   if (hostCheck === -1 || fallback === -1 || hostCheck > fallback) {
     throw new Error(
-      `[lumbernow] cannot place API middleware: expected ${HOST_CHECK} before ${HTML_FALLBACK} ` +
+      `[hhpro] cannot place API middleware: expected ${HOST_CHECK} before ${HTML_FALLBACK} ` +
         `in Vite's stack (found ${hostCheck} and ${fallback}). Vite's internals changed — ` +
         'fix server/dev-middleware.ts rather than letting the API fall through to the SPA.',
     );
@@ -63,7 +63,7 @@ export function mountApiBehindHostCheck(server: ViteDevServer, routes: string[])
 
   if (ours.length !== routes.length) {
     throw new Error(
-      `[lumbernow] expected to relocate ${routes.length} API routes (${routes.join(', ')}) ` +
+      `[hhpro] expected to relocate ${routes.length} API routes (${routes.join(', ')}) ` +
         `but found ${ours.length}. They must be registered before this is called.`,
     );
   }

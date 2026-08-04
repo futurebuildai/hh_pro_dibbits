@@ -352,7 +352,7 @@ export function createMessagesHandler(apiKey: string | undefined, deps: Messages
  */
 export function claudeProxyPlugin(apiKey: string | undefined): Plugin {
   return {
-    name: 'lumbernow-claude-proxy',
+    name: 'hhpro-claude-proxy',
     configureServer(server) {
       // Registered from the RETURNED function, not the hook body, and then
       // RELOCATED — see server/dev-middleware.ts. The post-hook alone puts

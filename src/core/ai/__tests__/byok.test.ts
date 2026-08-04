@@ -98,8 +98,8 @@ describe('storage scopes', () => {
 
   it('keeps a session key only in sessionStorage', () => {
     expect(saveKey(REAL, 'session').ok).toBe(true);
-    expect(sessionStorage.getItem('lumbernow.anthropic-key')).toBe(REAL);
-    expect(localStorage.getItem('lumbernow.anthropic-key')).toBeNull();
+    expect(sessionStorage.getItem('hhpro.anthropic-key')).toBe(REAL);
+    expect(localStorage.getItem('hhpro.anthropic-key')).toBeNull();
     expect(keyScope()).toBe('session');
   });
 
@@ -108,7 +108,7 @@ describe('storage scopes', () => {
     const second = 'sk-ant-api03-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz';
     saveKey(second, 'session');
 
-    expect(localStorage.getItem('lumbernow.anthropic-key')).toBeNull();
+    expect(localStorage.getItem('hhpro.anthropic-key')).toBeNull();
     expect(readKey()).toBe(second);
   });
 
@@ -121,13 +121,13 @@ describe('storage scopes', () => {
   });
 
   /**
-   * The credential deliberately lives outside the `ln:` namespace: Demo Reset
+   * The credential deliberately lives outside the `hh:` namespace: Demo Reset
    * enumerates and wipes that prefix, and the corrupt-state backup copies it
    * wholesale into another storage slot. A key belongs in neither.
    */
   it('stays out of the ln: state namespace', () => {
     saveKey(REAL, 'device');
-    const lnKeys = Object.keys(localStorage).filter((key) => key.startsWith('ln:'));
+    const lnKeys = Object.keys(localStorage).filter((key) => key.startsWith('hh:'));
     expect(lnKeys).toHaveLength(0);
   });
 });
@@ -176,13 +176,13 @@ describe('the proxy key precedence', () => {
 
 describe('hand-edited storage', () => {
   it('normalises whitespace rather than putting it in an HTTP header', () => {
-    localStorage.setItem('lumbernow.anthropic-key', `  ${REAL}\t`);
+    localStorage.setItem('hhpro.anthropic-key', `  ${REAL}\t`);
     expect(readKey()).toBe(REAL);
     expect(byokHeaders()[BYOK_HEADER]).toBe(REAL);
   });
 
   it('never lets keyScope disagree with readKey about a garbage value', () => {
-    localStorage.setItem('lumbernow.anthropic-key', 'not-a-key');
+    localStorage.setItem('hhpro.anthropic-key', 'not-a-key');
     expect(readKey()).toBeNull();
     expect(hasKey()).toBe(false);
     // A scope reported here with no key behind it would strand the UI showing
@@ -192,7 +192,7 @@ describe('hand-edited storage', () => {
 
   it('refuses a key carrying a CRLF header-injection payload', () => {
     expect(isWellFormedKey(`${REAL}\r\nX-Injected: 1`)).toBe(false);
-    localStorage.setItem('lumbernow.anthropic-key', `${REAL}\r\nX-Injected: 1`);
+    localStorage.setItem('hhpro.anthropic-key', `${REAL}\r\nX-Injected: 1`);
     expect(readKey()).toBeNull();
   });
 
@@ -236,9 +236,9 @@ describe('moving an existing key between scopes', () => {
     expect(moveKeyToScope('session').ok).toBe(true);
 
     expect(keyScope()).toBe('session');
-    expect(sessionStorage.getItem('lumbernow.anthropic-key')).toBe(REAL);
+    expect(sessionStorage.getItem('hhpro.anthropic-key')).toBe(REAL);
     // The whole point: it must be GONE from the device store.
-    expect(localStorage.getItem('lumbernow.anthropic-key')).toBeNull();
+    expect(localStorage.getItem('hhpro.anthropic-key')).toBeNull();
     expect(readKey()).toBe(REAL);
   });
 

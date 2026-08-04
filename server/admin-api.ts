@@ -29,7 +29,7 @@ import {
  *   message fails.
  *
  * What this does NOT defend against, stated plainly: anyone who can read the
- * server's environment or its `.lumbernow/` directory has the key, and the
+ * server's environment or its `.hhpro/` directory has the key, and the
  * shared token is a single factor with no per-user identity, no rotation, and
  * no audit trail. It is a development gate. A real deployment needs real
  * accounts, and the upgrade path is to replace `authorize()` alone.
@@ -46,9 +46,9 @@ const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const ANTHROPIC_VERSION = '2023-06-01';
 
 export interface AdminOptions {
-  /** From LUMBERNOW_ADMIN_TOKEN. Absent = admin API disabled entirely. */
+  /** From HHPRO_ADMIN_TOKEN. Absent = admin API disabled entirely. */
   token: string | undefined;
-  /** LUMBERNOW_ADMIN_ALLOW_REMOTE=true to permit non-loopback callers. */
+  /** HHPRO_ADMIN_ALLOW_REMOTE=true to permit non-loopback callers. */
   allowRemote?: boolean;
   /** Injectable for tests. */
   fetchImpl?: typeof fetch;
@@ -88,7 +88,7 @@ export function authorize(req: IncomingMessage, options: AdminOptions): AuthFail
     return {
       status: 503,
       message:
-        'The admin console is disabled. Set LUMBERNOW_ADMIN_TOKEN in .env and restart the server.',
+        'The admin console is disabled. Set HHPRO_ADMIN_TOKEN in .env and restart the server.',
     };
   }
   if (!options.allowRemote && !isLoopback(req)) {

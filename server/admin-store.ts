@@ -20,7 +20,7 @@ import { type DealerConfig, parseConfig } from '../src/core/domain/config';
  * serialise the secret, because the secret is not in that object.
  */
 
-const DATA_DIR = join(process.cwd(), '.lumbernow');
+const DATA_DIR = join(process.cwd(), '.hhpro');
 const CONFIG_FILE = join(DATA_DIR, 'config.json');
 const SECRETS_FILE = join(DATA_DIR, 'secrets.json');
 /**

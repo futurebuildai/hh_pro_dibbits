@@ -1,6 +1,6 @@
-# LumberNow
+# HH Pro
 
-AI-native procurement portal for contractors buying from LBM (lumber & building
+AI-native procurement portal for contractors buying from hardscape (lumber & building
 materials) suppliers. Plan → Quote → Order → Invoice, in one board.
 
 ```bash

@@ -184,7 +184,7 @@ export function updateOrder(orderId: string, changes: UpdateOrderInput): Result<
   const order = getOrder(orderId);
   if (!order) return err('That order no longer exists.');
 
-  // Once Gable has the order, the date and fulfillment method are supplier
+  // Once the supplier has the order, the date and fulfillment method are their
   // facts, not draft fields. Silently patching them here would show the
   // contractor a new date while the truck still rolls on the old one — the
   // reschedule action exists precisely to re-time the supplier's work.

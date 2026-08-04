@@ -301,7 +301,7 @@ function restorePersisted(): boolean {
   //
   // A store is only written once it CHANGES, and persistence is attached after
   // seeding — so a session that never touched the team, then died without a
-  // pagehide flush, leaves `ln:team` absent while projects/orders/scope are
+  // pagehide flush, leaves `hh:team` absent while projects/orders/scope are
   // present. Restore then succeeds and the team store keeps its module-initial
   // empty value, which makes `activeMember()` undefined and every capability
   // check pass. An old save silently turned the permission gate off.

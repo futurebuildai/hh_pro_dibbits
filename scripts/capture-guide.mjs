@@ -386,7 +386,7 @@ async function main() {
     await wide.evaluate(() => document.documentElement.removeAttribute('data-theme'));
 
     // ---- 30. The dealer admin console --------------------------------------
-    // A different user entirely. With no LUMBERNOW_ADMIN_TOKEN set in a
+    // A different user entirely. With no HHPRO_ADMIN_TOKEN set in a
     // preview build, this is the sign-in it correctly refuses past.
     await wide.goto(`${BASE}/admin.html`);
     await expectText(wide, 'Admin token');
