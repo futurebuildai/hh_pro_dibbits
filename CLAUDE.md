@@ -116,7 +116,7 @@ Money and quantities use `tabular-nums` globally so figures don't jitter. `.text
 ## AI proxy
 `ANTHROPIC_API_KEY` is deliberately **not** `VITE_`-prefixed so Vite never inlines it into the bundle. `vite.config.ts` reads it via `loadEnv` and hands it to `claudeProxyPlugin`. The client calls `/api/anthropic/v1/messages` with a placeholder key; the proxy swaps in the real one and pipes SSE bytes back.
 
-- `GET /api/anthropic/health` → `{ok, hasKey}`. Reports only whether a SERVER key exists. The client ORs it with its own BYOK state; with neither the assistant renders a disabled state (there is intentionally **no** mock-echo fallback — a fake assistant would undermine the one thing that must be real).
+- `GET /api/anthropic/health` → `{ok, hasKey}`. Reports whether a key is configured at all — the env var or the dealer's stored key. The client renders the assistant disabled when it is false (there is intentionally **no** mock-echo fallback — a fake assistant would undermine the one thing that must be real).
 - The proxy enforces a model allowlist and a `max_tokens` ceiling so a leaked endpoint can't become an open relay.
 
 ## Repo history notes
@@ -566,69 +566,35 @@ finding). Principles that came out of it, worth keeping:
   because someone tapped the name field is unforgivable.
 
 
-## BYOK (bring your own key)
+## The AI key belongs to the DEALER
 
-`core/ai/byok.ts` + `ui/components/assistant/KeySheet.tsx` + `resolveKey()` in
-the proxy. A developer or pilot dealer pastes their own Anthropic key instead
-of standing up a server key. Client deployments will move to provider-issued
-inference keys held server-side; this is what makes the assistant usable now.
+`core/ai/byok.ts`, `KeySheet.tsx` and the contractor-facing key row are gone.
+The Anthropic credential is configured once by the dealer in the admin console,
+the dealer unlocks the assistant feature, and the dealer carries the bill.
 
-**The BYOK key still goes through our proxy** — never browser → Anthropic
-direct. That is the whole design: the model allowlist, the `max_tokens`
-ceiling, the rate limit, same-origin enforcement, and abort propagation must
-not switch off just because the key came from the user. The key rides in
-`x-anthropic-byok` (deliberately NOT `x-api-key`, so a forwarded key can never
-be confused with the SDK's `proxied` placeholder, and so it is one grep to
-confirm it is read in exactly one place). Precedence: a well-formed forwarded
-key wins, else the server's `ANTHROPIC_API_KEY`, else 503.
+A browser-held key was right while this was a developer tool and wrong for a
+deployed product: it puts a live credential in every contractor's
+localStorage, spreads the blast radius of a leak across every device someone
+signs in on, and leaves the dealer unable to see or cap what is spent in their
+name.
 
-- **The header is read per request, not at client construction.** The session
-  lives for the app's lifetime, so a key pasted mid-conversation has to work on
-  the very next turn without a reload.
-- **Storage sits outside the `hh:` namespace** (`hhpro.anthropic-key`).
-  Everything under `hh:` is enumerated by Demo Reset and copied wholesale into
-  `hh:corrupt-backup` — a credential belongs in neither. There is a test.
-- **Shape-validated before it is stored and again at the proxy.** A typo
-  becomes an immediate specific message instead of a 401 halfway through a
-  stream, and a malformed header is never forwarded upstream.
-- **Never logged, never echoed.** `saveKey`'s rejection does not include what
-  was pasted, because error strings end up in screenshots and bug reports.
-  `maskKey` output is deliberately not a valid key.
-- Scope is a real choice: `device` (localStorage) or `session` (sessionStorage,
-  gone with the tab) for a shared or client machine.
-
-
-### The proxy is tested over a real socket, and here is why
-
-`server/__tests__/claude-proxy.test.ts` mounts `createMessagesHandler` on an
-actual `http.createServer` with a stub upstream. That file exists because its
-absence hid a **total outage**: the abort wiring listened on
-`req.on('close')`, and since Node 16 an `IncomingMessage` emits `close` when
-the request MESSAGE COMPLETES, not only when the client disconnects. The
-nextTick queue drains before microtasks, so the abort fired before the awaited
-`readBody` continuation and **every upstream call was aborted before it left**.
-The endpoint returned a destroyed socket, which the SDK surfaced as a
-connection error and the UI rendered as "check your connection" — blaming the
-user's network for a server bug.
-
-Nothing caught it for two commits: `session.test.ts` injects its own `fetch`
-and never reaches the middleware, and the BYOK unit tests only exercised the
-pure helpers. **Listen on the RESPONSE** (`response.on('close')` plus a
-`writableEnded` check) — that is the real disconnect signal.
-
-Two rules came out of it:
-- **A stub upstream must honour `init.signal`.** The first version of this
-  test passed with the bug reintroduced, because the stub happily answered an
-  already-aborted request. A regression test that does not fail on the bug is
-  worse than no test — it is a false green.
-- **Verify a proxy through the proxy.** The BYOK browser check used Playwright
-  `page.route()` interception, which bypassed the dev middleware entirely. Any
-  "verified end-to-end" claim about the network path has to actually traverse
-  it; the cheap version is one `curl` that expects a real upstream 401.
-
-`readBody` also caps at 12 MB (enough for the base64 attachments the assistant
-sends) and answers **413 before** destroying the request — destroying first
-resets the socket and the caller gets ECONNRESET instead of a reason.
+- **Deleting the client is not closing the door.** The proxy no longer reads a
+  forwarded key at all, and `claude-proxy.test.ts` pins that: a request
+  carrying the old `x-anthropic-byok` header spends the DEALER's key, and with
+  no dealer key configured it gets a 503 rather than spending the caller's.
+  The endpoint is what an attacker talks to, not the UI.
+- **Usage is counted per contractor account, and the cap is per account.** A
+  single shared counter answered "is anyone using this?" but not "should I
+  raise the cap for one crew?", and let one busy contractor lock every other
+  one out for the rest of the day.
+- **Attribution, not authorization.** The account id rides on the request, so
+  it says who CLAIMS to be spending. `normalizeAccountId` bounds length and
+  charset and rejects `__proto__`/`constructor`/`prototype` — the first of
+  those passes a plain charset check and then stops behaving like a key, so
+  the count silently vanishes into the prototype chain. Real per-tenant
+  enforcement needs authenticated sessions, which this demo does not have.
+  Do not mistake this counter for a security control.
+- A contractor with no key sees who to ask, not a field they cannot fill.
 
 ## Conventions from the correctness sweep
 

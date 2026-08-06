@@ -5,8 +5,6 @@ import {
   setMemberRole,
   teamMembers,
 } from '@core/actions/team';
-import { keyScope, maskKey, readKey, subscribeToKey } from '@core/ai/byok';
-import { isEnabled } from '@core/config/runtime';
 import {
   ROLE_DESCRIPTIONS,
   ROLE_LABELS,
@@ -15,15 +13,14 @@ import {
   can,
 } from '@core/domain/team';
 import { teamStore } from '@core/stores/root';
-import { KeySheet } from '@ui/components/assistant/KeySheet';
 import { Avatar } from '@ui/components/team/Avatar';
 import { PersonSwitcher } from '@ui/components/team/PersonSwitcher';
 import { Button } from '@ui/components/ui/Button';
 import { Sheet } from '@ui/components/ui/Sheet';
 import { useStore } from '@ui/hooks/useStore';
 import { cn } from '@ui/lib/cn';
-import { ArrowLeftRight, KeyRound, Plus, Sparkles, Trash2 } from 'lucide-react';
-import { useState, useSyncExternalStore } from 'react';
+import { ArrowLeftRight, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 /**
  * The team, under More.
@@ -41,7 +38,6 @@ export function TeamPage() {
   const [switching, setSwitching] = useState(false);
   const [editing, setEditing] = useState<TeamMember | null>(null);
   const [adding, setAdding] = useState(false);
-  const [keyOpen, setKeyOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const acting = activeMember();
@@ -141,25 +137,6 @@ export function TeamPage() {
         </ul>
       </section>
 
-      {/* The assistant's key. Lives here so it is manageable without first
-          hitting the disabled state inside the assistant.
-
-          Hidden entirely when the dealer has switched the assistant off: every
-          other entry point is already gone, so this row was asking for a
-          credential that could not be used by anything. */}
-      {isEnabled('assistant') ? (
-        <section className="rounded-[var(--radius-card)] border border-border bg-surface p-4">
-          <div className="flex items-center gap-2">
-            <Sparkles size={15} strokeWidth={2} style={{ color: 'var(--brand)' }} />
-            <h2 className="font-semibold text-[15px]">Assistant</h2>
-          </div>
-
-          <AssistantKeyRow onManage={() => setKeyOpen(true)} />
-        </section>
-      ) : null}
-
-      <KeySheet open={keyOpen} onOpenChange={setKeyOpen} />
-
       <PersonSwitcher open={switching} onOpenChange={setSwitching} />
       <EditMemberSheet member={editing} onClose={() => setEditing(null)} onFlash={flash} />
       <AddMemberSheet open={adding} onOpenChange={setAdding} onFlash={flash} />
@@ -170,54 +147,6 @@ export function TeamPage() {
         </div>
       ) : null}
     </div>
-  );
-}
-
-/**
- * Subscribes rather than re-reading on a version prop: the assistant renders
- * its OWN key sheet, and on desktop both are on screen at once, so a removal
- * there has to repaint this row.
- */
-function AssistantKeyRow({ onManage }: { onManage: () => void }) {
-  const key = useSyncExternalStore(subscribeToKey, readKey, () => null);
-  const scope = useSyncExternalStore(subscribeToKey, keyScope, () => null);
-
-  return (
-    <>
-      <p className="mt-1 text-[12.5px] leading-relaxed text-text-muted">
-        {key
-          ? 'Using your own Anthropic key. It stays in this browser and is sent only to this app’s server.'
-          : 'Add your own Anthropic key to use the assistant, or set one on the server.'}
-      </p>
-
-      <div className="mt-3 flex items-center gap-3">
-        <span
-          aria-hidden
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-          style={{
-            background: key
-              ? 'color-mix(in oklch, var(--success), transparent 85%)'
-              : 'var(--surface-3)',
-            color: key ? 'var(--success)' : 'var(--text-muted)',
-          }}
-        >
-          <KeyRound size={16} strokeWidth={2} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="text-data block truncate text-[13px]">
-            {key ? maskKey(key) : 'No key set'}
-          </span>
-          {key ? (
-            <span className="block text-[11.5px] text-text-muted">
-              {scope === 'session' ? 'This tab only' : 'Saved on this device'}
-            </span>
-          ) : null}
-        </span>
-        <Button size="sm" variant={key ? 'outline' : 'secondary'} onClick={onManage}>
-          {key ? 'Manage' : 'Add key'}
-        </Button>
-      </div>
-    </>
   );
 }
 

@@ -162,7 +162,7 @@ function adminState(today: string) {
     config,
     revision: configRevision(config),
     credential: { present: maskedKey() !== null, masked: maskedKey() },
-    usage: { today: usageToday(today) },
+    usage: usageToday(today),
   };
 }
 

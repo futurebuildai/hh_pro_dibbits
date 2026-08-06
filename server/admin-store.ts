@@ -40,7 +40,37 @@ export interface StoredSecrets {
 
 interface StoredUsage {
   day: string;
-  count: number;
+  /** Requests today, per contractor account. */
+  accounts: Record<string, number>;
+}
+
+/**
+ * Requests we could not attribute to an account.
+ *
+ * Kept as its own bucket rather than dropped: a dealer looking at the console
+ * needs to see that something is spending their key even when it arrives
+ * without an account, which is precisely the case worth noticing.
+ */
+const UNATTRIBUTED = 'unattributed';
+
+/**
+ * The account id arrives in a request header and becomes an object key written
+ * to disk, so it is bounded here rather than trusted. Unknown shapes collapse
+ * into UNATTRIBUTED instead of being rejected — losing the count of a
+ * malformed caller would hide it, and hiding it is the failure mode that
+ * matters.
+ */
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+function normalizeAccountId(raw: string | undefined): string {
+  const trimmed = (raw ?? '').trim();
+  if (!trimmed || trimmed.length > 64) return UNATTRIBUTED;
+  // `__proto__` passes a plain charset check and then stops behaving like a
+  // key: reads fall through to Object.prototype and the count silently
+  // vanishes. Reject the three names that mean something to an object rather
+  // than trusting the character class.
+  if (UNSAFE_KEYS.has(trimmed)) return UNATTRIBUTED;
+  return /^[A-Za-z0-9_-]+$/.test(trimmed) ? trimmed : UNATTRIBUTED;
 }
 
 function ensureDir(): void {
@@ -165,10 +195,24 @@ export function maskedKey(): string | null {
 function readUsage(): StoredUsage | null {
   const raw = readJson(USAGE_FILE);
   if (typeof raw !== 'object' || raw === null) return null;
-  const usage = raw as Partial<StoredUsage>;
-  return typeof usage.day === 'string' && typeof usage.count === 'number'
-    ? { day: usage.day, count: usage.count }
-    : null;
+  const usage = raw as Partial<StoredUsage> & { count?: unknown };
+  if (typeof usage.day !== 'string') return null;
+
+  if (usage.accounts && typeof usage.accounts === 'object') {
+    const accounts: Record<string, number> = {};
+    for (const [id, count] of Object.entries(usage.accounts)) {
+      if (typeof count === 'number' && Number.isFinite(count))
+        accounts[normalizeAccountId(id)] = count;
+    }
+    return { day: usage.day, accounts };
+  }
+
+  // A file written before usage was attributed. Keep the number rather than
+  // discard the day's count; it simply belongs to nobody in particular.
+  if (typeof usage.count === 'number') {
+    return { day: usage.day, accounts: { [UNATTRIBUTED]: usage.count } };
+  }
+  return null;
 }
 
 /**
@@ -178,18 +222,28 @@ function readUsage(): StoredUsage | null {
  * log, not a reason to take the assistant down for everyone. It touches only
  * the usage file, so a failure here can never reach the credential.
  */
-export function consumeDailyQuota(cap: number, today: string): boolean {
+export function consumeDailyQuota(cap: number, today: string, accountId?: string): boolean {
+  const account = normalizeAccountId(accountId);
   try {
     const stored = readUsage();
-    const usage = stored?.day === today ? stored : { day: today, count: 0 };
+    const usage = stored?.day === today ? stored : { day: today, accounts: Object.create(null) };
+    const used = usage.accounts[account] ?? 0;
 
     // Count first, enforce second. Returning early when no cap was set meant
     // the console reported "Used today: 0" forever on a default deployment —
     // which reads as "nobody used the assistant", not "nobody is counting".
     // That number is exactly how a dealer decides what the cap should be.
-    if (cap > 0 && usage.count >= cap) return false;
+    //
+    // The cap is PER ACCOUNT. "How much assistant does one contractor get" is
+    // a different question from the dealer's total bill, and a single busy
+    // crew must not be able to lock every other contractor out for the day.
+    if (cap > 0 && used >= cap) return false;
 
-    writeJson(USAGE_FILE, { day: today, count: usage.count + 1 }, 0o600);
+    writeJson(
+      USAGE_FILE,
+      { day: today, accounts: { ...usage.accounts, [account]: used + 1 } },
+      0o600,
+    );
     return true;
   } catch (error) {
     console.error('[admin] daily usage could not be recorded; allowing the request', error);
@@ -197,12 +251,22 @@ export function consumeDailyQuota(cap: number, today: string): boolean {
   }
 }
 
-export function usageToday(today: string): number {
+export interface UsageToday {
+  total: number;
+  /** Busiest first — the dealer's question is "who is using this?" */
+  byAccount: { accountId: string; count: number }[];
+}
+
+export function usageToday(today: string): UsageToday {
   try {
     const usage = readUsage();
-    return usage?.day === today ? usage.count : 0;
+    if (!usage || usage.day !== today) return { total: 0, byAccount: [] };
+    const byAccount = Object.entries(usage.accounts)
+      .map(([accountId, count]) => ({ accountId, count }))
+      .sort((a, b) => b.count - a.count);
+    return { total: byAccount.reduce((sum, row) => sum + row.count, 0), byAccount };
   } catch {
-    return 0;
+    return { total: 0, byAccount: [] };
   }
 }
 

@@ -357,7 +357,7 @@ function Console({
               )}
             </Field>
 
-            <Field label="Daily request cap" hint={`0 = no cap. Used today: ${state.usage.today}.`}>
+            <Field label="Daily request cap" hint={`Per contractor. 0 = no cap.`}>
               {(field) => (
                 <input
                   {...field}
@@ -375,6 +375,11 @@ function Console({
                 />
               )}
             </Field>
+
+            {/* Who is actually spending the dealer's key. A single total
+                answered "is anyone using this?" but not "should I raise the
+                cap for one crew?", which is the question a cap forces. */}
+            <UsageByAccount usage={state.usage} cap={draft.assistant.dailyRequestCap} />
           </div>
 
           <Field
@@ -690,5 +695,58 @@ function Toggle({
         <span className="block text-[12px] leading-snug text-text-muted">{detail}</span>
       </span>
     </button>
+  );
+}
+
+/**
+ * Assistant usage today, per contractor account.
+ *
+ * Attribution, not authorization: the account arrives on the request, so this
+ * says who CLAIMS to be spending. It is the number a dealer needs to size a
+ * cap, and it is deliberately shown next to the cap it informs.
+ */
+function UsageByAccount({
+  usage,
+  cap,
+}: {
+  usage: AdminState['usage'];
+  cap: number;
+}) {
+  if (usage.total === 0) {
+    return (
+      <p className="text-[12px] text-text-muted">
+        No assistant requests yet today. This fills in as contractors use it.
+      </p>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-border">
+      <div className="flex items-baseline justify-between border-border border-b px-3 py-2">
+        <span className="font-medium text-[12.5px]">Assistant usage today</span>
+        <span className="text-[12px] text-text-muted">
+          {usage.total} request{usage.total === 1 ? '' : 's'}
+        </span>
+      </div>
+      <ul className="divide-y divide-border">
+        {usage.byAccount.map((row) => {
+          const atCap = cap > 0 && row.count >= cap;
+          return (
+            <li key={row.accountId} className="flex items-center gap-3 px-3 py-2">
+              <span className="text-data min-w-0 flex-1 truncate text-[12px]">
+                {row.accountId === 'unattributed' ? 'Unattributed' : row.accountId}
+              </span>
+              <span
+                className="shrink-0 text-[12.5px] tabular-nums"
+                style={atCap ? { color: 'var(--warning)' } : undefined}
+              >
+                {row.count}
+                {cap > 0 ? ` / ${cap}` : ''}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }

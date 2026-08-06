@@ -5,7 +5,6 @@ import {
   type ToolRun,
 } from '@core/ai/session';
 import { supplierName } from '@core/config/runtime';
-import { KeySheet } from '@ui/components/assistant/KeySheet';
 import { Button } from '@ui/components/ui/Button';
 import { cn } from '@ui/lib/cn';
 import {
@@ -13,7 +12,6 @@ import {
   ArrowUp,
   Check,
   Image as ImageIcon,
-  KeyRound,
   Loader2,
   Mic,
   Paperclip,
@@ -50,7 +48,6 @@ interface Pending {
 }
 
 export function AssistantSheet({ open, onClose, hasKey }: Props) {
-  const [keySheetOpen, setKeySheetOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pending, setPending] = useState<Pending | null>(null);
   const [draft, setDraft] = useState('');
@@ -194,7 +191,7 @@ export function AssistantSheet({ open, onClose, hasKey }: Props) {
           messages.length === 0 && !pending && 'flex flex-col justify-center',
         )}
       >
-        {hasKey === false ? <NoKeyNotice onAddKey={() => setKeySheetOpen(true)} /> : null}
+        {hasKey === false ? <NoKeyNotice /> : null}
         {messages.length === 0 && hasKey !== false ? (
           <EmptyState
             onPrompt={(text) => setDraft(text)}
@@ -315,9 +312,6 @@ export function AssistantSheet({ open, onClose, hasKey }: Props) {
           )}
         </div>
       </div>
-
-      {/* Consumers re-render through byok's subscription, so no callback. */}
-      <KeySheet open={keySheetOpen} onOpenChange={setKeySheetOpen} />
     </div>
   );
 }
@@ -473,19 +467,21 @@ function EmptyState({
  * With no key the assistant is disabled rather than faked. A mock assistant
  * would undermine the one part of this product that has to be real.
  */
-function NoKeyNotice({ onAddKey }: { onAddKey: () => void }) {
+/**
+ * No key, and nothing the contractor can do about it.
+ *
+ * There is deliberately no "add your key" button any more: the credential is
+ * the dealer's, configured in their admin console. Offering a contractor a
+ * remedy they cannot perform is worse than telling them who to ask.
+ */
+function NoKeyNotice() {
   return (
     <div className="mb-4 rounded-lg border border-border bg-surface-inset p-3">
-      <p className="font-medium text-[13px]">Assistant needs a key</p>
+      <p className="font-medium text-[13px]">The assistant isn't switched on yet</p>
       <p className="mt-1 text-[12.5px] leading-relaxed text-text-muted">
-        It runs on a real Claude model — there's no canned stand-in. Paste your own Anthropic key to
-        use it now, or set <span className="text-data">ANTHROPIC_API_KEY</span> on the server.
+        It runs on a real Claude model — there's no canned stand-in. {supplierName()} needs to
+        enable it for this deployment before you can use it.
       </p>
-      {/* The remedy the sentence names should be a button, not homework. */}
-      <Button size="sm" className="mt-3" onClick={onAddKey}>
-        <KeyRound size={14} strokeWidth={2} />
-        Add your API key
-      </Button>
     </div>
   );
 }

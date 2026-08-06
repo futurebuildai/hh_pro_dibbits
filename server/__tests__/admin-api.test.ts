@@ -3,7 +3,7 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createAdminHandler } from '../admin-api';
-import { ADMIN_DATA_DIR, readStoredKey } from '../admin-store';
+import { ADMIN_DATA_DIR, consumeDailyQuota, readStoredKey, usageToday } from '../admin-store';
 
 /**
  * The admin API, driven over a real socket.
@@ -55,6 +55,8 @@ function serve(
 }
 
 let harness: Harness | null = null;
+
+const TODAY = '2026-08-05';
 
 beforeEach(() => {
   rmSync(ADMIN_DATA_DIR, { recursive: true, force: true });
@@ -283,5 +285,56 @@ describe('two admins editing at once', () => {
 
     await putConfig(harness.url, { branding: { companyName: 'Moved' } }, before);
     expect(await revision(harness.url)).not.toBe(before);
+  });
+});
+
+describe('assistant usage is attributed to a contractor', () => {
+  it('counts per account and reports the busiest first', () => {
+    consumeDailyQuota(0, TODAY, 'acct_summit');
+    consumeDailyQuota(0, TODAY, 'acct_summit');
+    consumeDailyQuota(0, TODAY, 'acct_ridge');
+
+    const usage = usageToday(TODAY);
+    expect(usage.total).toBe(3);
+    expect(usage.byAccount).toEqual([
+      { accountId: 'acct_summit', count: 2 },
+      { accountId: 'acct_ridge', count: 1 },
+    ]);
+  });
+
+  /**
+   * The cap is per account. A shared counter let one busy crew lock every
+   * other contractor out of the assistant for the rest of the day, which is
+   * not what a dealer means when they set "requests per day".
+   */
+  it('caps each account separately', () => {
+    expect(consumeDailyQuota(2, TODAY, 'acct_summit')).toBe(true);
+    expect(consumeDailyQuota(2, TODAY, 'acct_summit')).toBe(true);
+    expect(consumeDailyQuota(2, TODAY, 'acct_summit')).toBe(false);
+
+    // A different contractor is unaffected by the first one's spending.
+    expect(consumeDailyQuota(2, TODAY, 'acct_ridge')).toBe(true);
+  });
+
+  /**
+   * The id arrives in a request header and becomes a key written to disk.
+   * Unknown shapes must collapse into one bucket rather than being dropped —
+   * a dealer needs to SEE unattributed spend, it is the case worth noticing.
+   */
+  it('buckets a hostile or absent account id instead of trusting it', () => {
+    consumeDailyQuota(0, TODAY, '../../etc/passwd');
+    consumeDailyQuota(0, TODAY, '__proto__');
+    consumeDailyQuota(0, TODAY, undefined);
+    consumeDailyQuota(0, TODAY, 'x'.repeat(500));
+
+    const usage = usageToday(TODAY);
+    expect(usage.total).toBe(4);
+    expect(usage.byAccount).toEqual([{ accountId: 'unattributed', count: 4 }]);
+    expect(Object.keys({}).length).toBe(0); // prototype untouched
+  });
+
+  it('starts a new day clean', () => {
+    consumeDailyQuota(0, TODAY, 'acct_summit');
+    expect(usageToday('2099-01-01')).toEqual({ total: 0, byAccount: [] });
   });
 });

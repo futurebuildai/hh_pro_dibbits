@@ -1,4 +1,3 @@
-import { hasKey as hasByokKey, subscribeToKey } from '@core/ai/byok';
 import { boot } from '@core/boot';
 import { clearPersistedState } from '@core/stores/persistence';
 import { sessionStore } from '@core/stores/root';
@@ -15,7 +14,7 @@ import { PayPage } from '@ui/pages/PayPage';
 import { ProjectPage } from '@ui/pages/ProjectPage';
 import { QuoteStudioPage } from '@ui/pages/QuoteStudioPage';
 import { TeamPage } from '@ui/pages/TeamPage';
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Navigate,
   Route,
@@ -76,7 +75,6 @@ function Shell() {
   const [serverHasKey, setServerHasKey] = useState<boolean | null>(null);
   // Subscribed, so a key added or removed from EITHER key sheet (the
   // assistant's or the More page's) re-gates the assistant immediately.
-  const byokPresent = useSyncExternalStore(subscribeToKey, hasByokKey, () => false);
 
   useEffect(() => {
     // A hung dev server must not leave the assistant stuck on "checking"
@@ -97,7 +95,8 @@ function Shell() {
   }, []);
 
   const hasKey =
-    serverHasKey === null && !byokPresent ? null : byokPresent || serverHasKey === true;
+    // The dealer owns the key now, so the server's answer IS the answer.
+    serverHasKey === null ? null : serverHasKey === true;
 
   const path = window.location.pathname;
   const orderId = params.orderId;

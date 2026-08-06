@@ -395,13 +395,12 @@ async function main() {
     await page.goto(`${BASE}/`);
     await page.waitForSelector('article');
     await page.getByRole('button', { name: 'Ask the assistant' }).click();
-    await expectText(page, 'Assistant needs a key');
-    await shoot(page, '23-assistant-nokey', 'No API key: disabled, never faked');
-
-    // ---- 23b. Bring your own key ------------------------------------------
-    await page.getByRole('button', { name: /Add your API key/ }).click();
-    await expectText(page, 'Where to keep it');
-    await shoot(page, '24-byok-key', 'Paste your own key — device, or this tab only');
+    await expectText(page, "isn't switched on yet");
+    await shoot(
+      page,
+      '23-assistant-nokey',
+      'No key configured: disabled, never faked — and the supplier is who turns it on',
+    );
     await page.keyboard.press('Escape');
     await page.waitForTimeout(250);
 

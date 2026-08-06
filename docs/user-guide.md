@@ -5,7 +5,7 @@ real contractor would actually do: look at what needs attention, build a scope,
 see your pricing, and move an order forward.
 
 > **Status: through Milestone 8, plus the L8 remediation, team roles, a mobile
-> UX pass, an accessibility pass, BYOK, and the dealer admin console.**
+> UX pass, an accessibility pass, and the dealer admin console.**
 > Everything below is live and clickable.
 > Things that don't exist yet are called out honestly in
 > [What isn't built yet](#what-isnt-built-yet) rather than being implied.
@@ -376,27 +376,23 @@ Every tool call shows up in the thread as it runs — what it did, and when
 something is refused, the supplier's own reason word for word. "It added 12
 things" with nothing to check would not be worth trusting.
 
-### It needs a key
+### Your supplier switches it on
 
-![No API key: disabled, never faked](screenshots/23-assistant-nokey.png)
+![No key configured: disabled, never faked — and the supplier is who turns it on](screenshots/23-assistant-nokey.png)
 
-The assistant talks to a real Claude model. With no key configured it renders
-disabled and says so — there is deliberately **no** canned fallback, because a
-fake assistant would undermine the one part of this product that has to be
-real.
+The assistant talks to a real Claude model. Until your supplier enables it, it
+renders disabled and says so — there is deliberately **no** canned fallback,
+because a fake assistant would undermine the one part of this product that has
+to be real.
 
-Tap **Add your API key** and paste your own:
+There is nothing for you to configure, and no key for you to paste. The
+credential belongs to your supplier: they set it once in their own admin
+console, they decide whether the assistant is switched on, and the usage bills
+to them. If you want it and don't have it, that is a conversation with your
+rep, not a setting on this screen.
 
-![Paste your own key — device, or this tab only](screenshots/24-byok-key.png)
-
-Two storage choices, and the difference matters. *On this device* keeps the key
-until you remove it. *This tab only* forgets it when the tab closes — use that
-on a shared machine or a client's laptop.
-
-The key stays in your browser and is sent only to this app's own server, which
-forwards it to Anthropic and keeps no copy. Usage bills to your Anthropic
-account. Your dealer can also configure a key for everyone, in which case you
-never need one of your own.
+They can also see how much each account is using, and cap it per contractor —
+so if you run out for the day, it is a number they can raise.
 
 ---
 
@@ -498,14 +494,21 @@ shown. Pull it back to Plan to change it.
 
 ## Configuring the assistant
 
-Two ways to give the assistant a key.
+The assistant runs on a credential the **dealer** provides. There is no key for
+a contractor to paste, and no per-contractor billing — it is one key, set once,
+carried by the supplier.
 
-**Your own key (fastest).** Open the assistant and tap **Add your API key**, or
-find it under **More → Assistant**. Paste an `sk-ant-…` key and choose where it
-lives: *on this device* (stays until you remove it) or *this tab only* (gone
-when the tab closes — use that on a machine that isn't yours). The key is kept
-in your browser, sent only to this app's own server, and forwarded to Anthropic
-from there. Usage bills to your Anthropic account, and Remove deletes it.
+**In the admin console.** Sign in at `/admin.html`, paste an `sk-ant-…` key
+under **LLM credential**, and save. It is checked against Anthropic before it
+is stored, so a bad paste fails immediately rather than surfacing later as a
+contractor's broken message. Nothing reads it back afterwards — the console
+shows only a mask.
+
+**Cap it per contractor.** *Daily request cap* applies to each contractor
+account separately, not to the deployment as a whole, so one busy crew cannot
+exhaust the day for everyone else. Beneath it, **Assistant usage today** lists
+who is spending, busiest first, with anything unattributed in its own row. That
+is the number to size the cap from.
 
 **A server key (for a shared deployment).** Not `VITE_`-prefixed, so it is never
 compiled into anything the browser downloads:

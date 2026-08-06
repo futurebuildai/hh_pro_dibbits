@@ -3,7 +3,7 @@
  *
  * Two ways a request gets a key, in precedence order:
  *
- * 1. **Bring-your-own-key**, forwarded by the browser in `x-anthropic-byok`.
+ * 1. **The dealer's key**, configured once in the admin console.
  *    A developer pastes their own key in the UI; it rides same-origin to here
  *    and no further. Routing BYOK through the proxy rather than letting the
  *    browser call Anthropic directly is the point — the model allowlist, the
@@ -69,33 +69,32 @@ function allowRequest(clientKey: string): boolean {
   return true;
 }
 
-/** The BYOK header. Kept distinct from `x-api-key` so a forwarded key can
- *  never be confused with the SDK's placeholder, and so it is trivial to
- *  confirm by grep that it is read in exactly one place. */
-const BYOK_HEADER = 'x-anthropic-byok';
-
-/** Same shape check the client applies, so a malformed header is rejected here
- *  rather than being forwarded upstream as somebody's typo. */
+/** Shape check, so a malformed key is rejected here rather than forwarded
+ *  upstream as somebody's typo. */
 function wellFormedKey(value: unknown): value is string {
   return typeof value === 'string' && /^sk-ant-[A-Za-z0-9_-]{16,}$/.test(value.trim());
 }
 
 /**
- * The key this request should spend. A caller-supplied key wins so a developer
- * with their own key needs no server configuration at all.
+ * The key this request should spend.
+ *
+ * There is no longer a contractor-supplied key. The credential belongs to the
+ * DEALER: they configure it once in the admin console, they unlock the
+ * assistant feature, and they carry the bill — which is why usage is now
+ * counted per contractor account and shown to them.
+ *
+ * A browser-held key was right while this was a developer tool. It is wrong
+ * for a deployed product: it puts a credential in every contractor's
+ * localStorage, spreads the blast radius of a leak across every device, and
+ * leaves the dealer unable to see or cap what is spent in their name.
  */
 export function resolveKey(
-  headers: Record<string, unknown>,
   serverKey: string | undefined,
   /** The dealer admin's stored key, if one has been configured. */
   dealerKey?: string | undefined,
-): { key: string; source: 'byok' | 'dealer' | 'server' } | null {
-  // Most specific wins: a contractor's own key, then the key the dealer's
-  // admin configured for this deployment, then whatever the developer put in
-  // .env. A dealer configuring a key post-deploy should take precedence over
-  // a stale environment variable nobody remembers setting.
-  const forwarded = headers[BYOK_HEADER];
-  if (wellFormedKey(forwarded)) return { key: forwarded.trim(), source: 'byok' };
+): { key: string; source: 'dealer' | 'server' } | null {
+  // The dealer's configured key beats a stale environment variable nobody
+  // remembers setting.
   if (wellFormedKey(dealerKey)) return { key: dealerKey.trim(), source: 'dealer' };
   if (serverKey) return { key: serverKey, source: 'server' };
   return null;
@@ -203,6 +202,19 @@ function sendJson(res: ServerResponse, status: number, payload: unknown): void {
  * hid a total outage: the endpoint aborted every upstream call and nothing
  * covered it, since the session tests inject their own fetch.
  */
+/**
+ * Which contractor account a request is spent on. Advisory: it identifies the
+ * spender for the dealer's console, it does not authorise anything.
+ */
+export const ACCOUNT_HEADER = 'x-hhpro-account';
+
+/** Node lower-cases header names, and repeats arrive as an array. */
+function header(req: IncomingMessage, name: string): string | undefined {
+  const raw = req.headers[name];
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return value?.trim() || undefined;
+}
+
 export interface MessagesHandlerDeps {
   fetchImpl?: typeof fetch;
   /**
@@ -219,7 +231,7 @@ export interface MessagesHandlerDeps {
    * data directory with the admin tests — and they immediately went flaky
    * against each other, a different test failing each run.
    */
-  consumeQuota?: (cap: number, today: string) => boolean;
+  consumeQuota?: (cap: number, today: string, accountId?: string) => boolean;
   /** The configured cap. Same isolation argument. */
   readCap?: () => number;
 }
@@ -246,7 +258,7 @@ export function createMessagesHandler(apiKey: string | undefined, deps: Messages
         sendJson(response, 429, { error: { message: 'Slow down — too many requests.' } });
         return;
       }
-      const resolved = resolveKey(req.headers as Record<string, unknown>, apiKey, dealerKey());
+      const resolved = resolveKey(apiKey, dealerKey());
       if (!resolved) {
         sendJson(response, 503, {
           error: {
@@ -260,13 +272,22 @@ export function createMessagesHandler(apiKey: string | undefined, deps: Messages
       // The dealer's daily cap governs the key THEY pay for. A contractor
       // spending their own key is not billed to the dealer, so it does not
       // count against it.
-      if (resolved.source !== 'byok') {
+      {
         // Wrapped: a full disk or a read-only mount must not escape this async
         // middleware — an unhandled rejection there hangs the request and can
         // take the dev server with it. A cap that cannot be read fails open.
         let overCap = false;
         try {
-          overCap = !consumeQuota(readCap(), new Date().toISOString().slice(0, 10));
+          /**
+           * Attribution, NOT authorization. The account id comes from the
+           * client, so a caller could claim someone else's. It is here so a
+           * dealer can see which contractor is spending their key, and the
+           * store bounds what it will write. Real per-tenant enforcement needs
+           * authenticated sessions, which this demo does not have — do not
+           * mistake this counter for a security control.
+           */
+          const accountId = header(req, ACCOUNT_HEADER);
+          overCap = !consumeQuota(readCap(), new Date().toISOString().slice(0, 10), accountId);
         } catch (error) {
           console.error('[proxy] daily cap could not be evaluated; allowing', error);
         }

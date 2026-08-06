@@ -16,7 +16,11 @@ export interface AdminState {
   /** Fingerprint of the saved config, echoed back on write as `if-match`. */
   revision: string;
   credential: { present: boolean; masked: string | null };
-  usage: { today: number };
+  usage: {
+    total: number;
+    /** Busiest contractor first. */
+    byAccount: { accountId: string; count: number }[];
+  };
 }
 
 export function readToken(): string | null {

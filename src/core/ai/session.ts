@@ -1,6 +1,7 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import { newId } from '../lib/ids';
-import { byokHeaders, hasKey as hasByokKey } from './byok';
+
+import { sessionStore } from '../stores/root';
 import { buildSystemPrompt, maxTokens, model } from './prompt';
 import { type ToolDef, toolByName, toolSchemas } from './tools';
 
@@ -117,6 +118,16 @@ async function createClient(options: SessionOptions): Promise<Anthropic> {
 
 /** Guards against a tool loop that never converges. */
 const MAX_TURNS = 12;
+
+/**
+ * Tells the proxy which contractor account is spending the dealer's key, so
+ * the admin console can show them who. Attribution, not authorization — the
+ * server bounds what it will record and never trusts this for access.
+ */
+function accountHeaders(): Record<string, string> {
+  const accountId = sessionStore.get().account?.id;
+  return accountId ? { 'x-hhpro-account': accountId } : {};
+}
 
 export class AssistantSession {
   private client: Anthropic | null = null;
@@ -278,7 +289,7 @@ export class AssistantSession {
           tools: toolSchemas(),
           messages: this.history,
         },
-        { signal: this.abortController.signal, headers: byokHeaders() },
+        { signal: this.abortController.signal, headers: accountHeaders() },
       );
 
       stream.on('text', (delta) => {
@@ -491,9 +502,10 @@ function describeError(error: unknown): string {
 
   const isAuth = Sdk ? error instanceof Sdk.AuthenticationError : status === 401 || status === 403;
   if (isAuth) {
-    return hasByokKey()
-      ? 'Anthropic rejected that API key. Check it in the assistant settings — it may have been revoked or copied incompletely.'
-      : 'The assistant is not configured — no Anthropic API key. Add your own key, or ask your administrator to set one.';
+    // The contractor cannot fix this one: the credential is the dealer's, set
+    // in their admin console. Telling them to check a key they do not have
+    // would just waste their time.
+    return 'The assistant could not authenticate. The supplier needs to check the API key in their admin console.';
   }
 
   const isRateLimited = Sdk ? error instanceof Sdk.RateLimitError : status === 429;

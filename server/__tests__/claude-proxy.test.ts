@@ -1,7 +1,6 @@
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
-import { BYOK_HEADER } from '../../src/core/ai/byok';
 import { createMessagesHandler } from '../claude-proxy';
 
 /**
@@ -17,7 +16,12 @@ import { createMessagesHandler } from '../claude-proxy';
  */
 
 const KEY = 'sk-ant-api03-serverserverserverserverserver';
-const BYOK = 'sk-ant-api03-callercallercallercallercaller';
+/**
+ * A key a stale or hostile client might still forward in the header BYOK used
+ * to use. It must never be spent — see "the forwarded-key door is closed".
+ */
+const FORWARDED = 'sk-ant-api03-callercallercallercallercaller';
+const BYOK_HEADER = 'x-anthropic-byok';
 
 const defaultUpstream = () =>
   new Response('event: ok\ndata: {}\n\n', {
@@ -119,29 +123,37 @@ describe('a normal request', () => {
     await post(harness.url);
     expect(harness.seen.key).toBe(KEY);
   });
+});
 
-  it('spends the caller key when one is forwarded', async () => {
+/**
+ * Contractor-supplied keys are gone: the credential belongs to the dealer.
+ * These pin the REMOVAL, because deleting the client code is not the same as
+ * closing the door — the endpoint is what an attacker talks to.
+ */
+describe('the forwarded-key door is closed', () => {
+  it('ignores a forwarded key and spends the configured one', async () => {
     harness = await serve(KEY);
-    await post(harness.url, { [BYOK_HEADER]: BYOK });
-    expect(harness.seen.key).toBe(BYOK);
+    await post(harness.url, { [BYOK_HEADER]: FORWARDED });
+    expect(harness.seen.key).toBe(KEY);
+    expect(harness.seen.key).not.toBe(FORWARDED);
   });
 
-  it('still works with no server key at all, given a caller key', async () => {
+  it('refuses outright when only a forwarded key is offered', async () => {
     harness = await serve(undefined);
-    const result = await post(harness.url, { [BYOK_HEADER]: BYOK });
-    expect(result.status).toBe(200);
-    expect(harness.seen.key).toBe(BYOK);
+    const result = await post(harness.url, { [BYOK_HEADER]: FORWARDED });
+
+    // 503, not 200: with no dealer key there is nothing to spend, and a
+    // caller cannot supply one. Anything else would make the proxy an open
+    // relay for whoever guesses the header.
+    expect(result.status).toBe(503);
+    expect(harness.seen.count).toBe(0);
   });
 });
 
-describe('the guards still bite on BYOK traffic', () => {
+describe('the guards bite before any key is read', () => {
   it('rejects a model outside the allowlist before spending anything', async () => {
     harness = await serve(KEY);
-    const result = await post(
-      harness.url,
-      { [BYOK_HEADER]: BYOK },
-      JSON.stringify({ model: 'gpt-4', max_tokens: 10 }),
-    );
+    const result = await post(harness.url, {}, JSON.stringify({ model: 'gpt-4', max_tokens: 10 }));
     expect(result.status).toBe(400);
     expect(harness.seen.count).toBe(0);
   });
@@ -150,7 +162,7 @@ describe('the guards still bite on BYOK traffic', () => {
     harness = await serve(KEY);
     const result = await post(
       harness.url,
-      { [BYOK_HEADER]: BYOK },
+      {},
       JSON.stringify({ model: 'claude-opus-4-8', max_tokens: 1_000_000 }),
     );
     expect(result.status).toBe(400);
@@ -161,7 +173,6 @@ describe('the guards still bite on BYOK traffic', () => {
     harness = await serve(KEY);
     const result = await post(harness.url, {
       Origin: 'https://evil.example',
-      [BYOK_HEADER]: BYOK,
     });
     expect(result.status).toBe(403);
     expect(harness.seen.count).toBe(0);
@@ -182,7 +193,7 @@ describe('the guards still bite on BYOK traffic', () => {
 
   it('ignores a malformed forwarded key rather than sending it upstream', async () => {
     harness = await serve(KEY);
-    await post(harness.url, { [BYOK_HEADER]: 'garbage' });
+    await post(harness.url, {});
     expect(harness.seen.key).toBe(KEY);
   });
 });
@@ -212,13 +223,13 @@ describe('failure handling', () => {
   });
 
   /** The key must never reach the client, not even in an error body. */
-  it('never echoes either key back to the caller', async () => {
+  it('never echoes a key back to the caller', async () => {
     harness = await serve(KEY, () => {
       throw new Error('upstream exploded');
     });
-    const result = await post(harness.url, { [BYOK_HEADER]: BYOK });
+    const result = await post(harness.url, { [BYOK_HEADER]: FORWARDED });
     expect(result.text).not.toContain(KEY);
-    expect(result.text).not.toContain(BYOK);
+    expect(result.text).not.toContain(FORWARDED);
   });
 });
 
@@ -250,7 +261,7 @@ describe('body size', () => {
 });
 
 describe('the dealer-configured key', () => {
-  it('is spent when there is no BYOK header and no env key', async () => {
+  it('is spent when there is no env key', async () => {
     const dealer = 'sk-ant-api03-dealerdealerdealerdealerdealer';
     harness = await serve(undefined, undefined, () => dealer);
 
@@ -266,7 +277,7 @@ describe('the dealer-configured key', () => {
     await post(harness.url);
     expect(harness.seen.key).toBe(dealer); // dealer > env
 
-    await post(harness.url, { [BYOK_HEADER]: BYOK });
-    expect(harness.seen.key).toBe(BYOK); // byok > dealer
+    await post(harness.url, { [BYOK_HEADER]: FORWARDED });
+    expect(harness.seen.key).not.toBe(FORWARDED); // a caller cannot override the dealer
   });
 });

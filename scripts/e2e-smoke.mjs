@@ -12,6 +12,7 @@
  */
 import { spawn } from 'node:child_process';
 import { execSync } from 'node:child_process';
+import net from 'node:net';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -26,9 +27,44 @@ function check(name, pass, detail = '') {
   process.stdout.write(`  ${pass ? '✓' : '✗'} ${name}${pass ? '' : ` — ${detail}`}\n`);
 }
 
+/** Is anything already listening? A taken port means we would test IT, not us. */
+function portInUse(port) {
+  return new Promise((resolve) => {
+    const socket = net.connect({ host: '127.0.0.1', port });
+    socket.on('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.on('error', () => resolve(false));
+    socket.setTimeout(1000, () => {
+      socket.destroy();
+      resolve(false);
+    });
+  });
+}
+
 async function main() {
   execSync('npm run build', { cwd: ROOT, stdio: 'inherit' });
+  /**
+   * The port must be OURS, and the app on it must be THIS build.
+   *
+   * `--strictPort` exits when the port is taken, and this script used to
+   * ignore that and walk whatever was listening. A stale preview server from
+   * another checkout answered every page, so an entire journey suite passed
+   * against code that no longer existed — including two checks for a feature
+   * that had just been deleted. That is the worst kind of green.
+   */
+  if (await portInUse(PORT)) {
+    throw new Error(
+      `port ${PORT} is already serving something. These journeys would walk THAT build, ` +
+        'not this one. Stop it and re-run.',
+    );
+  }
+
+  // `detached` so the process GROUP dies: `server.kill()` reaps only the `npx`
+  // wrapper and leaves vite holding the port for the next run to stumble into.
   const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
+    detached: true,
     cwd: ROOT,
     stdio: 'ignore',
   });
@@ -67,7 +103,7 @@ async function main() {
     check('the board loads with seeded work', (await page.getByText(/in pipeline/).count()) > 0);
 
     // --- Scope editing -------------------------------------------------------
-    await page.locator('article', { hasText: 'Deck framing' }).first().click();
+    await page.locator('article', { hasText: 'Patio base' }).first().click();
     await page.waitForURL(/\/orders\//);
     // Client-side navigation resolves before React paints, so wait for content.
     await page
@@ -132,13 +168,22 @@ async function main() {
     await page.waitForTimeout(400);
     check(
       'the assistant is disabled rather than faked',
-      (await page.getByText(/Assistant needs a key/).count()) > 0,
+      (await page.getByText(/isn't switched on yet/i).count()) > 0,
     );
-    await page.getByRole('button', { name: /Add your API key/ }).click();
-    await page.waitForTimeout(300);
+
+    /**
+     * The credential is the dealer's now. A contractor must not be offered a
+     * key field they cannot legitimately fill — and this check exists because
+     * deleting the UI is not the same as proving it is gone.
+     */
     check(
-      'BYOK offers a per-tab option for shared machines',
-      (await page.getByText(/This tab only/).count()) > 0,
+      'the contractor is never asked for an API key',
+      (await page.getByRole('button', { name: /add your api key/i }).count()) === 0 &&
+        (await page.getByPlaceholder(/sk-ant/i).count()) === 0,
+    );
+    check(
+      'and is told who can switch it on',
+      (await page.getByText(/needs to enable it/i).count()) > 0,
     );
 
     // --- The dealer's console is a different door ----------------------------
@@ -159,7 +204,14 @@ async function main() {
     await context.close();
   } finally {
     await browser.close();
-    server.kill();
+    try {
+      process.kill(-server.pid, 'SIGTERM');
+    } catch {
+      server.kill();
+    }
+    for (let i = 0; i < 20 && (await portInUse(PORT)); i++) {
+      await new Promise((r) => setTimeout(r, 150));
+    }
   }
 
   const failed = results.filter((r) => !r.pass).length;
