@@ -38,20 +38,21 @@ describe('adding scope', () => {
   beforeEach(() => boot({ reset: true, seed: 20_260_730 }));
 
   it('prices a catalog line through the ERP on the way in', () => {
-    const result = addCatalogItem({ orderId: PERGOLA, product: 'LBR-2X4-8-DF', qty: 10 });
+    const result = addCatalogItem({ orderId: PERGOLA, product: 'PVR-OAK-YORK60', qty: 10 });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.value.priceSource).toBe('erp');
-      // Contract price on this SKU, well under the $5.97 list.
-      expect(result.value.unitPrice).toBe(462);
-      expect(result.value.listPrice).toBe(597);
+      // Contract price on this SKU, under the $8.13/sf list and under what
+      // the 18%-off hardscape category rule alone would give.
+      expect(result.value.unitPrice).toBe(635);
+      expect(result.value.listPrice).toBe(813);
     }
   });
 
   it('merges a repeat SKU into the existing line instead of duplicating it', () => {
-    addCatalogItem({ orderId: PERGOLA, product: 'PT-4X4-8', qty: 4 });
-    addCatalogItem({ orderId: PERGOLA, product: 'PT-4X4-8', qty: 6 });
+    addCatalogItem({ orderId: PERGOLA, product: 'EDG-PVC-STD', qty: 4 });
+    addCatalogItem({ orderId: PERGOLA, product: 'EDG-PVC-STD', qty: 6 });
 
     const items = itemsOf(PERGOLA);
     expect(items).toHaveLength(1);
@@ -96,33 +97,33 @@ describe('quantity changes re-ask the ERP for a price', () => {
   beforeEach(() => boot({ reset: true, seed: 20_260_730 }));
 
   it('drops the unit price when a volume break is crossed', () => {
-    const added = addCatalogItem({ orderId: PERGOLA, product: 'LBR-2X4-10-DF', qty: 10 });
+    const added = addCatalogItem({ orderId: PERGOLA, product: 'PVR-TB-BLU60-SM', qty: 10 });
     if (!added.ok) throw new Error(added.error);
     const before = added.value.unitPrice as number;
 
-    const bumped = updateItemQtyDetailed(added.value.id, 100);
+    const bumped = updateItemQtyDetailed(added.value.id, 700);
     expect(bumped.ok).toBe(true);
     if (bumped.ok) {
       expect(bumped.value.priceChanged).toBeDefined();
       expect(bumped.value.item.unitPrice).toBeLessThan(before);
-      // $7.48 list -> 18% off lumber = $6.13, then 7% more at the 100+ break.
-      expect(bumped.value.item.unitPrice).toBe(570);
+      // $6.29/sf list -> 18% off hardscape, then 6% more at the 600 sf break.
+      expect(bumped.value.item.unitPrice).toBe(485);
     }
   });
 
   it('raises it again when the quantity falls back below the break', () => {
-    const added = addCatalogItem({ orderId: PERGOLA, product: 'LBR-2X4-10-DF', qty: 100 });
+    const added = addCatalogItem({ orderId: PERGOLA, product: 'PVR-TB-BLU60-SM', qty: 700 });
     if (!added.ok) throw new Error(added.error);
 
-    const reduced = updateItemQtyDetailed(added.value.id, 5);
+    const reduced = updateItemQtyDetailed(added.value.id, 50);
     if (reduced.ok) {
-      expect(reduced.value.item.unitPrice).toBeGreaterThan(570);
+      expect(reduced.value.item.unitPrice).toBeGreaterThan(485);
       expect(reduced.value.priceChanged).toBeDefined();
     }
   });
 
   it('reports no price change when the quantity stays in the same band', () => {
-    const added = addCatalogItem({ orderId: PERGOLA, product: 'LBR-2X4-10-DF', qty: 10 });
+    const added = addCatalogItem({ orderId: PERGOLA, product: 'PVR-TB-BLU60-SM', qty: 10 });
     if (!added.ok) throw new Error(added.error);
 
     const nudged = updateItemQtyDetailed(added.value.id, 12);
@@ -130,7 +131,7 @@ describe('quantity changes re-ask the ERP for a price', () => {
   });
 
   it('refuses a zero quantity rather than silently deleting the line', () => {
-    const added = addCatalogItem({ orderId: PERGOLA, product: 'PT-4X4-8', qty: 3 });
+    const added = addCatalogItem({ orderId: PERGOLA, product: 'EDG-PVC-STD', qty: 3 });
     if (!added.ok) throw new Error(added.error);
 
     const result = updateItemQtyDetailed(added.value.id, 0);
@@ -143,13 +144,13 @@ describe('scope is locked once the supplier has the order', () => {
   beforeEach(() => boot({ reset: true, seed: 20_260_730 }));
 
   it('blocks edits on an order sitting at the quote desk', () => {
-    const result = addCatalogItem({ orderId: 'ord_anderson', product: 'PT-4X4-8', qty: 1 });
+    const result = addCatalogItem({ orderId: 'ord_anderson', product: 'EDG-PVC-STD', qty: 1 });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain('quote desk');
   });
 
   it('blocks edits on a placed order', () => {
-    const result = addCatalogItem({ orderId: 'ord_wilson_frame', product: 'PT-4X4-8', qty: 1 });
+    const result = addCatalogItem({ orderId: 'ord_wilson_frame', product: 'EDG-PVC-STD', qty: 1 });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain('already been placed');
   });
@@ -162,7 +163,9 @@ describe('scope is locked once the supplier has the order', () => {
 
   it('allows edits again once the order is pulled back to Plan', () => {
     expect(moveOrderToStage('ord_anderson', 'plan').ok).toBe(true);
-    expect(addCatalogItem({ orderId: 'ord_anderson', product: 'PT-4X4-8', qty: 1 }).ok).toBe(true);
+    expect(addCatalogItem({ orderId: 'ord_anderson', product: 'EDG-PVC-STD', qty: 1 }).ok).toBe(
+      true,
+    );
   });
 });
 

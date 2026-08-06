@@ -16,7 +16,7 @@ const STANDARD_ACCOUNT = { accountId: 'acct_3', tierId: 'tier_standard' };
 function product(overrides: Partial<Product> = {}): Product {
   return {
     id: 'p_1',
-    sku: 'LBR-2X4-8-DF',
+    sku: 'PVR-OAK-YORK60',
     name: "2x4x8' Douglas Fir",
     description: '',
     categoryId: 'c_1',
@@ -75,7 +75,7 @@ describe('ERP pricing precedence', () => {
   it('gives a contract price the final word', () => {
     const rules: PricingRule[] = [
       { kind: 'category', accountId: 'acct_1', categoryId: 'c_1', percentOffList: 22 },
-      { kind: 'contract', accountId: 'acct_1', sku: 'LBR-2X4-8-DF', unitPrice: toCents(4.62) },
+      { kind: 'contract', accountId: 'acct_1', sku: 'PVR-OAK-YORK60', unitPrice: toCents(4.62) },
     ];
     const engine = createPricingEngine(TIERS, rules);
 
@@ -212,7 +212,11 @@ describe('volume breaks', () => {
 
   it('honours an absolute break when the rule names a sku', () => {
     const skuScoped = createPricingEngine(TIERS, [
-      { kind: 'volume', sku: 'LBR-2X4-8-DF', breaks: [{ minQty: 250, unitPrice: toCents(3.98) }] },
+      {
+        kind: 'volume',
+        sku: 'PVR-OAK-YORK60',
+        breaks: [{ minQty: 250, unitPrice: toCents(3.98) }],
+      },
     ]);
     expect(skuScoped.quote(product(), 250, ACCOUNT).unitPrice).toBe(toCents(3.98));
   });
@@ -223,7 +227,7 @@ describe('volume breaks', () => {
     // negotiated down.
     const withContract = createPricingEngine(TIERS, [
       ...rules,
-      { kind: 'contract', accountId: 'acct_1', sku: 'LBR-2X4-8-DF', unitPrice: toCents(4.62) },
+      { kind: 'contract', accountId: 'acct_1', sku: 'PVR-OAK-YORK60', unitPrice: toCents(4.62) },
     ]);
     const quote = withContract.quote(product(), 500, ACCOUNT);
 
@@ -235,8 +239,12 @@ describe('volume breaks', () => {
     // The dealer deliberately set a volume tier on this exact item, so it
     // applies even though a contract price exists.
     const engineWithSkuTier = createPricingEngine(TIERS, [
-      { kind: 'contract', accountId: 'acct_1', sku: 'LBR-2X4-8-DF', unitPrice: toCents(4.62) },
-      { kind: 'volume', sku: 'LBR-2X4-8-DF', breaks: [{ minQty: 250, unitPrice: toCents(3.98) }] },
+      { kind: 'contract', accountId: 'acct_1', sku: 'PVR-OAK-YORK60', unitPrice: toCents(4.62) },
+      {
+        kind: 'volume',
+        sku: 'PVR-OAK-YORK60',
+        breaks: [{ minQty: 250, unitPrice: toCents(3.98) }],
+      },
     ]);
 
     expect(engineWithSkuTier.quote(product(), 10, ACCOUNT).unitPrice).toBe(toCents(4.62));

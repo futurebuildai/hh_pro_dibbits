@@ -35,7 +35,7 @@ export function resetConfigCache(next?: DealerConfig): void {
 /**
  * What to call the supplier in contractor-facing copy.
  *
- * A deployment for another dealer must not tell its contractors that "Cornerstone
+ * A deployment for another dealer must not tell its contractors that "Dibbits Landscape Supply
  * Supply will price this" — the name is configured, so every sentence a
  * contractor reads has to come through here. Static module-level strings are
  * the trap: they freeze at import, before the admin preview can re-read.

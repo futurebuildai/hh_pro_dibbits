@@ -94,14 +94,14 @@ describe('gating the single mutation path', () => {
 
   it('keeps the field role read-only on scope', () => {
     switchActiveMember(TY);
-    const added = addCatalogItem({ orderId: PERGOLA, product: 'LBR-2X4-8-DF', qty: 10 });
+    const added = addCatalogItem({ orderId: PERGOLA, product: 'PVR-OAK-YORK60', qty: 10 });
     expect(added.ok).toBe(false);
   });
 
   it('gates the AI assistant through the very same sentence', () => {
     switchActiveMember(ROBIN);
     const tool = toolByName('add_materials');
-    const result = tool?.run({ orderId: PERGOLA, product: 'LBR-2X4-8-DF', qty: 10 });
+    const result = tool?.run({ orderId: PERGOLA, product: 'PVR-OAK-YORK60', qty: 10 });
     expect(result?.ok).toBe(false);
     if (!result || result.ok) return;
     expect(result.error).toContain('edit orders');

@@ -11,17 +11,22 @@ import type { Cents } from '../lib/money';
  * real ERP can replace the sim without touching the domain.
  */
 
+/**
+ * Hardscape prices by AREA and by WEIGHT, which is the deepest difference
+ * between this vertical and dimensional building materials. A paver field is
+ * quoted per square foot and the base under it per tonne; nobody counts units.
+ */
 export type Uom =
   | 'EA' // each
-  | 'LF' // linear foot
-  | 'BF' // board foot
-  | 'SQ' // roofing square (100 sq ft)
-  | 'SHT' // sheet
-  | 'BD' // bundle
+  | 'SF' // square foot — pavers, wall face, porcelain, turf
+  | 'LF' // linear foot — edging, coping, caps
+  | 'TON' // tonne — bulk base, screenings, armour stone
+  | 'CY' // cubic yard — soils, mulch, large decorative stone
+  | 'PLT' // pallet — how a paver field actually arrives
   | 'BG' // bag
   | 'BX' // box
   | 'RL' // roll
-  | 'CY'; // cubic yard
+  | 'BD'; // bundle
 
 export interface Brand {
   id: EntityId;

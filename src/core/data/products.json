@@ -1,590 +1,863 @@
 [
-    {
-        "id": 1,
-        "sku": "LBR-2X4-8-DF",
-        "name": "2x4x8' Douglas Fir #2 & Better",
-        "description": "Premium Douglas Fir dimensional lumber, ideal for framing, general construction. Kiln-dried for stability.",
-        "categoryId": 11,
-        "imageUrl": "/images/products/2x4-fir.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Weyerhaeuser",
-        "price": 5.97,
-        "msrp": 7.49,
-        "tags": [
-            "framing",
-            "dimensional",
-            "structural"
-        ],
-        "relatedSkus": [
-            "LBR-2X4-10-DF",
-            "LBR-2X4-12-DF",
-            "LBR-2X6-8-DF"
-        ]
-    },
-    {
-        "id": 2,
-        "sku": "LBR-2X4-10-DF",
-        "name": "2x4x10' Douglas Fir #2 & Better",
-        "description": "Premium Douglas Fir dimensional lumber, 10-foot length. Kiln-dried for stability.",
-        "categoryId": 11,
-        "imageUrl": "/images/products/2x4-fir.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Weyerhaeuser",
-        "price": 7.48,
-        "msrp": 9.29,
-        "tags": [
-            "framing",
-            "dimensional",
-            "structural"
-        ],
-        "relatedSkus": [
-            "LBR-2X4-8-DF",
-            "LBR-2X4-12-DF"
-        ]
-    },
-    {
-        "id": 3,
-        "sku": "LBR-2X4-12-DF",
-        "name": "2x4x12' Douglas Fir #2 & Better",
-        "description": "Premium Douglas Fir dimensional lumber, 12-foot length. Kiln-dried, strong and straight.",
-        "categoryId": 11,
-        "imageUrl": "/images/products/2x4-fir.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Weyerhaeuser",
-        "price": 8.97,
-        "msrp": 11.19,
-        "tags": [
-            "framing",
-            "dimensional",
-            "structural"
-        ],
-        "relatedSkus": [
-            "LBR-2X4-8-DF",
-            "LBR-2X4-10-DF"
-        ]
-    },
-    {
-        "id": 4,
-        "sku": "LBR-2X6-8-DF",
-        "name": "2x6x8' Douglas Fir #2 & Better",
-        "description": "Kiln-dried Douglas Fir 2x6 dimensional lumber for framing, floor joists, and headers.",
-        "categoryId": 11,
-        "imageUrl": "/images/products/2x6-fir.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Weyerhaeuser",
-        "price": 8.47,
-        "msrp": 10.59,
-        "tags": [
-            "framing",
-            "dimensional",
-            "structural"
-        ],
-        "relatedSkus": [
-            "LBR-2X4-8-DF",
-            "LBR-2X6-12-DF"
-        ]
-    },
-    {
-        "id": 5,
-        "sku": "LBR-2X6-12-DF",
-        "name": "2x6x12' Douglas Fir #2 & Better",
-        "description": "Kiln-dried Douglas Fir 2x6 dimensional lumber, 12-foot length.",
-        "categoryId": 11,
-        "imageUrl": "/images/products/2x6-fir.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Weyerhaeuser",
-        "price": 12.97,
-        "msrp": 15.99,
-        "tags": [
-            "framing",
-            "dimensional",
-            "structural"
-        ],
-        "relatedSkus": [
-            "LBR-2X6-8-DF",
-            "LBR-2X4-12-DF"
-        ]
-    },
-    {
-        "id": 6,
-        "sku": "PLY-CDX-1/2-4X8",
-        "name": "1/2\" CDX Plywood 4x8 Sheet",
-        "description": "Exterior-grade CDX plywood for roof sheathing, subfloors, and wall sheathing. Exposure 1 rated.",
-        "categoryId": 14,
-        "imageUrl": "/images/products/cdx-plywood.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Georgia-Pacific",
-        "price": 32.98,
-        "msrp": 41.99,
-        "tags": [
-            "sheathing",
-            "plywood",
-            "exterior"
-        ],
-        "relatedSkus": [
-            "PLY-CDX-3/4-4X8",
-            "PLY-OSB-7/16-4X8"
-        ],
-        "coverageSqFt": 32,
-        "inStock": 85,
-        "leadTime": "In Stock - Ships Tomorrow",
-        "relatedProducts": [
-            15
-        ]
-    },
-    {
-        "id": 7,
-        "sku": "PLY-CDX-3/4-4X8",
-        "name": "3/4\" CDX Plywood 4x8 Sheet",
-        "description": "Structural CDX plywood, 3/4\" thick. Ideal for subflooring, concrete forming, and heavy-duty sheathing.",
-        "categoryId": 14,
-        "imageUrl": "/images/products/cdx-plywood.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Georgia-Pacific",
-        "price": 46.99,
-        "msrp": 56.99,
-        "tags": [
-            "sheathing",
-            "plywood",
-            "subflooring"
-        ],
-        "relatedSkus": [
-            "PLY-CDX-1/2-4X8"
-        ],
-        "coverageSqFt": 32,
-        "inStock": 85,
-        "leadTime": "In Stock - Ships Tomorrow",
-        "relatedProducts": [
-            15
-        ]
-    },
-    {
-        "id": 8,
-        "sku": "PLY-OSB-7/16-4X8",
-        "name": "7/16\" OSB Sheathing 4x8 Sheet",
-        "description": "Oriented strand board for wall and roof sheathing. APA-rated, Exposure 1.",
-        "categoryId": 14,
-        "imageUrl": "/images/products/osb.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "LP Building Solutions",
-        "price": 22.48,
-        "msrp": 28.99,
-        "tags": [
-            "sheathing",
-            "osb",
-            "structural"
-        ],
-        "relatedSkus": [
-            "PLY-CDX-1/2-4X8"
-        ],
-        "coverageSqFt": 32,
-        "inStock": 85,
-        "leadTime": "In Stock - Ships Tomorrow",
-        "relatedProducts": [
-            15
-        ]
-    },
-    {
-        "id": 9,
-        "sku": "PT-2X6-8",
-        "name": "2x6x8' Pressure-Treated #2 Ground Contact",
-        "description": "Ground-contact rated pressure-treated lumber for decks, fences, landscaping. MCA preservative.",
-        "categoryId": 12,
-        "imageUrl": "/images/products/pt-lumber.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "YellaWood",
-        "price": 12.98,
-        "msrp": 15.99,
-        "tags": [
-            "treated",
-            "deck",
-            "exterior",
-            "ground-contact"
-        ],
-        "relatedSkus": [
-            "PT-2X6-12",
-            "PT-4X4-8"
-        ]
-    },
-    {
-        "id": 10,
-        "sku": "PT-2X6-12",
-        "name": "2x6x12' Pressure-Treated #2 Ground Contact",
-        "description": "Ground-contact rated pressure-treated lumber, 12-foot length. MCA preservative treatment.",
-        "categoryId": 12,
-        "imageUrl": "/images/products/pt-lumber.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "YellaWood",
-        "price": 18.97,
-        "msrp": 23.49,
-        "tags": [
-            "treated",
-            "deck",
-            "exterior",
-            "ground-contact"
-        ],
-        "relatedSkus": [
-            "PT-2X6-8",
-            "PT-4X4-8"
-        ]
-    },
-    {
-        "id": 11,
-        "sku": "PT-4X4-8",
-        "name": "4x4x8' Pressure-Treated Post",
-        "description": "Pressure-treated 4x4 post for fence, deck, and structural support. Ground-contact rated.",
-        "categoryId": 12,
-        "imageUrl": "/images/products/pt-post.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "YellaWood",
-        "price": 14.98,
-        "msrp": 18.49,
-        "tags": [
-            "treated",
-            "post",
-            "fence",
-            "ground-contact"
-        ],
-        "relatedSkus": [
-            "PT-2X6-8",
-            "PT-6X6-8"
-        ]
-    },
-    {
-        "id": 12,
-        "sku": "PT-6X6-8",
-        "name": "6x6x8' Pressure-Treated Post",
-        "description": "Heavy-duty 6x6 pressure-treated post for deck supports, pergolas, and large-scale construction.",
-        "categoryId": 12,
-        "imageUrl": "/images/products/pt-post-6x6.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "YellaWood",
-        "price": 29.98,
-        "msrp": 36.99,
-        "tags": [
-            "treated",
-            "post",
-            "structural",
-            "ground-contact"
-        ],
-        "relatedSkus": [
-            "PT-4X4-8"
-        ]
-    },
-    {
-        "id": 13,
-        "sku": "TRIM-1X4-8-POP",
-        "name": "1x4x8' Primed Poplar Trim Board",
-        "description": "Factory-primed poplar trim board for interior and exterior use. Ready for finish paint.",
-        "categoryId": 53,
-        "imageUrl": "/images/products/trim-primed.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Arauco",
-        "price": 9.48,
-        "msrp": 12.49,
-        "tags": [
-            "trim",
-            "millwork",
-            "primed",
-            "interior"
-        ],
-        "relatedSkus": [
-            "TRIM-1X6-8-POP"
-        ]
-    },
-    {
-        "id": 14,
-        "sku": "TRIM-1X6-8-POP",
-        "name": "1x6x8' Primed Poplar Trim Board",
-        "description": "Factory-primed poplar trim board, 6-inch width. Smooth finish, easy to paint.",
-        "categoryId": 53,
-        "imageUrl": "/images/products/trim-primed.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Arauco",
-        "price": 14.98,
-        "msrp": 18.49,
-        "tags": [
-            "trim",
-            "millwork",
-            "primed",
-            "interior"
-        ],
-        "relatedSkus": [
-            "TRIM-1X4-8-POP"
-        ]
-    },
-    {
-        "id": 15,
-        "sku": "HW-SD-3IN-LB",
-        "name": "3\" Structural Screws (1lb Box)",
-        "description": "Multi-purpose structural screws, star drive, coated for interior/exterior. ~75 screws per pound.",
-        "categoryId": 61,
-        "imageUrl": "/images/products/structural-screws.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "GRK",
-        "price": 12.97,
-        "msrp": 15.99,
-        "tags": [
-            "fasteners",
-            "screws",
-            "structural"
-        ],
-        "relatedSkus": [
-            "HW-JH-LVL"
-        ]
-    },
-    {
-        "id": 16,
-        "sku": "HW-JH-LVL",
-        "name": "Adjustable Joist Hanger (2x6–2x12)",
-        "description": "Galvanized adjustable joist hanger for various dimensional lumber widths. Code-compliant.",
-        "categoryId": 62,
-        "imageUrl": "/images/products/joist-hanger.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Simpson Strong-Tie",
-        "price": 4.28,
-        "msrp": 5.49,
-        "tags": [
-            "connectors",
-            "hardware",
-            "structural"
-        ],
-        "relatedSkus": [
-            "HW-SD-3IN-LB"
-        ]
-    },
-    {
-        "id": 17,
-        "sku": "INS-R19-KF-15",
-        "name": "R-19 Kraft-Faced Fiberglass Batt 15\" (77.5 sqft)",
-        "description": "6.25\" thick unfaced fiberglass batt insulation for 2x6 walls and floors. 15\" width.",
-        "categoryId": 15,
-        "imageUrl": "/images/products/insulation-batt.png",
-        "baseUom": "BG",
-        "isActive": true,
-        "brand": "Owens Corning",
-        "price": 42.98,
-        "msrp": 52.99,
-        "tags": [
-            "insulation",
-            "fiberglass",
-            "batt",
-            "wall"
-        ],
-        "relatedSkus": [
-            "INS-R30-UF-16"
-        ],
-        "coverageSqFt": 77.5,
-        "inStock": 12,
-        "leadTime": "Low Stock - Order Soon"
-    },
-    {
-        "id": 18,
-        "sku": "INS-R30-UF-16",
-        "name": "R-30 Unfaced Fiberglass Batt 16\" (88.0 sqft)",
-        "description": "10.25\" thick unfaced fiberglass insulation for attic floors and cathedral ceilings.",
-        "categoryId": 15,
-        "imageUrl": "/images/products/insulation-batt-r30.png",
-        "baseUom": "BG",
-        "isActive": true,
-        "brand": "Owens Corning",
-        "price": 56.97,
-        "msrp": 69.99,
-        "tags": [
-            "insulation",
-            "fiberglass",
-            "batt",
-            "attic"
-        ],
-        "relatedSkus": [
-            "INS-R19-KF-15"
-        ],
-        "coverageSqFt": 88,
-        "inStock": 12,
-        "leadTime": "Low Stock - Order Soon"
-    },
-    {
-        "id": 19,
-        "sku": "RF-ARCH-PEWTER",
-        "name": "Architectural Shingles - Pewter Gray (33.3 sqft)",
-        "description": "Laminated architectural asphalt shingles with algae-resistant granules. Limited lifetime warranty.",
-        "categoryId": 51,
-        "imageUrl": "/images/products/shingles-gray.png",
-        "baseUom": "BD",
-        "isActive": true,
-        "brand": "GAF",
-        "price": 33.98,
-        "msrp": 42.99,
-        "tags": [
-            "roofing",
-            "shingles",
-            "architectural"
-        ],
-        "relatedSkus": [
-            "RF-FELT-15"
-        ]
-    },
-    {
-        "id": 20,
-        "sku": "RF-FELT-15",
-        "name": "#15 Asphalt Roofing Felt (432 sqft)",
-        "description": "Standard asphalt-saturated roofing felt underlayment, 36\" x 144'. ASTM D4869 compliant.",
-        "categoryId": 51,
-        "imageUrl": "/images/products/roofing-felt.png",
-        "baseUom": "RL",
-        "isActive": true,
-        "brand": "GAF",
-        "price": 19.98,
-        "msrp": 24.99,
-        "tags": [
-            "roofing",
-            "underlayment",
-            "felt"
-        ],
-        "relatedSkus": [
-            "RF-ARCH-PEWTER"
-        ]
-    },
-    {
-        "id": 21,
-        "sku": "DECK-TREX-CLM-12",
-        "name": "Trex Enhance Clam Shell Composite Decking 12'",
-        "description": "Low-maintenance composite decking board with protective shell. Resists fading, staining, and mold.",
-        "categoryId": 21,
-        "imageUrl": "/images/products/trex-clam.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Trex",
-        "price": 32.49,
-        "msrp": 39.99,
-        "tags": [
-            "decking",
-            "composite",
-            "exterior"
-        ],
-        "relatedSkus": [
-            "DECK-TREX-SADDLE-12"
-        ],
-        "coverageSqFt": 5.5,
-        "coverageLf": 12,
-        "inStock": 320,
-        "leadTime": "In Stock at Gable Supply",
-        "relatedProducts": [
-            100,
-            15,
-            9
-        ]
-    },
-    {
-        "id": 22,
-        "sku": "DECK-TREX-SADDLE-12",
-        "name": "Trex Enhance Saddle Composite Decking 12'",
-        "description": "Saddle-toned composite decking board. Fade, stain, scratch, and mold resistant.",
-        "categoryId": 21,
-        "imageUrl": "/images/products/trex-saddle.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Trex",
-        "price": 32.49,
-        "msrp": 39.99,
-        "tags": [
-            "decking",
-            "composite",
-            "exterior"
-        ],
-        "relatedSkus": [
-            "DECK-TREX-CLM-12"
-        ],
-        "coverageSqFt": 5.5,
-        "coverageLf": 12,
-        "inStock": 320,
-        "leadTime": "In Stock at Gable Supply",
-        "relatedProducts": [
-            100,
-            15,
-            9
-        ]
-    },
-    {
-        "id": 23,
-        "sku": "CONC-RMX-80",
-        "name": "80lb Bag Ready-Mix Concrete",
-        "description": "High-strength ready-mix concrete for setting posts, building sidewalks, and general repairs. 4000 PSI.",
-        "categoryId": 16,
-        "imageUrl": "/images/products/concrete-bag.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Quikrete",
-        "price": 5.98,
-        "msrp": 7.49,
-        "tags": [
-            "concrete",
-            "masonry",
-            "foundation"
-        ],
-        "relatedSkus": [
-            "CONC-REBAR-10"
-        ]
-    },
-    {
-        "id": 24,
-        "sku": "CONC-REBAR-10",
-        "name": "#4 Rebar 10' (1/2\" Diameter)",
-        "description": "Standard #4 deformed steel rebar for concrete reinforcement. Grade 60.",
-        "categoryId": 16,
-        "imageUrl": "/images/products/rebar.png",
-        "baseUom": "EA",
-        "isActive": true,
-        "brand": "Generic",
-        "price": 7.48,
-        "msrp": 9.99,
-        "tags": [
-            "concrete",
-            "rebar",
-            "reinforcement"
-        ],
-        "relatedSkus": [
-            "CONC-RMX-80"
-        ]
-    },
-    {
-        "id": 100,
-        "sku": "HW-TREX-HIDEAWAY",
-        "name": "Trex Hideaway Universal Hidden Fasteners (90ct)",
-        "description": "Install grooved Trex decking without visible screws. Box of 90 covers approx 50 sq ft.",
-        "categoryId": 61,
-        "imageUrl": "/images/products/structural-screws.png",
-        "baseUom": "BX",
-        "isActive": true,
-        "brand": "Trex",
-        "price": 34.99,
-        "msrp": 45,
-        "tags": [
-            "fasteners",
-            "decking",
-            "trex"
-        ],
-        "relatedSkus": [
-            "DECK-TREX-CLM-12",
-            "DECK-TREX-SADDLE-12"
-        ],
-        "inStock": 45,
-        "leadTime": "In Stock at Gable Supply"
-    }
+  {
+    "id": 1,
+    "sku": "PVR-TB-BLU60-SM",
+    "name": "Techo-Bloc Blu 60 Smooth",
+    "description": "Smooth-finish 60mm paver for patios and walkways. Clean modular format, the workhorse of the Techo-Bloc range.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Techo-Bloc",
+    "price": 6.29,
+    "msrp": 7.55,
+    "tags": [
+      "paver",
+      "patio",
+      "smooth",
+      "60mm"
+    ],
+    "relatedSkus": [
+      "PVR-TB-BLU80-SL",
+      "PVR-TB-ANTIKA"
+    ],
+    "inStock": 5200
+  },
+  {
+    "id": 2,
+    "sku": "PVR-TB-BLU80-SL",
+    "name": "Techo-Bloc Blu 80 Slate",
+    "description": "80mm slate-texture paver rated for vehicular traffic. The driveway thickness.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Techo-Bloc",
+    "price": 8.32,
+    "msrp": 9.99,
+    "tags": [
+      "paver",
+      "driveway",
+      "slate",
+      "80mm",
+      "vehicular"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 3,
+    "sku": "PVR-TB-ANTIKA",
+    "name": "Techo-Bloc Antika",
+    "description": "Tumbled antique-look paver with softened edges, for traditional patios and courtyards.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Techo-Bloc",
+    "price": 8.89,
+    "msrp": 10.65,
+    "tags": [
+      "paver",
+      "tumbled",
+      "antique",
+      "60mm"
+    ],
+    "relatedSkus": [],
+    "inStock": 3800
+  },
+  {
+    "id": 4,
+    "sku": "PVR-TB-BOREALIS",
+    "name": "Techo-Bloc Borealis",
+    "description": "Wide-plank wood-grain slab. A statement surface for contemporary patios.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Techo-Bloc",
+    "price": 17.67,
+    "msrp": 20.99,
+    "tags": [
+      "paver",
+      "slab",
+      "wood-grain",
+      "premium"
+    ],
+    "relatedSkus": [],
+    "leadTime": "Special Order \u2014 3 Weeks"
+  },
+  {
+    "id": 5,
+    "sku": "PVR-TB-HEXA",
+    "name": "Techo-Bloc Hexa",
+    "description": "Hexagonal slab for feature patios and modern courtyards.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Techo-Bloc",
+    "price": 10.56,
+    "msrp": 12.65,
+    "tags": [
+      "paver",
+      "slab",
+      "hexagon",
+      "modern"
+    ],
+    "relatedSkus": [],
+    "inStock": 2600
+  },
+  {
+    "id": 6,
+    "sku": "PVR-OAK-YORK60",
+    "name": "OAKS Yorkville 60",
+    "description": "Multi-size 60mm paver in a random-look blend. Ontario-made.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "OAKS Landscape Products",
+    "price": 8.13,
+    "msrp": 9.75,
+    "tags": [
+      "paver",
+      "patio",
+      "multi-size",
+      "60mm"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 7,
+    "sku": "PVR-OAK-RIALTO60",
+    "name": "OAKS Rialto 60",
+    "description": "Rectangular 60mm paver, crisp lines for walkways and borders.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "OAKS Landscape Products",
+    "price": 7.38,
+    "msrp": 8.85,
+    "tags": [
+      "paver",
+      "walkway",
+      "rectangular",
+      "60mm"
+    ],
+    "relatedSkus": [],
+    "inStock": 1450
+  },
+  {
+    "id": 8,
+    "sku": "PVR-OAK-NUEVA60",
+    "name": "OAKS Nueva 60",
+    "description": "Large-format smooth 60mm slab for contemporary patios.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "OAKS Landscape Products",
+    "price": 7.28,
+    "msrp": 8.75,
+    "tags": [
+      "paver",
+      "slab",
+      "smooth",
+      "60mm"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 9,
+    "sku": "PVR-OAK-RIDGE70",
+    "name": "OAKS Ridgefield Plus",
+    "description": "70mm textured paver suited to heavy pedestrian and light vehicular use.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "OAKS Landscape Products",
+    "price": 6.31,
+    "msrp": 7.55,
+    "tags": [
+      "paver",
+      "70mm",
+      "textured"
+    ],
+    "relatedSkus": [],
+    "inStock": 900
+  },
+  {
+    "id": 10,
+    "sku": "PVR-PMC-MELV80",
+    "name": "Permacon Melville 80",
+    "description": "80mm paver with a weathered face, driveway rated.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Permacon",
+    "price": 8.86,
+    "msrp": 10.6,
+    "tags": [
+      "paver",
+      "driveway",
+      "80mm",
+      "weathered"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 11,
+    "sku": "PVR-PMC-MOND60",
+    "name": "Permacon Mondrian 60",
+    "description": "Smooth 60mm modular paver in a linear layout.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Permacon",
+    "price": 6.16,
+    "msrp": 7.4,
+    "tags": [
+      "paver",
+      "smooth",
+      "60mm",
+      "modular"
+    ],
+    "relatedSkus": [],
+    "inStock": 5200
+  },
+  {
+    "id": 12,
+    "sku": "PVR-BRN-NORDIC60",
+    "name": "Brown's Nordic 60",
+    "description": "Economical 60mm paver for patios, walks and utility areas.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Brown's Concrete",
+    "price": 4.62,
+    "msrp": 5.55,
+    "tags": [
+      "paver",
+      "economy",
+      "60mm"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 13,
+    "sku": "PVR-BWS-TREV50",
+    "name": "Bestway Trevista Textured 50",
+    "description": "50mm textured slab for pedestrian patios and pool surrounds.",
+    "categoryId": 11,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Bestway Stone",
+    "price": 6.47,
+    "msrp": 7.75,
+    "tags": [
+      "paver",
+      "slab",
+      "textured",
+      "50mm",
+      "pool"
+    ],
+    "relatedSkus": [],
+    "inStock": 3800
+  },
+  {
+    "id": 14,
+    "sku": "WAL-OAK-MODAN",
+    "name": "OAKS Modan Wall",
+    "description": "Straight-face segmental retaining wall unit. Sold by square foot of finished wall face.",
+    "categoryId": 12,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "OAKS Landscape Products",
+    "price": 22.76,
+    "msrp": 27.3,
+    "tags": [
+      "wall",
+      "retaining",
+      "segmental",
+      "face"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 15,
+    "sku": "WAL-OAK-GRANDLEDGE",
+    "name": "OAKS Grand Ledge",
+    "description": "Large-format ledgestone-look wall unit for feature walls and seat walls.",
+    "categoryId": 12,
+    "baseUom": "EA",
+    "isActive": true,
+    "brand": "OAKS Landscape Products",
+    "price": 58.39,
+    "msrp": 70.05,
+    "tags": [
+      "wall",
+      "retaining",
+      "ledgestone",
+      "large-format"
+    ],
+    "relatedSkus": [],
+    "inStock": 180
+  },
+  {
+    "id": 16,
+    "sku": "WAL-PMC-CAP-SQ",
+    "name": "Permacon Wall Cap \u2014 Square",
+    "description": "Finished cap course for seat walls, pillars and retaining walls.",
+    "categoryId": 12,
+    "baseUom": "LF",
+    "isActive": true,
+    "brand": "Permacon",
+    "price": 31.4,
+    "msrp": 37.65,
+    "tags": [
+      "wall",
+      "cap",
+      "coping"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 17,
+    "sku": "STP-TB-BOREALIS",
+    "name": "Techo-Bloc Borealis Stepping Stone",
+    "description": "Wood-grain stepping stone for garden paths.",
+    "categoryId": 13,
+    "baseUom": "EA",
+    "isActive": true,
+    "brand": "Techo-Bloc",
+    "price": 54.3,
+    "msrp": 65.15,
+    "tags": [
+      "step",
+      "stepper",
+      "wood-grain"
+    ],
+    "relatedSkus": [],
+    "inStock": 96
+  },
+  {
+    "id": 18,
+    "sku": "STP-TB-MAYA",
+    "name": "Techo-Bloc Maya Stepping Stone",
+    "description": "Natural-texture stepping stone, irregular face.",
+    "categoryId": 13,
+    "baseUom": "EA",
+    "isActive": true,
+    "brand": "Techo-Bloc",
+    "price": 48.1,
+    "msrp": 57.7,
+    "tags": [
+      "step",
+      "stepper",
+      "natural"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 19,
+    "sku": "STP-BRN-SUPERIOR",
+    "name": "Brown's Superior Stepper",
+    "description": "Heavy precast step unit for grade changes and entrances.",
+    "categoryId": 13,
+    "baseUom": "EA",
+    "isActive": true,
+    "brand": "Brown's Concrete",
+    "price": 36.57,
+    "msrp": 43.9,
+    "tags": [
+      "step",
+      "precast",
+      "entrance"
+    ],
+    "relatedSkus": [],
+    "inStock": 64
+  },
+  {
+    "id": 20,
+    "sku": "POR-BWS-2X2-GREY",
+    "name": "Outdoor Porcelain 24x24 \u2014 Grey",
+    "description": "20mm outdoor-rated porcelain slab. Frost resistant, low maintenance.",
+    "categoryId": 14,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Bestway Stone",
+    "price": 12.85,
+    "msrp": 15.4,
+    "tags": [
+      "porcelain",
+      "slab",
+      "24x24",
+      "frost-resistant"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 21,
+    "sku": "NST-FLAG-RANDOM",
+    "name": "Random Flagstone \u2014 Ontario",
+    "description": "Irregular natural flagstone for patios and paths. Sold by the square foot of coverage.",
+    "categoryId": 21,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 9.4,
+    "msrp": 11.3,
+    "tags": [
+      "natural-stone",
+      "flagstone",
+      "irregular"
+    ],
+    "relatedSkus": [],
+    "inStock": 2600
+  },
+  {
+    "id": 22,
+    "sku": "NST-COPING-SAWN",
+    "name": "Sawn Stone Coping",
+    "description": "Sawn natural stone coping for pool edges, walls and steps.",
+    "categoryId": 21,
+    "baseUom": "LF",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 42.0,
+    "msrp": 50.4,
+    "tags": [
+      "natural-stone",
+      "coping",
+      "sawn",
+      "pool"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 23,
+    "sku": "NST-ARMOUR-2MAN",
+    "name": "Armour Stone \u2014 Two-Man",
+    "description": "Quarried armour stone for retaining and feature walls. Sold by the tonne.",
+    "categoryId": 22,
+    "baseUom": "TON",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 210.0,
+    "msrp": 252.0,
+    "tags": [
+      "natural-stone",
+      "armour",
+      "boulder",
+      "retaining"
+    ],
+    "relatedSkus": [],
+    "leadTime": "Low Stock \u2014 Order Soon",
+    "inStock": 420
+  },
+  {
+    "id": 24,
+    "sku": "AGG-HPB-BULK",
+    "name": "High Performance Base (HPB)",
+    "description": "Clean crushed base that compacts without fines. Sold in bulk by the tonne.",
+    "categoryId": 31,
+    "baseUom": "TON",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 42.5,
+    "msrp": 51.0,
+    "tags": [
+      "aggregate",
+      "base",
+      "hpb",
+      "bulk"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 25,
+    "sku": "AGG-SCREEN-BULK",
+    "name": "Limestone Screenings",
+    "description": "Bedding and levelling course under pavers and flagstone. Bulk tonne.",
+    "categoryId": 31,
+    "baseUom": "TON",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 38.0,
+    "msrp": 45.6,
+    "tags": [
+      "aggregate",
+      "screenings",
+      "bedding",
+      "bulk"
+    ],
+    "relatedSkus": [],
+    "inStock": 260
+  },
+  {
+    "id": 26,
+    "sku": "AGG-CLEAR34-BULK",
+    "name": "3/4\" Clearstone",
+    "description": "Washed clear stone for drainage, wall backfill and permeable base. Bulk tonne.",
+    "categoryId": 31,
+    "baseUom": "TON",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 41.0,
+    "msrp": 49.2,
+    "tags": [
+      "aggregate",
+      "clearstone",
+      "drainage",
+      "bulk"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 27,
+    "sku": "AGG-SAND-BAG",
+    "name": "Concrete Sand \u2014 Bagged",
+    "description": "Bedding sand in a handled bag, for small areas and top-ups.",
+    "categoryId": 31,
+    "baseUom": "BG",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 7.0,
+    "msrp": 8.4,
+    "tags": [
+      "aggregate",
+      "sand",
+      "bagged"
+    ],
+    "relatedSkus": [],
+    "inStock": 900
+  },
+  {
+    "id": 28,
+    "sku": "AGG-CLEAR34-BAG",
+    "name": "3/4\" Clearstone \u2014 Bagged",
+    "description": "The same clear stone in a bag, for tight sites and small repairs.",
+    "categoryId": 31,
+    "baseUom": "BG",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 6.1,
+    "msrp": 7.35,
+    "tags": [
+      "aggregate",
+      "clearstone",
+      "bagged"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 29,
+    "sku": "DEC-RIVER-1IN",
+    "name": "1\" River Rock",
+    "description": "Rounded washed river rock for beds and drainage features.",
+    "categoryId": 32,
+    "baseUom": "BG",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 8.0,
+    "msrp": 9.6,
+    "tags": [
+      "decorative",
+      "river-rock",
+      "bagged"
+    ],
+    "relatedSkus": [],
+    "inStock": 640
+  },
+  {
+    "id": 30,
+    "sku": "DEC-RIVER-26-BULK",
+    "name": "2-6\" River Rock \u2014 Bulk",
+    "description": "Large rounded river rock for dry creek beds and erosion control. Cubic yard.",
+    "categoryId": 32,
+    "baseUom": "CY",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 86.7,
+    "msrp": 104.05,
+    "tags": [
+      "decorative",
+      "river-rock",
+      "bulk"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 31,
+    "sku": "DEC-GRANITE-BLK",
+    "name": "Black Granite Chip",
+    "description": "Crushed black granite for contemporary bed mulching.",
+    "categoryId": 32,
+    "baseUom": "BG",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 12.0,
+    "msrp": 14.4,
+    "tags": [
+      "decorative",
+      "granite",
+      "bagged"
+    ],
+    "relatedSkus": [],
+    "inStock": 380
+  },
+  {
+    "id": 32,
+    "sku": "SOL-TRIPLE-CY",
+    "name": "Triple Mix",
+    "description": "Blended topsoil, peat and compost for beds and lawn repair. Cubic yard.",
+    "categoryId": 33,
+    "baseUom": "CY",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 61.2,
+    "msrp": 73.45,
+    "tags": [
+      "soil",
+      "triple-mix",
+      "bulk"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 33,
+    "sku": "SOL-TOPSOIL-CY",
+    "name": "Screened Topsoil",
+    "description": "Screened topsoil for grading and sod prep. Cubic yard.",
+    "categoryId": 33,
+    "baseUom": "CY",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 43.86,
+    "msrp": 52.65,
+    "tags": [
+      "soil",
+      "topsoil",
+      "bulk"
+    ],
+    "relatedSkus": [],
+    "inStock": 340
+  },
+  {
+    "id": 34,
+    "sku": "MLC-CEDAR-RED-CY",
+    "name": "Red Cedar Mulch",
+    "description": "Natural red cedar mulch, colour-stable through the season. Cubic yard.",
+    "categoryId": 33,
+    "baseUom": "CY",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 66.3,
+    "msrp": 79.55,
+    "tags": [
+      "mulch",
+      "cedar",
+      "bulk"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 35,
+    "sku": "MLC-CEDAR-BLK-CY",
+    "name": "Black Cedar Mulch",
+    "description": "Black-dyed cedar mulch for high-contrast beds. Cubic yard.",
+    "categoryId": 33,
+    "baseUom": "CY",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 62.22,
+    "msrp": 74.65,
+    "tags": [
+      "mulch",
+      "cedar",
+      "bulk"
+    ],
+    "relatedSkus": [],
+    "inStock": 210
+  },
+  {
+    "id": 36,
+    "sku": "EDG-PVC-STD",
+    "name": "Paver Edge Restraint \u2014 PVC",
+    "description": "Rigid PVC restraint that holds the paver field at the perimeter.",
+    "categoryId": 41,
+    "baseUom": "LF",
+    "isActive": true,
+    "brand": "Alliance Gator",
+    "price": 3.85,
+    "msrp": 4.6,
+    "tags": [
+      "edging",
+      "restraint",
+      "perimeter"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 37,
+    "sku": "EDG-SPIKE-10",
+    "name": "Edging Spikes 10\" \u2014 Box of 50",
+    "description": "Galvanised spikes for securing edge restraint.",
+    "categoryId": 41,
+    "baseUom": "BX",
+    "isActive": true,
+    "brand": "Alliance Gator",
+    "price": 42.0,
+    "msrp": 50.4,
+    "tags": [
+      "edging",
+      "spike",
+      "fastener"
+    ],
+    "relatedSkus": [],
+    "inStock": 70
+  },
+  {
+    "id": 38,
+    "sku": "JNT-POLY-SAND",
+    "name": "Polymeric Jointing Sand \u2014 50lb",
+    "description": "Swept into paver joints and activated with water. Locks the field and resists weeds.",
+    "categoryId": 42,
+    "baseUom": "BG",
+    "isActive": true,
+    "brand": "Alliance Gator",
+    "price": 39.5,
+    "msrp": 47.4,
+    "tags": [
+      "jointing",
+      "polymeric",
+      "sand"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 39,
+    "sku": "JNT-ADHESIVE",
+    "name": "Hardscape Block Adhesive",
+    "description": "Cartridge adhesive for caps, coping and step treads.",
+    "categoryId": 42,
+    "baseUom": "EA",
+    "isActive": true,
+    "brand": "Alliance Gator",
+    "price": 18.75,
+    "msrp": 22.5,
+    "tags": [
+      "adhesive",
+      "cap",
+      "coping"
+    ],
+    "relatedSkus": [],
+    "inStock": 40
+  },
+  {
+    "id": 40,
+    "sku": "GEO-FABRIC-RL",
+    "name": "Woven Geotextile \u2014 12.5' x 360'",
+    "description": "Separation fabric between subgrade and base. Keeps the base out of the soil.",
+    "categoryId": 41,
+    "baseUom": "RL",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 385.0,
+    "msrp": 462.0,
+    "tags": [
+      "geotextile",
+      "fabric",
+      "separation"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 41,
+    "sku": "FIR-KIT-ROUND",
+    "name": "Round Fire Pit Kit",
+    "description": "Pre-packaged fire pit kit with wall units and steel insert.",
+    "categoryId": 43,
+    "baseUom": "EA",
+    "isActive": true,
+    "brand": "OAKS Landscape Products",
+    "price": 849.0,
+    "msrp": 1018.8,
+    "tags": [
+      "fire-pit",
+      "kit",
+      "feature"
+    ],
+    "relatedSkus": [],
+    "leadTime": "Low Stock \u2014 Order Soon",
+    "inStock": 12
+  },
+  {
+    "id": 42,
+    "sku": "LGT-LED-PATH",
+    "name": "LED Path Light \u2014 Low Voltage",
+    "description": "Die-cast low-voltage path light for walkways and steps.",
+    "categoryId": 44,
+    "baseUom": "EA",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 96.5,
+    "msrp": 115.8,
+    "tags": [
+      "lighting",
+      "path",
+      "low-voltage"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 43,
+    "sku": "GRD-ECO-STD",
+    "name": "Ecoraster Grid",
+    "description": "Recycled permeable grid for gravel driveways and fire access.",
+    "categoryId": 45,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Ecoraster",
+    "price": 6.71,
+    "msrp": 8.05,
+    "tags": [
+      "grid",
+      "permeable",
+      "driveway",
+      "ecoraster"
+    ],
+    "relatedSkus": [],
+    "inStock": 1450
+  },
+  {
+    "id": 44,
+    "sku": "GRD-ECO-BLOXX",
+    "name": "Ecoraster Bloxx",
+    "description": "Heavy-duty interlocking grid module for high-load surfaces.",
+    "categoryId": 45,
+    "baseUom": "EA",
+    "isActive": true,
+    "brand": "Ecoraster",
+    "price": 20.88,
+    "msrp": 25.05,
+    "tags": [
+      "grid",
+      "permeable",
+      "heavy-duty"
+    ],
+    "relatedSkus": []
+  },
+  {
+    "id": 45,
+    "sku": "TRF-ARTIFICIAL",
+    "name": "Artificial Turf \u2014 40mm",
+    "description": "Landscape-grade artificial turf for pet areas, courtyards and rooftops.",
+    "categoryId": 45,
+    "baseUom": "SF",
+    "isActive": true,
+    "brand": "Dibbits Bulk",
+    "price": 6.95,
+    "msrp": 8.35,
+    "tags": [
+      "turf",
+      "artificial",
+      "synthetic"
+    ],
+    "relatedSkus": [],
+    "inStock": 900
+  }
 ]

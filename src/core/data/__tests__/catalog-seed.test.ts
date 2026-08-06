@@ -6,9 +6,9 @@ describe('catalog seed', () => {
   const catalog = seedCatalog(12345);
 
   it('converts the whole salvaged catalog', () => {
-    expect(catalog.products).toHaveLength(25);
-    expect(catalog.categories).toHaveLength(26);
-    expect(catalog.brands).toHaveLength(12);
+    expect(catalog.products).toHaveLength(45);
+    expect(catalog.categories).toHaveLength(18);
+    expect(catalog.brands).toHaveLength(8);
   });
 
   it('stores every price as integer cents', () => {
@@ -19,8 +19,8 @@ describe('catalog seed', () => {
   });
 
   it('converts known dollar prices exactly', () => {
-    const fir = catalog.products.find((p) => p.sku === 'LBR-2X4-8-DF');
-    expect(fir?.listPrice).toBe(597); // $5.97
+    const paver = catalog.products.find((p) => p.sku === 'PVR-OAK-YORK60');
+    expect(paver?.listPrice).toBe(813); // $8.13/sf
   });
 
   it('resolves brand names to brand ids', () => {
@@ -63,10 +63,10 @@ describe('manufactured availability', () => {
   });
 
   it('honours explicit stock counts from the source data', () => {
-    // Source declares inStock: 320 for the Trex decking.
-    const trex = seedProducts(7).find((p) => p.sku === 'DECK-TREX-CLM-12');
-    const yard = trex?.stock.find((s) => s.locationId === 'loc_yard');
-    expect(yard?.onHand).toBe(320);
+    // Source declares inStock: 5200 sf for this paver.
+    const paver = seedProducts(7).find((p) => p.sku === 'PVR-TB-BLU60-SM');
+    const yard = paver?.stock.find((s) => s.locationId === 'loc_yard');
+    expect(yard?.onHand).toBe(5200);
   });
 
   it('gives stocked products no lead time and out-of-stock products a real wait', () => {

@@ -111,6 +111,6 @@ describe('dealer identity', () => {
     renderShell();
 
     expect(screen.getByText('Cascade Building Supply')).toBeInTheDocument();
-    expect(screen.queryByText('Cornerstone Hardscape')).not.toBeInTheDocument();
+    expect(screen.queryByText('Dibbits Landscape Supply')).not.toBeInTheDocument();
   });
 });

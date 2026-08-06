@@ -660,7 +660,7 @@ resets the socket and the caller gets ECONNRESET instead of a reason.
 
 `companyName` was settable in the admin console while the demo dealer's name
 was hardcoded into ~40 contractor-facing sentences, so a deployment for anyone
-else still told its contractors that "Cornerstone Hardscape will price this". Every such
+else still told its contractors that "Dibbits Landscape Supply will price this". Every such
 sentence now goes through `supplierName()` (`core/config/runtime.ts`).
 
 - **Build the sentence where it is rendered.** Module-level string constants
@@ -814,6 +814,33 @@ Two things kept this hidden, and both are worth remembering:
   unconditionally — the test's own setup manufactured the complete save it then
   asserted on. `src/core/__tests__/first-save.test.ts` is a separate file that
   must never call it, for that reason.
+
+## A gate must know it is grading its own program
+
+This bit twice, in two different scripts, and the second time it corrupted
+documentation across repos.
+
+`npm run security` and `npm run guide` each spawn a server and then talk to a
+fixed port. Neither checked that the spawn actually won that port, and
+`server.kill()` reaps only the `npx` wrapper — the real vite child keeps
+listening. So a run leaves a server behind, and the next run, in ANY checkout,
+silently talks to it.
+
+The guide case is the one to remember: a preview server left over from the
+sibling product answered every page, and an entire user guide was captured from
+a DIFFERENT APPLICATION. The screenshots looked completely plausible. Nothing
+failed. The only reason it surfaced was reading the regenerated PNGs and
+noticing the wrong dealer name.
+
+Both scripts now:
+- refuse to start if anything is already listening on their port,
+- abort if their own server exits before serving,
+- spawn `detached` and kill the process GROUP, then wait for the port to
+  return so a re-run does not trip its own guard,
+- and the guide additionally asserts the served `<title>` matches this repo's
+  own `index.html` — a port guard stops the common case, content proves it.
+
+**A check that can silently grade the wrong program is worse than no check.**
 
 ## The checks that are not `npm test`
 

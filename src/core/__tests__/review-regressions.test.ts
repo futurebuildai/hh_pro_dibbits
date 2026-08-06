@@ -380,7 +380,7 @@ describe('the dealer name is configuration, not a literal', () => {
   /**
    * `companyName` is settable in the admin console, but the demo dealer's name
    * was written into ~40 contractor-facing sentences — so a deployment for
-   * anyone else told its contractors that "Cornerstone Hardscape will price this".
+   * anyone else told its contractors that "Dibbits Landscape Supply will price this".
    *
    * The behavioural half: a refusal a contractor actually reads.
    */
@@ -425,7 +425,7 @@ describe('the dealer name is configuration, not a literal', () => {
         const code = readFileSync(full, 'utf8')
           .replace(/\/\*[\s\S]*?\*\//g, '')
           .replace(/\/\/.*$/gm, '');
-        if (code.includes('Cornerstone')) offenders.push(full.slice(root.length));
+        if (code.includes('Dibbits')) offenders.push(full.slice(root.length));
       }
     };
     walk(root);

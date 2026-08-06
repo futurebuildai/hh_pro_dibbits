@@ -14,7 +14,8 @@
  */
 
 import { execSync, spawn } from 'node:child_process';
-import { mkdirSync, renameSync, rmSync, statSync } from 'node:fs';
+import { mkdirSync, readFileSync, renameSync, rmSync, statSync } from 'node:fs';
+import net from 'node:net';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -122,6 +123,22 @@ async function expectText(page, text) {
   }
 }
 
+/** Is anything already listening? A taken port means we would shoot IT, not us. */
+function portInUse(port) {
+  return new Promise((resolve) => {
+    const socket = net.connect({ host: '127.0.0.1', port });
+    socket.on('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.on('error', () => resolve(false));
+    socket.setTimeout(1000, () => {
+      socket.destroy();
+      resolve(false);
+    });
+  });
+}
+
 async function main() {
   rmSync(OUT, { recursive: true, force: true });
   mkdirSync(OUT, { recursive: true });
@@ -130,7 +147,30 @@ async function main() {
   execSync('npm run build', { cwd: ROOT, stdio: 'inherit' });
 
   process.stdout.write(`Serving on :${PORT}…\n`);
+  /**
+   * The port must be OURS, and the app on it must be THIS app.
+   *
+   * `--strictPort` makes vite exit when the port is taken, and this script
+   * used to ignore that and photograph whatever else was listening. A preview
+   * server left running by a sibling checkout answered every page, so an
+   * entire user guide was captured from a DIFFERENT PRODUCT — the screenshots
+   * looked plausible, which is exactly why nobody noticed.
+   *
+   * The guide is documentation people trust. It must fail loudly rather than
+   * illustrate someone else's application.
+   */
+  if (await portInUse(PORT)) {
+    throw new Error(
+      `port ${PORT} is already serving something. The guide would photograph THAT app, ` +
+        'not this one. Stop it and re-run.',
+    );
+  }
+
+  // `detached` so the process GROUP can be killed: `server.kill()` reaps only
+  // the `npx` wrapper and leaves the real vite child holding the port, which
+  // is how the stale server got there in the first place.
   const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
+    detached: true,
     cwd: ROOT,
     stdio: 'ignore',
   });
@@ -147,6 +187,24 @@ async function main() {
         /* not up yet */
       }
       await new Promise((r) => setTimeout(r, 250));
+    }
+
+    /**
+     * And prove the app answering is THIS one. The port guard stops the
+     * common case; this catches the rest — a proxy, a container, anything
+     * bound to the same port that would otherwise be photographed and filed
+     * as our documentation. Compared against our own index.html so it cannot
+     * drift from the product name.
+     */
+    const expectedTitle = /<title>([^<]+)<\/title>/.exec(
+      readFileSync(join(ROOT, 'index.html'), 'utf8'),
+    )?.[1];
+    const servedTitle = /<title>([^<]+)<\/title>/.exec(await (await fetch(BASE)).text())?.[1];
+    if (expectedTitle && servedTitle !== expectedTitle) {
+      throw new Error(
+        `:${PORT} is serving "${servedTitle}", not "${expectedTitle}". ` +
+          'Refusing to photograph another application and call it this guide.',
+      );
     }
 
     const phone = await browser.newContext({
@@ -174,7 +232,7 @@ async function main() {
     // ---- 3. Open an order -------------------------------------------------
     await page.getByRole('tab', { name: /Plan/ }).click();
     await page.waitForTimeout(200);
-    await page.locator('article', { hasText: 'Deck framing' }).first().click();
+    await page.locator('article', { hasText: 'Patio base' }).first().click();
     await page.waitForURL(/\/orders\//);
     await expectText(page, 'below list');
     await shoot(page, '03-order-scope', 'An order’s scope, with your price against list');
@@ -208,7 +266,7 @@ async function main() {
     // ---- 8. Blocked move --------------------------------------------------
     await page.goto(`${BASE}/`);
     await page.waitForSelector('article');
-    await dragCardToStage(page, 'Decking & rail', 'Order');
+    await dragCardToStage(page, 'Paver field', 'Order');
     await page.waitForSelector('[role="dialog"]');
     await expectText(page, 'needs dealer pricing');
     await shoot(page, '08-blocked-move', 'The board explains why a move isn’t allowed');
@@ -216,7 +274,7 @@ async function main() {
     await page.waitForTimeout(300);
 
     // ---- 9. Allowed move --------------------------------------------------
-    await dragCardToStage(page, 'Decking & rail', 'Quote');
+    await dragCardToStage(page, 'Paver field', 'Quote');
     await page.waitForSelector('[role="dialog"]');
     await expectText(page, 'quote desk');
     await shoot(page, '09-confirm-move', 'Every stage move names its consequence first');
@@ -278,7 +336,7 @@ async function main() {
 
     // ---- 16. Product narrative -------------------------------------------
     await page
-      .getByRole('button', { name: /Trex Enhance/ })
+      .getByRole('button', { name: /Yorkville/ })
       .first()
       .click();
     await expectText(page, 'Product details');
@@ -396,7 +454,14 @@ async function main() {
     process.stdout.write(`\n${shots.length} screenshots written to docs/screenshots/\n`);
   } finally {
     await browser.close();
-    server.kill();
+    try {
+      process.kill(-server.pid, 'SIGTERM');
+    } catch {
+      server.kill();
+    }
+    for (let i = 0; i < 20 && (await portInUse(PORT)); i++) {
+      await new Promise((r) => setTimeout(r, 150));
+    }
   }
 }
 

@@ -34,8 +34,16 @@ const META_KEY = `${KEY_PREFIX}meta`;
  * never see. M5->M6/M7 added open AR (the Kirkland invoice and a counter sale);
  * v3 added the seeded team (roles demo) — a browser holding older state would
  * restore straight past the seed and show an empty Team screen.
+ *
+ * v4 is the hardscape fork: the entire catalog, pricing and scenario changed
+ * from building materials to Dibbits' paver and aggregate lines. Without the
+ * bump a browser carrying LumberNow-era state restored it wholesale, and the
+ * regenerated user guide came out showing deck framing in Sioux Falls — the
+ * whole point of this file's warning, demonstrated. There is no MIGRATIONS
+ * entry on purpose: old demo state cannot carry forward into a different
+ * vertical, so a missing step means "reseed", which is exactly right here.
  */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 export interface PersistMeta {
   schemaVersion: number;

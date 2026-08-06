@@ -38,7 +38,7 @@ interface RawProduct {
   name: string;
   description: string;
   categoryId: number;
-  imageUrl: string;
+  imageUrl?: string;
   baseUom: string;
   isActive: boolean;
   brand: string;
@@ -75,7 +75,7 @@ export const LOCATIONS: Location[] = [
   { id: DC_ID, name: 'Distribution Center', kind: 'warehouse' },
 ];
 
-const KNOWN_UOMS: readonly Uom[] = ['EA', 'LF', 'BF', 'SQ', 'SHT', 'BD', 'BG', 'BX', 'RL', 'CY'];
+const KNOWN_UOMS: readonly Uom[] = ['EA', 'SF', 'LF', 'TON', 'CY', 'PLT', 'BG', 'BX', 'RL', 'BD'];
 
 function normalizeUom(raw: string): Uom {
   const upper = raw.toUpperCase() as Uom;
@@ -99,19 +99,44 @@ export function brandId(rawId: number): string {
  */
 function deriveSpecClass(raw: RawProduct): string | undefined {
   const tags = raw.tags.map((tag) => tag.toLowerCase());
-  if (tags.includes('composite') && tags.includes('decking')) return 'decking-composite';
-  if (tags.includes('decking')) return 'decking-wood';
-  if (tags.includes('treated') || tags.includes('pressure-treated')) return 'lumber-treated';
-  if (tags.includes('framing') || tags.includes('dimensional')) return 'lumber-dimensional';
-  if (tags.includes('sheathing') || tags.includes('plywood') || tags.includes('osb')) {
-    return 'panel-sheathing';
+  const name = raw.name.toLowerCase();
+
+  // Pavers substitute WITHIN a thickness class and never across one. A 60mm
+  // paver under a car fails, so offering one as an alternate to an 80mm
+  // driveway paver would be a value-engineering suggestion that cracks. This
+  // is the hardscape equivalent of not swapping a joist for a deck board.
+  if (tags.includes('paver') || tags.includes('slab')) {
+    if (tags.includes('80mm') || name.includes(' 80')) return 'paver-80mm-vehicular';
+    if (tags.includes('70mm')) return 'paver-70mm';
+    if (tags.includes('50mm')) return 'paver-50mm-pedestrian';
+    return 'paver-60mm';
   }
-  if (tags.includes('fastener') || tags.includes('screws') || tags.includes('nails')) {
-    return 'fastener';
+  if (tags.includes('porcelain')) return 'porcelain-slab';
+  if (tags.includes('wall')) return tags.includes('cap') ? 'wall-cap' : 'wall-segmental';
+  if (tags.includes('step') || tags.includes('stepper')) return 'step-unit';
+  if (tags.includes('natural-stone')) {
+    return tags.includes('armour') ? 'stone-armour' : 'stone-flag';
   }
-  if (tags.includes('roofing') || tags.includes('shingles')) return 'roofing-shingle';
-  if (tags.includes('concrete')) return 'concrete-mix';
-  if (tags.includes('insulation')) return 'insulation';
+  if (tags.includes('base') || tags.includes('screenings') || tags.includes('bedding')) {
+    return 'aggregate-base';
+  }
+  if (tags.includes('decorative') || tags.includes('river-rock') || tags.includes('granite')) {
+    return 'aggregate-decorative';
+  }
+  if (tags.includes('mulch')) return 'mulch-bulk';
+  if (tags.includes('soil') || tags.includes('topsoil') || tags.includes('triple-mix')) {
+    return 'soil-bulk';
+  }
+  if (tags.includes('jointing') || tags.includes('polymeric')) return 'jointing-sand';
+  if (tags.includes('edging') || tags.includes('restraint') || tags.includes('spike')) {
+    return 'edge-restraint';
+  }
+  if (tags.includes('geotextile')) return 'geotextile';
+  if (tags.includes('grid') || tags.includes('permeable')) return 'permeable-grid';
+  if (tags.includes('turf')) return 'turf-synthetic';
+  if (tags.includes('lighting')) return 'lighting-lowvoltage';
+  if (tags.includes('fire-pit')) return 'fire-feature';
+  if (tags.includes('adhesive')) return 'adhesive';
   return undefined;
 }
 
@@ -124,29 +149,27 @@ function deriveSpecClass(raw: RawProduct): string | undefined {
  * in a commodity list hides the decision they agonised over.
  */
 function derivePresentation(raw: RawProduct): Presentation {
-  const name = raw.name.toLowerCase();
-  const text = `${name} ${raw.tags.join(' ')}`.toLowerCase();
+  const text = `${raw.name} ${raw.tags.join(' ')}`.toLowerCase();
 
-  // Dimensional lumber ("2x6x8'") is structure, and the NAME is the reliable
-  // signal — tags are not. Pressure-treated joists are tagged 'deck' because
-  // they frame one, which would otherwise put a hero image of a 2x6 on a
-  // homeowner's proposal next to the decking they actually chose.
-  const isDimensional = /\b\d+x\d+/.test(name);
-  const isVisibleMillwork = /deck(ing)?|trim|fascia|siding|rail/.test(name);
-  if (isDimensional && !isVisibleMillwork) return 'commodity';
-
+  // Buried wins ties, and in hardscape almost everything by weight is buried.
+  // A homeowner never chose the screenings; they chose the paver lying on it.
+  // Tags are unreliable on their own here for the same reason they were in
+  // lumber: base aggregate is tagged for the patio it goes under.
   const buried =
-    /stud|joist|rafter|plate|sheathing|osb|plywood|nail|screw|fastener|hanger|bracket|concrete|rebar|insulation|felt|underlayment|house ?wrap|vapor|post\b/.test(
+    /base|screening|clearstone|bedding|geotextile|fabric|separation|restraint|spike|adhesive|polymeric|jointing|backfill|drainage|sand\b/.test(
       text,
     );
-  // Buried wins ties: roofing felt mentions 'roofing' but nobody chose it.
   if (buried) return 'commodity';
 
-  const visible =
-    /deck|railing|baluster|siding|shingle|roofing|door|window|trim|cabinet|vanity|counter|fixture|paint|stain|stone|pave/.test(
+  // Bulk soils and mulch are real money and real trucks, but nobody picks a
+  // cubic yard of triple mix off a display board.
+  if (raw.baseUom === 'TON' || raw.baseUom === 'CY') return 'commodity';
+
+  const chosen =
+    /paver|slab|wall|cap|coping|step|stepper|porcelain|flagstone|armour|fire[- ]?pit|light|turf|grid|river rock|granite|decorative/.test(
       text,
     );
-  return visible ? 'selection' : 'commodity';
+  return chosen ? 'selection' : 'commodity';
 }
 
 /**
@@ -165,11 +188,18 @@ function deriveAvailability(
   const declaredStock = raw.inStock;
   const status = (raw.leadTime ?? '').toLowerCase();
 
-  // Respect an explicit low-stock signal from the source data.
+  // Respect explicit stock signals from the source data.
   const isLowStock = status.includes('low stock');
+  // "Special Order" is the source telling us it is NOT on the yard. Rolling
+  // dice over that was letting a catalog whose data says special-order come
+  // out fully stocked, which quietly removes the lead-time story the whole
+  // feature exists for.
+  const isSpecialOrder = status.includes('special order');
 
   let yardQty: number;
-  if (declaredStock !== undefined) {
+  if (isSpecialOrder) {
+    yardQty = 0;
+  } else if (declaredStock !== undefined) {
     yardQty = declaredStock;
   } else if (rng.next() < 0.12) {
     yardQty = 0; // genuinely out — drives the special-order / lead-time story
@@ -179,16 +209,28 @@ function deriveAvailability(
     yardQty = rng.int(30, 400);
   }
 
-  const dcQty = yardQty === 0 ? (rng.next() < 0.5 ? rng.int(10, 60) : 0) : rng.int(0, 120);
+  const dcQty = isSpecialOrder
+    ? 0
+    : yardQty === 0
+      ? rng.next() < 0.5
+        ? rng.int(10, 60)
+        : 0
+      : rng.int(0, 120);
 
   const stock: StockLevel[] = [
     { locationId: MAIN_YARD_ID, onHand: yardQty, onOrder: yardQty === 0 ? rng.int(0, 50) : 0 },
     { locationId: DC_ID, onHand: dcQty, onOrder: 0 },
   ];
 
+  // The source often STATES the wait ("Special Order — 3 Weeks"). Use it rather
+  // than rolling dice next to it: a demo where the catalog says three weeks and
+  // the card says nine days is a demo that contradicts itself.
+  const statedWeeks = /(\d+)\s*week/.exec(status);
+  const stated = statedWeeks?.[1] ? Number(statedWeeks[1]) * 7 : null;
+
   // Stocked anywhere => effectively immediate. Nothing on hand => a real wait.
   const anyOnHand = yardQty > 0 || dcQty > 0;
-  const leadTimeDays = anyOnHand ? (yardQty > 0 ? 0 : 2) : rng.int(7, 24);
+  const leadTimeDays = stated ?? (anyOnHand ? (yardQty > 0 ? 0 : 2) : rng.int(7, 24));
 
   return { stock, leadTimeDays };
 }
@@ -236,7 +278,7 @@ export function seedProducts(seed: number): Product[] {
       description: raw.description,
       categoryId: categoryId(raw.categoryId),
       brandId: resolvedBrandId,
-      imageUrl: raw.imageUrl,
+      ...(raw.imageUrl ? { imageUrl: raw.imageUrl } : {}),
       baseUom: normalizeUom(raw.baseUom),
       isActive: raw.isActive,
       listPrice: toCents(raw.price),

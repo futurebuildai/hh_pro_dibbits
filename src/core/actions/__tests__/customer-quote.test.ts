@@ -75,10 +75,10 @@ describe('what the customer sees', () => {
     const selections = quote.lines.filter((l) => l.presentation === 'selection');
     const commodities = quote.lines.filter((l) => l.presentation === 'commodity');
 
-    // Composite decking is something a homeowner chose.
+    // The paver field is something a homeowner chose.
     expect(selections.length).toBeGreaterThan(0);
-    expect(selections.some((l) => l.name.toLowerCase().includes('trex'))).toBe(true);
-    // And the framing order is all commodity — nobody picks a joist.
+    expect(selections.some((l) => l.name.toLowerCase().includes('yorkville'))).toBe(true);
+    // And the base order is all commodity — nobody picks the screenings.
     expect(build(MILLER_FRAME).lines.every((l) => l.presentation === 'commodity')).toBe(true);
     expect(commodities.length + selections.length).toBe(quote.lines.length);
   });
@@ -110,11 +110,11 @@ describe('what the customer sees', () => {
     const products = catalogStore.get().products;
     const bySku = (sku: string) => products.find((p) => p.sku === sku);
 
-    expect(bySku('DECK-TREX-CLM-12')?.presentation).toBe('selection');
-    expect(bySku('LBR-2X4-8-DF')?.presentation).toBe('commodity');
-    expect(bySku('PLY-OSB-7/16-4X8')?.presentation).toBe('commodity');
-    // Roofing felt mentions 'roofing' but is buried — buried must win.
-    expect(bySku('RF-FELT-15')?.presentation).toBe('commodity');
+    expect(bySku('PVR-OAK-YORK60')?.presentation).toBe('selection');
+    expect(bySku('AGG-SCREEN-BULK')?.presentation).toBe('commodity');
+    expect(bySku('AGG-HPB-BULK')?.presentation).toBe('commodity');
+    // Geotextile is tagged for the patio it goes under — buried must win.
+    expect(bySku('GEO-FABRIC-RL')?.presentation).toBe('commodity');
   });
 });
 
@@ -332,8 +332,8 @@ describe('sending and signing', () => {
     // unitCost exists on the line for math, but no supplier identity travels
     // with the document.
     const serialized = JSON.stringify(sent);
-    expect(serialized).not.toContain('Cornerstone');
-    expect(sent.contractor.companyName).toBe('Summit Ridge Builders');
+    expect(serialized).not.toContain('Dibbits');
+    expect(sent.contractor.companyName).toBe('Quinte Landscape & Design');
   });
 });
 
@@ -345,7 +345,7 @@ describe('quote is frozen at send time', () => {
     const lineCount = sent.lines.length;
 
     const { addCatalogItem } = await import('../scope');
-    addCatalogItem({ orderId: MILLER_FRAME, product: 'PT-4X4-8', qty: 5 });
+    addCatalogItem({ orderId: MILLER_FRAME, product: 'EDG-PVC-STD', qty: 5 });
 
     const stored = listOf(customerQuotesStore.get()).find((q) => q.id === sent.id);
     expect(stored?.lines).toHaveLength(lineCount);

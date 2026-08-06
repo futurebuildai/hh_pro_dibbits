@@ -350,7 +350,19 @@ export function createMessagesHandler(apiKey: string | undefined, deps: Messages
  * Vite dev middleware. `apiKey` comes from vite.config.ts via loadEnv, so it
  * stays in the Node process and never enters the client bundle.
  */
-export function claudeProxyPlugin(apiKey: string | undefined): Plugin {
+/**
+ * `dealerKey` is injectable for the same reason it is on the messages handler:
+ * reading the admin store's file straight from the health route couples this
+ * plugin to whatever another test suite has left on disk. The admin suite
+ * writes a credential, the health route read it ambiently, and the dev-server
+ * test then saw `hasKey: true` — passing alone and failing in a full run. That
+ * exact coupling was fixed once already, on the handler next door.
+ */
+export function claudeProxyPlugin(
+  apiKey: string | undefined,
+  deps: { dealerKey?: () => string | undefined } = {},
+): Plugin {
+  const dealerKey = deps.dealerKey ?? readStoredKey;
   return {
     name: 'hhpro-claude-proxy',
     configureServer(server) {
@@ -380,7 +392,7 @@ export function claudeProxyPlugin(apiKey: string | undefined): Plugin {
           // it discloses that a key exists and nothing whatsoever about it.
           sendJson(res as ServerResponse, 200, {
             ok: true,
-            hasKey: Boolean(apiKey || readStoredKey()),
+            hasKey: Boolean(apiKey || dealerKey()),
           });
         });
 

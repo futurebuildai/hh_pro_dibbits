@@ -90,7 +90,7 @@ describe('board flow', () => {
 
     expect(decision.ok).toBe(false);
     if (!decision.ok) {
-      expect(decision.error).toContain('Trex Transcend rail kit');
+      expect(decision.error).toContain('Bullnose coping');
       expect(decision.error).toContain('quote desk');
     }
 
@@ -132,10 +132,10 @@ describe('board flow', () => {
   });
 
   it('flags a lead time that cannot make the requested date', () => {
-    // The concrete on Miller framing is out of stock and weeks out, against a
-    // delivery date nine days away.
-    const card = cardFor('ord_miller_frame');
-    const daysOut = 9;
+    // The Borealis slab on the Miller patio surface is a stated three-week
+    // special order, against a delivery date sixteen days away.
+    const card = cardFor('ord_miller_deck');
+    const daysOut = 16;
     expect(card.maxLeadTimeDays).toBeGreaterThan(daysOut);
   });
 

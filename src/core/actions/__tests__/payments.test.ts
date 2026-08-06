@@ -149,7 +149,7 @@ describe('aging', () => {
     expect(rows[0]?.overdue).toBe(true);
     expect(rows[0]?.daysOverdue).toBeGreaterThan(0);
     // The project name, not the invoice number — that is what the money was for.
-    expect(rows[0]?.label).toBe('Miller Residence — Deck');
+    expect(rows[0]?.label).toBe('Miller Residence — Patio');
     expect(rows[0]?.orderId).toBe(MILLER_FRAME);
     expect(rows[1]?.invoice.id).toBe(second.id);
     expect(rows[1]?.overdue).toBe(false);
@@ -204,7 +204,7 @@ describe('paying', () => {
 
     expect(open).toHaveLength(0);
     expect(paid).toHaveLength(1);
-    expect(paid[0]?.label).toBe('Miller Residence — Deck');
+    expect(paid[0]?.label).toBe('Miller Residence — Patio');
   });
 
   it('refuses an invoice that is already paid', () => {

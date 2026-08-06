@@ -24,11 +24,11 @@ export const TIER_PRO_ID = 'tier_pro';
 
 const YARD_ADDRESS: Address = {
   id: 'addr_shop',
-  label: 'Shop',
-  line1: '1400 W Industrial Ave',
-  city: 'Sioux Falls',
-  state: 'SD',
-  zip: '57104',
+  label: 'Yard',
+  line1: '84 Bellevue Dr',
+  city: 'Belleville',
+  state: 'ON',
+  zip: 'K8N 4Z5',
 };
 
 export const DEMO_ADDRESSES: Address[] = [YARD_ADDRESS];
@@ -40,55 +40,65 @@ export const PRICING_TIERS: PricingTier[] = [
   { id: TIER_PRO_ID, name: 'Pro', percentOffList: 12 },
 ];
 
-/** Category ids from the salvaged catalog, named for readability. */
-const CAT_LUMBER = categoryId(1);
-const CAT_DECKING = categoryId(21);
+/** Category ids from the Dibbits catalog, named for readability. */
+const CAT_HARDSCAPE = categoryId(1);
+const CAT_PAVERS = categoryId(11);
+const CAT_AGGREGATES = categoryId(3);
 
 export const PRICING_RULES: PricingRule[] = [
-  // Their bread and butter — better than the tier baseline.
+  // Their bread and butter. Cascades to pavers, walls, steps and porcelain,
+  // which is why the rule is written against the parent and not each child.
   {
     kind: 'category',
     accountId: ACCOUNT_ID,
-    categoryId: CAT_LUMBER,
+    categoryId: CAT_HARDSCAPE,
     percentOffList: 18,
   },
-  // Everyone on Pro gets a bit more off decking.
+  // Bulk moves on margin, not on list. Everyone on Pro gets it.
   {
     kind: 'category',
     tierId: TIER_PRO_ID,
-    categoryId: CAT_DECKING,
+    categoryId: CAT_AGGREGATES,
     percentOffList: 15,
   },
-  // A negotiated, locked price. Immune to list changes — the thing a
-  // contractor calls their rep about.
+  // A negotiated, locked price on the paver they lay most. Immune to list
+  // changes — the thing a contractor calls their rep about.
   {
     kind: 'contract',
     accountId: ACCOUNT_ID,
-    sku: 'LBR-2X4-8-DF',
-    unitPrice: toCents(4.62),
+    sku: 'PVR-OAK-YORK60',
+    unitPrice: toCents(6.35),
   },
-  // Volume breaks across lumber. Expressed as extra percentage off rather than
-  // an absolute price, because this category spans a $6 stud and a $30 post —
-  // a single absolute break price would be nonsense on most of it.
+  // Volume breaks across pavers, in SQUARE FEET. Relative, not absolute, and
+  // the reason is sharper here than it was in lumber: this category spans a
+  // $4.62/sf economy paver and a $17.67/sf wood-grain slab. One absolute break
+  // price across both would be nonsense on nearly all of it.
+  //
+  // The thresholds are a real patio and a real driveway, not round numbers:
+  // 600 sf is a decent back yard, 1,500 sf is a driveway plus walkways.
   {
     kind: 'volume',
-    categoryId: CAT_LUMBER,
+    categoryId: CAT_PAVERS,
     breaks: [
-      { minQty: 100, extraPercentOff: 7 },
-      { minQty: 500, extraPercentOff: 12 },
+      { minQty: 600, extraPercentOff: 6 },
+      { minQty: 1500, extraPercentOff: 11 },
     ],
   },
-  // An absolute break, valid because it names one sku.
+  // Bulk base by the tonne. A full triaxle is about 20 tonnes, so the first
+  // break is "you are ordering a truck, not a scoop".
   {
     kind: 'volume',
-    sku: 'LBR-2X4-8-DF',
-    breaks: [{ minQty: 250, unitPrice: toCents(3.98) }],
+    sku: 'AGG-HPB-BULK',
+    breaks: [
+      { minQty: 20, unitPrice: toCents(38.5) },
+      { minQty: 60, unitPrice: toCents(35.0) },
+    ],
   },
 ];
 
 export const DEMO_ACCOUNT: Account = {
   id: ACCOUNT_ID,
-  name: 'Summit Ridge Builders',
+  name: 'Quinte Landscape & Design',
   accountNumber: 'ACCT-1042',
   type: 'charge',
   paymentTermsCode: 'NET30',
@@ -96,11 +106,11 @@ export const DEMO_ACCOUNT: Account = {
   creditLimit: toCents(75_000),
   addresses: DEMO_ADDRESSES,
   branding: {
-    companyName: 'Summit Ridge Builders',
+    companyName: 'Quinte Landscape & Design',
     contactName: 'Dana Reyes',
-    phone: '(605) 555-0142',
-    email: 'dana@summitridgebuilds.com',
-    licenseNumber: 'SD-GC-88431',
+    phone: '(613) 555-0142',
+    email: 'dana@quintelandscape.ca',
+    licenseNumber: 'Landscape Ontario #2291',
   },
 };
 
@@ -108,7 +118,7 @@ export const DEMO_USER: User = {
   id: USER_ID,
   accountId: ACCOUNT_ID,
   name: 'Dana Reyes',
-  email: 'dana@summitridgebuilds.com',
+  email: 'dana@quintelandscape.ca',
   role: 'owner',
   initials: 'DR',
 };

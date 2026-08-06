@@ -36,7 +36,7 @@ function catalogItem(overrides: Overrides<ScopeItem> = {}): ScopeItem {
     orderId: 'ord_1',
     kind: 'catalog',
     productId: 'p_1',
-    snapshot: { sku: 'LBR-2X4-8-DF', name: "2x4x8' Douglas Fir" },
+    snapshot: { sku: 'PVR-OAK-YORK60', name: 'Techo-Bloc Blu 60 Smooth' },
     qty: 100,
     uom: 'EA',
     unitPrice: 462,

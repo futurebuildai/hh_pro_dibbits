@@ -37,7 +37,12 @@ beforeAll(async () => {
     root: resolve(__dirname, '../..'),
     configFile: false,
     logLevel: 'silent',
-    plugins: [claudeProxyPlugin(undefined), adminPlugin({ adminToken: TOKEN, allowRemote: false })],
+    plugins: [
+      // No dealer key: pinned so this suite cannot pick up whatever the admin
+      // suite has written to disk.
+      claudeProxyPlugin(undefined, { dealerKey: () => undefined }),
+      adminPlugin({ adminToken: TOKEN, allowRemote: false }),
+    ],
     server: { port: 0 },
   });
   await server.listen();

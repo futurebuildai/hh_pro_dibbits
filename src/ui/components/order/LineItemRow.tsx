@@ -1,7 +1,7 @@
 import { formatCents } from '@core/lib/money';
 import type { ScopeLine } from '@core/selectors/order';
 import { cn } from '@ui/lib/cn';
-import { AlertTriangle, Clock, Minus, Plus, Sparkles } from 'lucide-react';
+import { Clock, Minus, Package, Plus, Sparkles } from 'lucide-react';
 
 /**
  * One line of scope.
@@ -108,9 +108,19 @@ export function LineItemRow({ line, editable, onQtyChange, onOpen }: Props) {
 function Thumb({ line }: { line: ScopeLine }) {
   const url = line.item.snapshot.imageUrl;
   if (!url) {
+    /**
+     * A missing photo is not an error.
+     *
+     * This used to render a warning triangle, which was survivable when one
+     * special-order line in twenty had no image. On a hardscape order where
+     * the catalogue has no photography yet, it painted a column of hazard
+     * icons down a perfectly healthy order — the screen reads as broken when
+     * nothing is wrong. Colour and shape must mean something; an absent
+     * picture means nothing.
+     */
     return (
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface-inset">
-        <AlertTriangle size={15} className="text-text-subtle" strokeWidth={2} />
+        <Package size={15} className="text-text-subtle" strokeWidth={1.75} aria-hidden />
       </div>
     );
   }

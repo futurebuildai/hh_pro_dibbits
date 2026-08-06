@@ -101,7 +101,7 @@ describe('reads', () => {
 
 describe('writes', () => {
   it('adds a catalog line through the same action the UI uses', () => {
-    const found = call('search_catalog', { query: '2x4' });
+    const found = call('search_catalog', { query: 'paver' });
     expect(found.ok).toBe(true);
     if (!found.ok) return;
     const first = (found.value as { productId: string }[])[0];
