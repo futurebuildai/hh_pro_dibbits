@@ -222,6 +222,24 @@ function readUsage(): StoredUsage | null {
  * log, not a reason to take the assistant down for everyone. It touches only
  * the usage file, so a failure here can never reach the credential.
  */
+/**
+ * Which day a request counts against.
+ *
+ * The server's LOCAL day, not UTC. "Requests per day" is a promise made to a
+ * dealer about their day, and a UTC boundary breaks it in every timezone west
+ * of Greenwich: in Ontario the cap reset at 8pm and the console's usage figure
+ * went back to zero while the yard was still open. A contractor capped at
+ * lunchtime got a fresh allowance over dinner.
+ *
+ * `en-CA` is the shortest way to get YYYY-MM-DD out of toLocaleDateString.
+ * A dealer in another timezone from their server is a real case, but it needs
+ * a configured timezone rather than a different guess — and guessing UTC is
+ * the one option that is wrong for almost everybody.
+ */
+export function usageDay(now: Date = new Date()): string {
+  return now.toLocaleDateString('en-CA');
+}
+
 export function consumeDailyQuota(cap: number, today: string, accountId?: string): boolean {
   const account = normalizeAccountId(accountId);
   try {

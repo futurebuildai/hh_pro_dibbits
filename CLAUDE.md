@@ -595,6 +595,13 @@ name.
   enforcement needs authenticated sessions, which this demo does not have.
   Do not mistake this counter for a security control.
 - A contractor with no key sees who to ask, not a field they cannot fill.
+- **A "daily" cap means the DEALER's day, not UTC.** `usageDay()` uses the
+  server's local date. UTC rolls over mid-afternoon or evening everywhere west
+  of Greenwich — in Ontario the cap lifted at 8pm and the console's usage went
+  to zero while the yard was still open, so a contractor capped at lunchtime
+  got a fresh allowance over dinner. A dealer in a different timezone from
+  their server needs a configured timezone, but UTC is the one guess that is
+  wrong for almost everybody.
 
 ## Conventions from the correctness sweep
 

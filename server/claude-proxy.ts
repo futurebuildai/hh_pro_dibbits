@@ -23,7 +23,7 @@
 
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Plugin } from 'vite';
-import { consumeDailyQuota, readConfig, readStoredKey } from './admin-store';
+import { consumeDailyQuota, readConfig, readStoredKey, usageDay } from './admin-store';
 import { mountApiBehindHostCheck } from './dev-middleware';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
@@ -287,7 +287,7 @@ export function createMessagesHandler(apiKey: string | undefined, deps: Messages
            * mistake this counter for a security control.
            */
           const accountId = header(req, ACCOUNT_HEADER);
-          overCap = !consumeQuota(readCap(), new Date().toISOString().slice(0, 10), accountId);
+          overCap = !consumeQuota(readCap(), usageDay(), accountId);
         } catch (error) {
           console.error('[proxy] daily cap could not be evaluated; allowing', error);
         }

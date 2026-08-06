@@ -392,7 +392,7 @@ function Console({
                 rows={4}
                 value={draft.assistant.houseRules}
                 maxLength={MAX_HOUSE_RULES}
-                placeholder="e.g. Quote lead times from the Sioux Falls yard unless asked otherwise."
+                placeholder="e.g. Quote lead times from the Trenton yard unless asked otherwise."
                 onChange={(event) =>
                   patch({ assistant: { ...draft.assistant, houseRules: event.target.value } })
                 }

@@ -3,7 +3,13 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createAdminHandler } from '../admin-api';
-import { ADMIN_DATA_DIR, consumeDailyQuota, readStoredKey, usageToday } from '../admin-store';
+import {
+  ADMIN_DATA_DIR,
+  consumeDailyQuota,
+  readStoredKey,
+  usageDay,
+  usageToday,
+} from '../admin-store';
 
 /**
  * The admin API, driven over a real socket.
@@ -336,5 +342,24 @@ describe('assistant usage is attributed to a contractor', () => {
   it('starts a new day clean', () => {
     consumeDailyQuota(0, TODAY, 'acct_summit');
     expect(usageToday('2099-01-01')).toEqual({ total: 0, byAccount: [] });
+  });
+});
+
+describe('a "daily" cap means the dealer\'s day', () => {
+  /**
+   * It used to be the UTC day. West of Greenwich that resets in the afternoon
+   * or evening: in Ontario the cap lifted at 8pm and the console's usage
+   * figure went to zero while the yard was still open, so a contractor capped
+   * at lunchtime got a fresh allowance over dinner.
+   */
+  it('rolls over on the local day, not UTC', () => {
+    // 23:30 local on the 5th is already the 6th in UTC.
+    const lateEvening = new Date(2026, 7, 5, 23, 30, 0);
+    expect(usageDay(lateEvening)).toBe('2026-08-05');
+    expect(lateEvening.toISOString().slice(0, 10)).not.toBe(usageDay(lateEvening));
+  });
+
+  it('formats as YYYY-MM-DD so it sorts and compares as a string', () => {
+    expect(usageDay(new Date(2026, 0, 9, 12, 0, 0))).toBe('2026-01-09');
   });
 });

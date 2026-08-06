@@ -7,6 +7,7 @@ import {
   maskedKey,
   readConfig,
   storeKey,
+  usageDay,
   usageToday,
   writeConfig,
 } from './admin-store';
@@ -176,7 +177,7 @@ export function createAdminHandler(options: AdminOptions) {
       return;
     }
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = usageDay();
 
     try {
       // GET /api/admin/state — config + whether a credential exists. Never the key.
