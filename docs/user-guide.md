@@ -90,6 +90,16 @@ Tap a line for the full detail.
 
 ## 3. Adding materials
 
+> **About the product images.** Dibbits' catalogue has no photography in this
+> build, so every product shows a measured colour-and-texture swatch rather
+> than a picture. The colours were taken from the manufacturers' own published
+> swatches — Blu 60 really is Beige Cream, Borealis really is Hazelnut Brandy —
+> and the handful that are inferred from the product type are marked as such in
+> the data. A swatch shows you the material without pretending to be a
+> photograph of the exact unit that will arrive, which matters when you are
+> ordering 640 square feet of it.
+
+
 Tap **Add materials**. Three ways in, in the order you'd reach for them.
 
 ### Search the catalog
