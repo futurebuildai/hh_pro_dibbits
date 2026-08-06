@@ -629,6 +629,38 @@ name.
   printed a warning, and audited anyway, reporting "0 violations" for a page it
   never confirmed had rendered. It now filters to `visible=true` and **throws**.
 
+## The catalogue has swatches, not photographs
+
+`scripts/generate-swatches.mjs` + `src/core/data/product-colours.json` render one
+SVG per SKU into `public/images/products/`. Run with `npm run swatches`.
+
+There is no hardscape photography in this repo, and inventing some would be
+dishonest in a way that costs money: a contractor ordering 640 sf of paver must
+never be shown an image implying a finish that is not what arrives on the
+pallet. A colour-and-texture SWATCH cannot be mistaken for a photograph of a
+specific SKU, and it still carries the thing that actually decides a hardscape
+purchase — colour.
+
+- **The colours are measured, not invented.** They came from a research pass
+  over the manufacturers' own published swatches (Techo-Bloc, OAKS, Permacon,
+  Brown's, Bestway, Ecoraster), with every medium/high-confidence claim then
+  handed to a skeptic to refute; 20 of 45 were corrected that way. Each entry
+  keeps its `confidence` and `colourName`, so the five that are honest
+  inferences from product type stay labelled `low` rather than quietly
+  presented as fact.
+- **Texture is drawn, and it is load-bearing.** Eleven families — aggregate,
+  organic, woven, mesh, slate, wood-grain, split-face and so on — because at
+  24px on a board card the texture is what distinguishes a tonne of base from a
+  yard of mulch, long before the colour does.
+- **Deterministic from the SKU**, the same rule the catalog seed follows, so
+  regenerating never churns the repo.
+- **"Smooth" still carries fine aggregate fleck.** A perfectly flat chip reads
+  as a paint sample — or as an image that failed to load — at the 400px the
+  customer quote renders it. Smooth is a finish, not an absence of material.
+- A missing swatch throws rather than falling back: a product with no colour
+  would render the neutral glyph and look like a rendering fault instead of a
+  missing catalogue entry.
+
 ## The dealer's name is configuration, not a literal
 
 `companyName` was settable in the admin console while the demo dealer's name

@@ -1,0 +1,408 @@
+[
+  {
+    "sku": "PVR-TB-BLU60-SM",
+    "colourName": "Beige Cream",
+    "primaryHex": "#ddcfbf",
+    "secondaryHex": "#d8c8b5",
+    "texture": "smooth",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "PVR-TB-BLU80-SL",
+    "colourName": "Shale Grey",
+    "primaryHex": "#8c8684",
+    "secondaryHex": "#716c68",
+    "texture": "slate",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "PVR-TB-ANTIKA",
+    "colourName": "Onyx Black",
+    "primaryHex": "#5c5855",
+    "secondaryHex": "#474747",
+    "texture": "tumbled",
+    "confidence": "high",
+    "contested": true
+  },
+  {
+    "sku": "PVR-TB-BOREALIS",
+    "colourName": "Hazelnut Brandy",
+    "primaryHex": "#958477",
+    "secondaryHex": "#7d6b5a",
+    "texture": "wood-grain",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "PVR-TB-HEXA",
+    "colourName": "Beige Cream",
+    "primaryHex": "#c4b39b",
+    "secondaryHex": "#d8c8b5",
+    "texture": "smooth",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "STP-TB-BOREALIS",
+    "colourName": "Hazelnut Brandy",
+    "primaryHex": "#988879",
+    "secondaryHex": "#7d6b5a",
+    "texture": "wood-grain",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "STP-TB-MAYA",
+    "colourName": "Victoria",
+    "primaryHex": "#b9b5b0",
+    "secondaryHex": "#a19b97",
+    "texture": "slate",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "PVR-OAK-YORK60",
+    "colourName": "Champagne (OAKS standard; Dibbits' default selection. Full range: Champagne, Cloudburst, Marble Grey, Milano, Onyx, Umber)",
+    "primaryHex": "#877f74",
+    "secondaryHex": "#988f85",
+    "texture": "smooth",
+    "confidence": "medium",
+    "contested": false
+  },
+  {
+    "sku": "PVR-OAK-RIALTO60",
+    "colourName": "Champagne (shown first on the manufacturer's colour row = hero; also Dibbits' default. Full range: Champagne, Greyfield, Marble Grey, Onyx)",
+    "primaryHex": "#a99f95",
+    "secondaryHex": "#c0b6ac",
+    "texture": "textured",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "PVR-OAK-NUEVA60",
+    "colourName": "Champagne (shown first on the manufacturer's colour row = hero; also Dibbits' default. Full range: Champagne, Cloudburst, Greyfield, Marble Grey, Onyx \u2014 Dibbits additionally stocks Milano and Umber)",
+    "primaryHex": "#89847c",
+    "secondaryHex": "#99948c",
+    "texture": "smooth",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "PVR-OAK-RIDGE70",
+    "colourName": "Champagne (listed first on the manufacturer's spec sheet = hero. Official range is Champagne, Executive, Onyx)",
+    "primaryHex": "#938b7e",
+    "secondaryHex": "#a1998c",
+    "texture": "textured",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "WAL-OAK-MODAN",
+    "colourName": "Champagne (shown first on the manufacturer's colour row = hero; also Dibbits' default. Official range: Champagne, Cloudburst, Marble Grey, Twilight \u2014 Dibbits additionally stocks Greyfield and Milano)",
+    "primaryHex": "#88827a",
+    "secondaryHex": "#95918b",
+    "texture": "smooth",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "WAL-OAK-GRANDLEDGE",
+    "colourName": "Ash (the standard/hero colour; range is Ash, Canyon, and Saddle as special order)",
+    "primaryHex": "#a5a5a2",
+    "secondaryHex": "#969699",
+    "texture": "split-face",
+    "confidence": "high",
+    "contested": true
+  },
+  {
+    "sku": "FIR-KIT-ROUND",
+    "colourName": "Mountain (a warm grey-taupe split-face blend) \u2014 representative rather than definitive, see source note",
+    "primaryHex": "#8a746a",
+    "secondaryHex": "#a29b96",
+    "texture": "split-face",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "PVR-PMC-MELV80",
+    "colourName": "Range Newport Grey",
+    "primaryHex": "#6f6f70",
+    "secondaryHex": "#6a6761",
+    "texture": "smooth",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "PVR-PMC-MOND60",
+    "colourName": "Newport Grey",
+    "primaryHex": "#6c6b70",
+    "secondaryHex": "#6e6960",
+    "texture": "textured",
+    "confidence": "high",
+    "contested": true
+  },
+  {
+    "sku": "PVR-BRN-NORDIC60",
+    "colourName": "Blackwood",
+    "primaryHex": "#8a898c",
+    "secondaryHex": "#6e675d",
+    "texture": "smooth",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "PVR-BWS-TREV50",
+    "colourName": "Grey Mix",
+    "primaryHex": "#999ca1",
+    "secondaryHex": "#62625f",
+    "texture": "textured",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "AGG-HPB-BULK",
+    "colourName": "Natural limestone grey (light grey with beige cast) \u2014 HPB is sold in one colour only",
+    "primaryHex": "#74716a",
+    "secondaryHex": "#c3c0ba",
+    "texture": "aggregate",
+    "confidence": "high",
+    "contested": true
+  },
+  {
+    "sku": "AGG-SCREEN-BULK",
+    "colourName": "Light limestone grey (grey-beige) \u2014 screenings come in one colour",
+    "primaryHex": "#b4b2ac",
+    "secondaryHex": "#d2d0ca",
+    "texture": "aggregate",
+    "confidence": "medium",
+    "contested": false
+  },
+  {
+    "sku": "AGG-CLEAR34-BULK",
+    "colourName": "Washed limestone grey-white (\"clear\" limestone, no fines)",
+    "primaryHex": "#a4a39e",
+    "secondaryHex": "#d4d1c8",
+    "texture": "aggregate",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "AGG-SAND-BAG",
+    "colourName": "Concrete/bedding sand \u2014 warm grey-tan (no manufacturer colour name; sand is sold uncoloured)",
+    "primaryHex": "#ddcbaa",
+    "secondaryHex": "#c9bbac",
+    "texture": "textured",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "AGG-CLEAR34-BAG",
+    "colourName": "Washed limestone grey-white (\"clear\" limestone, no fines) \u2014 identical material to the bulk SKU",
+    "primaryHex": "#8c8782",
+    "secondaryHex": "#d4d1c8",
+    "texture": "aggregate",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "DEC-RIVER-1IN",
+    "colourName": "Natural river stone \u2014 \"varies from gray to light brown\" (pale buff dominant, blue-grey accents)",
+    "primaryHex": "#b3b1a7",
+    "secondaryHex": "#7e838a",
+    "texture": "aggregate",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "DEC-RIVER-26-BULK",
+    "colourName": "Natural river rock \u2014 mixed earth tones (tan/brown dominant with grey-brown)",
+    "primaryHex": "#a28a76",
+    "secondaryHex": "#6b6058",
+    "texture": "aggregate",
+    "confidence": "medium",
+    "contested": false
+  },
+  {
+    "sku": "DEC-GRANITE-BLK",
+    "colourName": "Black Granite (also sold as \"Ebony Black\") \u2014 deep black and grey, salt-and-pepper",
+    "primaryHex": "#47474c",
+    "secondaryHex": "#8c8c94",
+    "texture": "aggregate",
+    "confidence": "medium",
+    "contested": false
+  },
+  {
+    "sku": "SOL-TRIPLE-CY",
+    "colourName": "Dark brown loam (topsoil / peat / compost blend) \u2014 no manufacturer colour name exists; soils are sold by composition, not colour",
+    "primaryHex": "#373029",
+    "secondaryHex": "#5c4c3c",
+    "texture": "organic",
+    "confidence": "medium",
+    "contested": false
+  },
+  {
+    "sku": "SOL-TOPSOIL-CY",
+    "colourName": "Mid-dark earth brown \u2014 screened topsoil, no manufacturer colour name",
+    "primaryHex": "#5e4633",
+    "secondaryHex": "#74604a",
+    "texture": "organic",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "MLC-CEDAR-RED-CY",
+    "colourName": "Red (iron-oxide dyed cedar) \u2014 Dibbits sells it as \"Red Mulch\", dyed with food-grade colouring",
+    "primaryHex": "#8e3316",
+    "secondaryHex": "#b05633",
+    "texture": "organic",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "MLC-CEDAR-BLK-CY",
+    "colourName": "Black (carbon-black dyed cedar) \u2014 Dibbits sells it as \"Black Mulch\"",
+    "primaryHex": "#2e2a25",
+    "secondaryHex": "#45403a",
+    "texture": "organic",
+    "confidence": "medium",
+    "contested": false
+  },
+  {
+    "sku": "NST-FLAG-RANDOM",
+    "colourName": "Wiarton buff/brown mixed with grey \u2014 Dibbits' random flagstone is Wiarton limestone (they also list a \"Wiarton Jumbo\" variant on the same page)",
+    "primaryHex": "#a49a88",
+    "secondaryHex": "#8b8880",
+    "texture": "split-face",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "NST-COPING-SAWN",
+    "colourName": "Indus Gray limestone \u2014 grey with beige tonal movement (Dibbits' coping range is grey-dominated: Indus Gray, Slate Grey, Silver Valley, Silver Antique, Dove)",
+    "primaryHex": "#a1a4a4",
+    "secondaryHex": "#a69c8c",
+    "texture": "textured",
+    "confidence": "medium",
+    "contested": true
+  },
+  {
+    "sku": "NST-ARMOUR-2MAN",
+    "colourName": "Grey (quarried Ontario limestone armour stone), with buff/tan weathered facing",
+    "primaryHex": "#9b9b97",
+    "secondaryHex": "#a8977b",
+    "texture": "split-face",
+    "confidence": "high",
+    "contested": true
+  },
+  {
+    "sku": "EDG-PVC-STD",
+    "colourName": "Black (standard for rigid PVC paver restraint \u2014 e.g. Dimex EdgePro Series Black)",
+    "primaryHex": "#232629",
+    "secondaryHex": "#34383c",
+    "texture": "smooth",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "EDG-SPIKE-10",
+    "colourName": "Zinc / hot-dip galvanised steel (no colour name \u2014 mill finish)",
+    "primaryHex": "#8a8f93",
+    "secondaryHex": "#7c8288",
+    "texture": "metallic",
+    "confidence": "low",
+    "contested": true
+  },
+  {
+    "sku": "JNT-POLY-SAND",
+    "colourName": "Beige (Alliance Gator standard colour; the alternative is Slate Grey)",
+    "primaryHex": "#997C63",
+    "secondaryHex": "#a8906e",
+    "texture": "aggregate",
+    "confidence": "high",
+    "contested": true
+  },
+  {
+    "sku": "JNT-ADHESIVE",
+    "colourName": "Tan (chosen to disappear into the block bond line)",
+    "primaryHex": "#97978F",
+    "secondaryHex": "#9e8258",
+    "texture": "smooth",
+    "confidence": "high",
+    "contested": true
+  },
+  {
+    "sku": "GEO-FABRIC-RL",
+    "colourName": "Black (woven polypropylene tape \u2014 the category has no other colour)",
+    "primaryHex": "#2a2b2d",
+    "secondaryHex": "#3a3e43",
+    "texture": "woven",
+    "confidence": "medium",
+    "contested": false
+  },
+  {
+    "sku": "GRD-ECO-STD",
+    "colourName": "Black (manufacturer's standard; Terracotta is the only alternative)",
+    "primaryHex": "#232628",
+    "secondaryHex": "#34383a",
+    "texture": "mesh",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "GRD-ECO-BLOXX",
+    "colourName": "Black (same grid stock as E40/E50; optional concrete inserts are light grey)",
+    "primaryHex": "#3a3a3a",
+    "secondaryHex": "#34383a",
+    "texture": "mesh",
+    "confidence": "high",
+    "contested": false
+  },
+  {
+    "sku": "TRF-ARTIFICIAL",
+    "colourName": "Field/olive green blend with tan thatch (the standard landscape-turf construction)",
+    "primaryHex": "#62733a",
+    "secondaryHex": "#8c7b4a",
+    "texture": "organic",
+    "confidence": "high",
+    "contested": true
+  },
+  {
+    "sku": "WAL-PMC-CAP-SQ",
+    "colourName": "Scandina Grey (assumed \u2014 the SKU names no colour)",
+    "primaryHex": "#b0aeaa",
+    "secondaryHex": "#8d8b86",
+    "texture": "smooth",
+    "confidence": "low",
+    "contested": false
+  },
+  {
+    "sku": "STP-BRN-SUPERIOR",
+    "colourName": "Manitou",
+    "primaryHex": "#9c9081",
+    "secondaryHex": "#7a6e60",
+    "texture": "textured",
+    "confidence": "low",
+    "contested": false,
+    "note": "texture corrected: organic is the soil/mulch treatment"
+  },
+  {
+    "sku": "POR-BWS-2X2-GREY",
+    "colourName": "Grey (generic mid-grey outdoor porcelain)",
+    "primaryHex": "#8b8d8e",
+    "secondaryHex": "#6d7071",
+    "texture": "smooth",
+    "confidence": "low",
+    "contested": false
+  },
+  {
+    "sku": "LGT-LED-PATH",
+    "colourName": "Textured architectural bronze (the other category-standard finish is textured black)",
+    "primaryHex": "#3e332a",
+    "secondaryHex": "#5a4a3b",
+    "texture": "metallic",
+    "confidence": "low",
+    "contested": false
+  }
+]

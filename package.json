@@ -18,7 +18,8 @@
     "a11y": "node scripts/a11y-audit.mjs",
     "security": "node scripts/security-smoke.mjs",
     "e2e": "node scripts/e2e-smoke.mjs",
-    "contrast": "node scripts/contrast-probe.mjs"
+    "contrast": "node scripts/contrast-probe.mjs",
+    "swatches": "node scripts/generate-swatches.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
