@@ -1,0 +1,125 @@
+# HH Pro staging vhost — hhpro-staging.gablelbm.com (decision D-085, 2026-08-18)
+#
+# Installed at /etc/caddy/conf.d/hhpro-staging.caddy and pulled in by a single
+# `import conf.d/*.caddy` line in /etc/caddy/Caddyfile. It is a SEPARATE FILE on
+# purpose: the dibbits-staging vhost is never opened, never reformatted, never
+# diffed. Removing this deployment is `rm` + `systemctl reload caddy`.
+#
+# `reload` is used everywhere, never `restart`. Reload swaps config in place and
+# keeps existing connections; restart drops every listener on the droplet,
+# including dibbits-staging's, for the length of a process start.
+#
+# SERVING MODEL: pure static. This is the whole production story in SIM/DEMO
+# mode — see the header of deploy/prod-entry.ts for why no Node process is
+# needed, and RUNBOOK.md §7 for how to switch one on when a dealer key exists.
+# The short version: dealer config and brand CSS are compiled INTO dist/*.html
+# by the Vite build, and the only endpoint the client actually calls at runtime
+# is the assistant health probe, answered below by two lines of `respond`.
+
+hhpro-staging.gablelbm.com {
+	encode zstd gzip
+
+	# The release symlink, flipped atomically by deploy/staging_apply.sh. Caddy
+	# resolves it per request, so a deploy needs no Caddy action at all — only a
+	# vhost CHANGE needs a reload.
+	root * /opt/hhpro/current
+
+	# A staging demo must never be indexed. It shows a real dealer's brand and
+	# a catalogue of their products under a hostname nobody vetted for SEO.
+	header {
+		X-Robots-Tag "noindex, nofollow, noarchive"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "same-origin"
+		-Server
+	}
+
+	# ── operational ─────────────────────────────────────────────────────────────
+	# Deliberately mirrors the shape of dibbits-staging's /healthz so one probe
+	# script can watch both. COMMIT is rewritten in place by staging_apply.sh, so
+	# `curl .../healthz` answers which build is live — the only reliable way to
+	# tell a finished deploy from a cached one.
+	handle /healthz {
+		header Content-Type "application/json"
+		header Cache-Control "no-store"
+		respond `{"status":"ok","service":"hhpro-staging","mode":"sim","commit":"__COMMIT__","serving":"static"}` 200
+	}
+
+	# ── assistant, demo-stubbed ─────────────────────────────────────────────────
+	# src/ui/App.tsx probes this once at boot and renders the assistant enabled or
+	# disabled from `hasKey`. Answering a truthful `false` here is what makes the
+	# demo honest: the UI shows its real "no key configured" state instead of
+	# offering a button that 503s.
+	#
+	# Staging holds NO Anthropic key by design. The key belongs to the dealer and
+	# is billed to them; a leaked demo URL on a droplet shared with dibbits-staging
+	# must not be able to spend it. See deploy/prod-entry.ts.
+	handle /api/anthropic/health {
+		header Content-Type "application/json"
+		header Cache-Control "no-store"
+		respond `{"ok":true,"hasKey":false}` 200
+	}
+
+	# ── admin console: closed at the edge ───────────────────────────────────────
+	# server/admin-api.ts gates remote callers with isLoopback(req), which reads
+	# req.socket.remoteAddress. Behind this reverse proxy that is ALWAYS 127.0.0.1
+	# — Caddy is the TCP peer, not the visitor — so the loopback defence does not
+	# survive contact with this deployment shape and the console would stand on
+	# HHPRO_ADMIN_TOKEN alone. Nothing on staging needs it, so it is refused here
+	# rather than argued about. Covers /admin, /admin/ and the /admin.html entry
+	# point the build emits.
+	handle /admin* {
+		respond 404
+	}
+
+	# Everything else under /api/ is unimplemented in static mode. It must answer
+	# 404 explicitly and NOT fall through to the SPA: a JSON client that receives
+	# `200 <!doctype html>` dies in JSON.parse with no usable error. That exact
+	# failure is documented at length in server/dev-middleware.ts — it is the bug
+	# this project already shipped once.
+	handle /api/* {
+		header Content-Type "application/json"
+		respond `{"error":{"message":"Not available in SIM/DEMO staging."}}` 404
+	}
+
+	# ── static + SPA fallback ───────────────────────────────────────────────────
+	handle {
+		# Client routes (/catalog, /pay, /more, /orders/:id, /q/:token, ...) have no
+		# file on disk and must boot the SPA rather than 404.
+		try_files {path} {path}/ /index.html
+		file_server
+
+		# Hashed filenames are content-addressed, so they can be cached forever.
+		# HTML must not be: it carries the build-time-injected dealer config, and a
+		# cached copy would pin a stale brand colour past the next deploy.
+		@assets path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		@html path / /index.html /admin.html
+		header @html Cache-Control "no-cache"
+	}
+
+	log {
+		output file /var/log/caddy/hhpro-staging.log {
+			roll_size 10mb
+			roll_keep 5
+		}
+	}
+}
+
+# ── OPTIONAL: password-gate the demo ──────────────────────────────────────────
+# Not enabled, because that is a product decision and not mine to make silently.
+# This staging host is a PUBLIC, UNAUTHENTICATED URL showing a named dealer's
+# branding and product catalogue — see RUNBOOK.md "Risks". To gate it, paste
+# this inside the site block above and reload:
+#
+#	basic_auth {
+#		demo <bcrypt-hash>   # caddy hash-password --plaintext '<password>'
+#	}
+#
+# ── OPTIONAL: switch on the Node entry (assistant live) ───────────────────────
+# Replace the /api/anthropic/health and /api/* handle blocks above with:
+#
+#	handle /api/* {
+#		reverse_proxy 127.0.0.1:8091
+#	}
+#
+# then follow RUNBOOK.md §7 to install and enable hhpro-staging.service.

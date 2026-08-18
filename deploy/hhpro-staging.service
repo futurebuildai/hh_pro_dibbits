@@ -1,0 +1,88 @@
+# HH Pro staging — optional Node entry.
+#
+# SHIPPED DISABLED. The D-085 staging deployment serves dist/ as pure static
+# files from Caddy and starts no process; this unit is the upgrade path for the
+# day a dealer Anthropic key exists and the assistant should be live. See the
+# header of deploy/prod-entry.ts for the reasoning and RUNBOOK.md §7 for the
+# switch-on procedure.
+#
+# Install: /etc/systemd/system/hhpro-staging.service
+# Enable:  systemctl daemon-reload && systemctl enable --now hhpro-staging
+#
+# The unit name is distinct from `hardscapeos` so nothing here can be confused
+# with, restarted alongside, or accidentally aimed at the dibbits-staging
+# service that shares this droplet.
+
+[Unit]
+Description=HH Pro staging (SIM/DEMO) — static + assistant proxy
+Documentation=https://github.com/futurebuildai/hh_pro_dibbits/blob/master/deploy/RUNBOOK.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Runs unprivileged. The process needs to read /opt/hhpro and write only the
+# admin store; it has no business being root on a droplet that also hosts
+# dibbits-staging's database.
+User=hhpro
+Group=hhpro
+# NOT the release directory. server/admin-store.ts resolves its data dir as
+# `join(process.cwd(), '.hhpro')` with no environment override, so the CWD IS
+# the storage location. Pointing it at /opt/hhpro/current would put the dealer's
+# config and their stored Anthropic key inside a release folder that the next
+# deploy replaces and prunes — silently wiping a credential the dealer pasted
+# once and expects to persist. A stable directory outside the release tree is
+# the only correct choice, and it is why ReadWritePaths below names this path.
+WorkingDirectory=/var/lib/hhpro
+Environment=NODE_ENV=production
+Environment=PORT=8091
+# Loopback only. Caddy is the sole public listener; binding this to 0.0.0.0
+# would publish the API on a raw port with none of the vhost's guards.
+Environment=HHPRO_BIND=127.0.0.1
+Environment=HHPRO_DIST=/opt/hhpro/current
+# ANTHROPIC_API_KEY, HHPRO_ADMIN_TOKEN and HHPRO_COMMIT live here, not in this
+# unit file — a unit file is world-readable and ends up in `systemctl cat`.
+# The `-` prefix means "start anyway if absent", which is the correct default
+# for a demo box with no key.
+EnvironmentFile=-/etc/hhpro/staging.env
+ExecStart=/usr/bin/node /opt/hhpro/current/server.mjs
+Restart=on-failure
+RestartSec=3
+# A crash loop must not be able to starve the co-tenant service of CPU.
+StartLimitIntervalSec=60
+StartLimitBurst=5
+# SIGTERM lets in-flight SSE streams drain (prod-entry.ts closes the listener
+# and exits); 15s is well clear of that path's own 10s backstop.
+KillSignal=SIGTERM
+TimeoutStopSec=15
+
+# ── hardening ───────────────────────────────────────────────────────────────
+# This process shares a host with dibbits-staging, its Postgres, and its
+# backups. Everything below is about making that co-tenancy boring.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectClock=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=false
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallArchitectures=native
+# ProtectSystem=strict makes everything read-only; the admin store is the one
+# thing that legitimately writes, so it is the one path opened back up. It is
+# also WorkingDirectory, because that is where admin-store.ts writes (see above).
+ReadWritePaths=/var/lib/hhpro
+# A runaway bundle must hit its own ceiling long before it reaches the
+# droplet's, where the OOM killer would be free to choose Postgres instead.
+MemoryMax=512M
+TasksMax=256
+
+[Install]
+WantedBy=multi-user.target

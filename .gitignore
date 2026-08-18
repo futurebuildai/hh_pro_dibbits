@@ -25,3 +25,7 @@ Thumbs.db
 
 # Incremental build cache — churns on every build.
 *.tsbuildinfo
+
+# Staging deploy artifacts (deploy/build_bundle.sh) — built, never committed.
+hhpro-artifacts.tar.gz
+.bundle-tmp/
