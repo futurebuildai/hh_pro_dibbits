@@ -125,6 +125,41 @@ describe('with the flag off, createSupplier builds the sim and nothing else', ()
    * — and it keeps its four writes, because flag-off means the simulator runs
    * exactly as it always has.
    */
+  /**
+   * The stage flag is NARROWER than the mode, and this is the case that proves
+   * it: a dealer whose ERP is wired up and reachable, with Stage 1 not yet
+   * turned on for them. `mode:'erp'` alone must not reach the network — that is
+   * the whole shape of a staged rollout, and it is what lets a connection be
+   * configured and proven before a single contractor reads through it.
+   *
+   * Found by mutation: dropping `&& erpReads` from `usesErpReads` left every
+   * other zero-delta test green, because they all run on `mode:'sim'`.
+   */
+  it('gives the simulator to a wired-up dealer whose stage flag is still off', () => {
+    const parsed = parseConfig({
+      supplier: {
+        mode: 'erp',
+        baseUrl: 'https://erp.dibbits.example',
+        stages: { erpReads: false },
+      },
+    });
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(parsed.value.supplier.mode).toBe('erp');
+    expect(usesErpReads(parsed.value.supplier)).toBe(false);
+
+    boot({ reset: true, seed: 20_260_730 });
+    const transport = forbiddenFetch();
+    const port = createSupplier(parsed.value.supplier, {
+      sim: getContext().sim,
+      fetch: transport.fetch,
+    });
+
+    expect(port.mode).toBe('sim');
+    expect(port.writes).not.toBeNull();
+    expect(transport.calls).toBe(0);
+  });
+
   it('has no auth and keeps all four sim writes', () => {
     boot({ reset: true, seed: 20_260_730 });
     const port = createSupplier(DEFAULT_CONFIG.supplier, { sim: getContext().sim });
