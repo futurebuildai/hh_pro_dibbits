@@ -49,7 +49,7 @@
 
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
-import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { type IncomingMessage, type ServerResponse, createServer } from 'node:http';
 import { extname, join, resolve, sep } from 'node:path';
 import { createAdminHandler } from '../server/admin-api';
 import { readStoredKey } from '../server/admin-store';
@@ -116,10 +116,7 @@ async function serveFile(res: ServerResponse, file: string, immutable: boolean):
     // Hashed asset filenames change on every build, so they can be cached
     // hard. HTML must not be: it carries the injected dealer config, and a
     // cached copy would pin a stale brand colour past the next deploy.
-    res.setHeader(
-      'cache-control',
-      immutable ? 'public, max-age=31536000, immutable' : 'no-cache',
-    );
+    res.setHeader('cache-control', immutable ? 'public, max-age=31536000, immutable' : 'no-cache');
     await new Promise<void>((ok, fail) => {
       const stream = createReadStream(file);
       stream.on('error', fail);
