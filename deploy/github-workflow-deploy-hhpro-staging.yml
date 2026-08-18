@@ -1,6 +1,20 @@
 # Deploy HH Pro to hhpro-staging.gablelbm.com on the EXISTING dibbits-staging
 # droplet (tor1, 178.128.237.81). Decision D-085, 2026-08-18.
 #
+# ─────────────────────────────────────────────────────────────────────────────
+# THIS FILE IS NOT ACTIVE WHERE IT SITS. Install it with:
+#
+#     mkdir -p .github/workflows
+#     git mv deploy/github-workflow-deploy-hhpro-staging.yml \
+#            .github/workflows/deploy-hhpro-staging.yml
+#
+# It lives in deploy/ because the fine-grained PAT available to the session that
+# wrote it has no `workflow` scope, and GitHub refuses any push that creates or
+# edits a file under .github/workflows/ without one. That is a credential
+# limitation, not a design choice — the move above needs a token with `workflow`
+# scope, or a human committing through the web UI. See RUNBOOK.md §4b.
+# ─────────────────────────────────────────────────────────────────────────────
+#
 # MANUAL DISPATCH ONLY — deliberately no `push:` trigger.
 #
 # The sibling workflow in hardscapeos_dibbits deploys on every push to master.

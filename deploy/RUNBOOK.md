@@ -209,9 +209,25 @@ Re-running with the same SHA is a no-op re-verify. Re-running with a new SHA is 
 
 ## 4b. Ship and apply (GitHub Actions path — no terminal needed)
 
-`.github/workflows/deploy-hhpro-staging.yml` does §3 and §4 on a runner. It is
-**`workflow_dispatch` only** — it will never fire on a push, because auto-deploying to a
-shared droplet on every merge is not what D-085 authorised.
+A ready workflow does §3 and §4 on a runner, which is useful precisely because the
+runner *can* reach the droplet. It is **`workflow_dispatch` only** — it will never fire
+on a push, because auto-deploying to a shared droplet on every merge is not what D-085
+authorised.
+
+**It ships at `deploy/github-workflow-deploy-hhpro-staging.yml` and is inert there.**
+Activate it:
+
+```
+mkdir -p .github/workflows
+git mv deploy/github-workflow-deploy-hhpro-staging.yml \
+       .github/workflows/deploy-hhpro-staging.yml
+git commit -m "Enable the HH Pro staging deploy workflow" && git push
+```
+
+> That move needs a token with `workflow` scope, or a commit through the GitHub web UI.
+> The PAT available when this was prepared has no `workflow` scope, and GitHub rejects
+> any push that touches `.github/workflows/` without it — which is why the file is
+> parked one directory over rather than already live.
 
 One-time setup, in **this** repo's Settings → Secrets → Actions:
 
