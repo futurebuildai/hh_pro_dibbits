@@ -47,9 +47,7 @@ export function mountApiBehindHostCheck(server: ViteDevServer, routes: string[])
 
   if (hostCheck === -1 || fallback === -1 || hostCheck > fallback) {
     throw new Error(
-      `[hhpro] cannot place API middleware: expected ${HOST_CHECK} before ${HTML_FALLBACK} ` +
-        `in Vite's stack (found ${hostCheck} and ${fallback}). Vite's internals changed — ` +
-        'fix server/dev-middleware.ts rather than letting the API fall through to the SPA.',
+      `[hhpro] cannot place API middleware: expected ${HOST_CHECK} before ${HTML_FALLBACK} in Vite's stack (found ${hostCheck} and ${fallback}). Vite's internals changed — fix server/dev-middleware.ts rather than letting the API fall through to the SPA.`,
     );
   }
 

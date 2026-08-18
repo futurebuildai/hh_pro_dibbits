@@ -364,7 +364,9 @@ describe('a "daily" cap means the dealer\'s day', () => {
     process.env.TZ = 'America/Toronto';
   });
   afterEach(() => {
-    if (hostTz === undefined) delete process.env.TZ;
+    // Assigning `undefined` would set the STRING "undefined" and leave every
+    // later test running in an unparseable zone (which Node reads as UTC).
+    if (hostTz === undefined) Reflect.deleteProperty(process.env, 'TZ');
     else process.env.TZ = hostTz;
   });
 

@@ -74,8 +74,7 @@ async function main() {
           .waitFor({ state: 'visible', timeout: 5000 });
       } catch {
         throw new Error(
-          `${screen.name} (${screen.path}) never showed ${JSON.stringify(screen.wait)} — ` +
-            'auditing it would report a clean page that was never there.',
+          `${screen.name} (${screen.path}) never showed ${JSON.stringify(screen.wait)} — auditing it would report a clean page that was never there.`,
         );
       }
 

@@ -161,8 +161,7 @@ async function main() {
    */
   if (await portInUse(PORT)) {
     throw new Error(
-      `port ${PORT} is already serving something. The guide would photograph THAT app, ` +
-        'not this one. Stop it and re-run.',
+      `port ${PORT} is already serving something. The guide would photograph THAT app, not this one. Stop it and re-run.`,
     );
   }
 
@@ -202,8 +201,7 @@ async function main() {
     const servedTitle = /<title>([^<]+)<\/title>/.exec(await (await fetch(BASE)).text())?.[1];
     if (expectedTitle && servedTitle !== expectedTitle) {
       throw new Error(
-        `:${PORT} is serving "${servedTitle}", not "${expectedTitle}". ` +
-          'Refusing to photograph another application and call it this guide.',
+        `:${PORT} is serving "${servedTitle}", not "${expectedTitle}". Refusing to photograph another application and call it this guide.`,
       );
     }
 

@@ -56,8 +56,7 @@ async function main() {
    */
   if (await portInUse(PORT)) {
     throw new Error(
-      `port ${PORT} is already serving something. These journeys would walk THAT build, ` +
-        'not this one. Stop it and re-run.',
+      `port ${PORT} is already serving something. These journeys would walk THAT build, not this one. Stop it and re-run.`,
     );
   }
 

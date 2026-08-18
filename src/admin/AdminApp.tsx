@@ -357,7 +357,7 @@ function Console({
               )}
             </Field>
 
-            <Field label="Daily request cap" hint={`Per contractor. 0 = no cap.`}>
+            <Field label="Daily request cap" hint={'Per contractor. 0 = no cap.'}>
               {(field) => (
                 <input
                   {...field}
