@@ -171,6 +171,51 @@ describe('auth', () => {
     expect(dashboardCall.headers.Authorization).toBeUndefined();
   });
 
+  /**
+   * A rejected sign-in and a lapsed session are both 401s and they are not the
+   * same event. Telling someone who mistyped their password that their session
+   * has ended sends them looking for a problem that is not there — and firing
+   * the shell's signed-out hook on a login screen nobody was signed in to is
+   * how a login form starts flickering.
+   */
+  it('tells a bad password apart from a dead session', async () => {
+    const routes = signedInRoutes();
+    routes['POST /login'] = { status: 401, body: FIXTURES.error401 };
+    let lost = 0;
+    const rec = recorder(routes);
+    const supplier = createErpSupplier({
+      baseUrl: BASE_URL,
+      fetch: rec.fetch,
+      wait: noWait,
+      onSessionLost: () => {
+        lost += 1;
+      },
+    });
+
+    const result = await need(supplier.auth).login({ email: 'a@b.c', password: 'wrong' });
+    expect(result).toEqual({ ok: false, error: SUPPLIER_ERRORS.badCredentials });
+    expect(result).not.toEqual({ ok: false, error: SUPPLIER_ERRORS.sessionGone });
+    expect(lost).toBe(0);
+  });
+
+  /**
+   * A refresh that comes back without a token must not advance the session's
+   * expiry: the held token is still the live one, and a client scheduling off
+   * an instant that belongs to a token it never adopted refreshes too late.
+   */
+  it('does not advance the expiry on a refresh it had to refuse', async () => {
+    const routes = signedInRoutes();
+    routes['POST /token/refresh'] = { body: { ...FIXTURES.refresh, token: '' } };
+    const { supplier } = await signedIn(routes);
+
+    const before = need(supplier.auth).session();
+    expect(before?.expiresAt).toBeNull();
+
+    const result = await need(supplier.auth).refresh();
+    expect(result).toEqual({ ok: false, error: SUPPLIER_ERRORS.malformed });
+    expect(need(supplier.auth).session()?.expiresAt).toBeNull();
+  });
+
   it('signs out by forgetting the token, so the next read is anonymous', async () => {
     const { rec, supplier } = await signedIn();
     need(supplier.auth).signOut();

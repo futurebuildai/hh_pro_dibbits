@@ -177,10 +177,14 @@ export function createErpSupplier(options: ErpSupplierOptions): SupplierPort {
       // re-resolved; when it did not, re-fetching /me on every refresh is a
       // round trip that can only return what we already hold.
       if (session !== null && freshRole !== null && freshRole === previousRole) {
-        session = { ...session, expiresAt, sessionExpiresAt };
+        // Validate BEFORE advancing anything. Writing the new instants first
+        // and then bailing on a bad token leaves the session advertising an
+        // expiry that belongs to a token it never adopted — a client
+        // scheduling off that number would refresh after its real token died.
         const token = typeof payload.token === 'string' ? payload.token : '';
         if (token === '') return err(SUPPLIER_ERRORS.malformed);
         client.setToken(token);
+        session = { ...session, expiresAt, sessionExpiresAt };
         return ok(session);
       }
       return establish(payload, expiresAt, sessionExpiresAt);

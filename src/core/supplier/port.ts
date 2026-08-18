@@ -291,6 +291,7 @@ export function memoryTokenStore(): TokenStore {
  */
 export const SUPPLIER_ERRORS = {
   sessionGone: 'Your session with the supplier has ended — sign in again.',
+  badCredentials: "That email and password don't match an account with the supplier.",
   forbidden: "You don't have permission to see that on your supplier account.",
   notFound: "That isn't on your supplier account.",
   unavailable: "Couldn't reach the supplier just now — try again in a moment.",

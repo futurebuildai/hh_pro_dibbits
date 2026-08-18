@@ -134,9 +134,16 @@ export function createErpClient(options: ErpClientOptions): ErpClient {
     }
 
     if (response.status === 401) {
-      // The session is gone. Drop the token here rather than letting the next
-      // call re-present a credential the server has already refused, and never
-      // fall back to sim — mode is config, never a fallback (§1.2).
+      // A 401 on an ANONYMOUS request is a rejected sign-in, not a lapsed
+      // session, and the two must not share a sentence: telling someone who
+      // mistyped their password that their session has ended sends them to
+      // look for a problem that is not there. It also must not fire
+      // `onUnauthorized`, which is the shell's "you have been signed out" hook
+      // — there was nothing to sign out of.
+      if (request.anonymous) return err<T>(SUPPLIER_ERRORS.badCredentials);
+      // Otherwise the session is gone. Drop the token here rather than letting
+      // the next call re-present a credential the server has already refused,
+      // and never fall back to sim — mode is config, never a fallback (§1.2).
       tokens.clear();
       options.onUnauthorized?.();
       return err<T>(SUPPLIER_ERRORS.sessionGone);

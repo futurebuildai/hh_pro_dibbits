@@ -209,8 +209,8 @@ Five independent arms, because each covers a hole in the others.
 1. **The whole existing suite, unchanged.** Measured on this worktree at
    pristine `origin/master` (`git stash -u`, run, pop): **28 files / 376
    tests**. With the change: the same 28 files and the same 376 tests still
-   pass, plus 58 new ones in `src/core/supplier/__tests__/` and 3 in the
-   architecture test — 437 total. No existing test was edited except
+   pass, plus 60 new ones in `src/core/supplier/__tests__/` and 3 in the
+   architecture test — 439 total. No existing test was edited except
    `architecture.test.ts`, which gained the two §7.2 rules and lost nothing.
 2. **A structural no-push assertion on the wiring.** `zero-delta.test.ts` hands
    the flag-off arm a transport that *throws on any call* and asserts it never
@@ -236,10 +236,10 @@ untouched, pinned by an exact-keys assertion.
 
 ## 5. Tests
 
-`src/core/supplier/__tests__/` — 61 tests in three files plus a recorded
+`src/core/supplier/__tests__/` — 60 tests in three files plus a recorded
 transport.
 
-- **`erp-contract.test.ts` (41)** — one per read. Each asserts the *request*
+- **`erp-contract.test.ts` (43)** — one per read. Each asserts the *request*
   (verb, route, query, Bearer), the *mapping*, and *what did not survive*. The
   last is the one that would otherwise rot: an adapter that spreads the wire
   object passes the first two forever and leaks the next field the ERP adds.
@@ -262,7 +262,7 @@ transport.
 
 ## 6. Mutation log
 
-Nine self-mutations, each reverted immediately. Every one names the test that
+Eleven self-mutations, each reverted immediately. Every one names the test that
 died.
 
 | # | Mutation | Test that died |
@@ -277,6 +277,8 @@ died.
 | 7 | 401 softened to `unavailable`, token kept | `erp-contract > drops the session on a 401 and never falls back to the sim` |
 | 8 | `SupplierSession` carries the bearer token | `erp-contract > hands back no token, at any depth of the session object` |
 | 9 | `customer-quote` derived from the ERP instead of held true | `erp-contract > never lets the server switch off customer quotes` **and** `> gives a field_crew only what the ERP gave them` |
+| 10 | 401 on an anonymous login treated as a lapsed session | `erp-contract > tells a bad password apart from a dead session` |
+| 11 | refresh advances the expiry before validating the new token | `erp-contract > does not advance the expiry on a refresh it had to refuse` |
 
 **Mutation 1 is the one worth reading.** It killed nothing. Every zero-delta
 test ran on `mode:'sim'`, where dropping the stage flag changes nothing — so
