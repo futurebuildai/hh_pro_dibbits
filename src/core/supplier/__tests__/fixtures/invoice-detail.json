@@ -1,0 +1,25 @@
+{
+  "id": "inv_9142",
+  "invoice_no": "INV-9142",
+  "customer_id": "cus_copps",
+  "order_id": "ord_7690",
+  "status": "PARTIALLY_PAID",
+  "issue_date": "2026-07-31T00:00:00Z",
+  "due_date": "2026-08-30T00:00:00Z",
+  "subtotal_cents": 90000,
+  "tax_cents": 11700,
+  "holdback_cents": 0,
+  "total_cents": 101700,
+  "balance_cents": 51700,
+  "lines": [
+    {
+      "line_no": 1,
+      "product_id": "prd_ha_base",
+      "description": "19mm High Performance Bedding",
+      "qty_entered": "24.000",
+      "uom_entered": "TON",
+      "unit_price_cents": 3750,
+      "line_total_cents": 90000
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "pu_marcus",
+  "customer_id": "cus_copps",
+  "email": "marcus@coppslandscaping.example",
+  "name": "Marcus Webb",
+  "role": "field_crew",
+  "status": "active",
+  "notification_prefs": {},
+  "created_at": "2026-05-19T11:02:44Z",
+  "updated_at": "2026-05-19T11:02:44Z",
+  "capabilities": {
+    "manage_users": false,
+    "view_billing": false,
+    "pay_invoices": false,
+    "manage_payment_methods": false,
+    "submit_rfq": false,
+    "create_orders": false,
+    "view_orders_deliveries": true,
+    "edit_delivery_instructions": true,
+    "manage_files": false
+  }
+}

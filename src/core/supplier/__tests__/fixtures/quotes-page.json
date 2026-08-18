@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "qt_3320",
+      "quote_no": "Q-3320",
+      "customer_id": "cus_copps",
+      "status": "CONVERTED",
+      "valid_until": "2026-08-26T00:00:00Z",
+      "subtotal_cents": 418000,
+      "tax_cents": 54340,
+      "total_cents": 472340,
+      "created_at": "2026-08-10T09:12:03Z"
+    },
+    {
+      "id": "qt_3355",
+      "quote_no": "Q-3355",
+      "customer_id": "cus_copps",
+      "status": "SENT",
+      "valid_until": "2026-09-01T00:00:00Z",
+      "subtotal_cents": 786000,
+      "tax_cents": 102180,
+      "total_cents": 888180,
+      "created_at": "2026-08-17T16:48:55Z"
+    },
+    {
+      "id": "qt_3361",
+      "quote_no": "Q-3361",
+      "customer_id": "cus_copps",
+      "status": "AWAITING_DESK",
+      "valid_until": "0001-01-01T00:00:00Z",
+      "subtotal_cents": 0,
+      "tax_cents": 0,
+      "total_cents": 0,
+      "created_at": "2026-08-18T07:20:00Z"
+    }
+  ],
+  "total": 3,
+  "limit": 25,
+  "offset": 0
+}

@@ -1,0 +1,22 @@
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.RECORDED-LOGIN.signature",
+  "user": {
+    "id": "pu_ryan",
+    "customer_id": "cus_copps",
+    "email": "ryan@coppslandscaping.example",
+    "name": "Ryan Rood",
+    "role": "account_admin",
+    "status": "active",
+    "notification_prefs": {},
+    "created_at": "2026-03-02T14:11:09Z",
+    "updated_at": "2026-08-11T09:24:31Z"
+  },
+  "config": {
+    "id": "dibbits",
+    "dealer_name": "Dibbits Landscape Supply",
+    "logo_url": "",
+    "primary_color": "#E8A74E",
+    "support_email": "support@dibbits.example",
+    "support_phone": "+1-519-555-0142"
+  }
+}

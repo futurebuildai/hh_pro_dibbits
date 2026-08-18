@@ -88,3 +88,61 @@ describe('src/core stays framework-free', () => {
     expect(violations).toEqual([]);
   });
 });
+
+/**
+ * The supplier seam (connection spec §7.2, rules 2 and 3).
+ *
+ * A switch becomes a fork the first time a caller learns which implementation
+ * it got. These two rules are the whole difference, and they are tests rather
+ * than lint rules for the reason the file already gives: a lint rule can be
+ * disabled inline.
+ */
+describe('the supplier port is a switch, not a fork', () => {
+  const files = collectTsFiles(CORE_DIR).filter((file) => !file.includes('__tests__'));
+  const outside = files.filter((file) => !relative(CORE_DIR, file).startsWith('supplier/'));
+
+  it('finds files outside src/core/supplier to check', () => {
+    expect(outside.length).toBeGreaterThan(0);
+  });
+
+  /**
+   * Everything above the port goes through `supplier/index.ts`. Reaching an
+   * adapter directly is how `actions/` ends up holding a reference to a
+   * simulator that a real deployment does not have.
+   */
+  it('nothing outside src/core/supplier imports an adapter', () => {
+    const violations: string[] = [];
+    for (const file of outside) {
+      for (const specifier of importSpecifiers(readFileSync(file, 'utf8'))) {
+        if (specifier.includes('supplier/adapters/')) {
+          violations.push(`${relative(CORE_DIR, file)} imports "${specifier}"`);
+        }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
+  /**
+   * No `if (mode === 'sim')` above the port. Any such conditional in `actions/`,
+   * `selectors/`, `domain/` or `ui/` is the fork starting: it is a second place
+   * that has to be updated for every stage, and the place that gets forgotten.
+   */
+  it('nothing outside src/core/supplier branches on the supplier mode', () => {
+    const MODE_TEST =
+      /\bmode\s*[=!]==?\s*['"](?:sim|erp)['"]|['"](?:sim|erp)['"]\s*[=!]==?\s*\bmode\b/;
+    /**
+     * `domain/config.ts` is where the mode is DECIDED — it validates a dealer's
+     * payload and refuses an `erp` with no usable base URL. Deciding what the
+     * mode is is not the same act as behaving differently because of it, and
+     * this is the only file allowed the former.
+     */
+    const DECIDES_THE_MODE = new Set(['domain/config.ts']);
+    const violations: string[] = [];
+    for (const file of outside) {
+      const name = relative(CORE_DIR, file);
+      if (DECIDES_THE_MODE.has(name)) continue;
+      if (MODE_TEST.test(readFileSync(file, 'utf8'))) violations.push(name);
+    }
+    expect(violations).toEqual([]);
+  });
+});
