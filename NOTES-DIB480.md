@@ -204,15 +204,14 @@ already records every request, so a capture pass is a diff, not a rewrite.
 
 ## 4. Zero-delta proof
 
-Four independent arms, because each covers a hole in the others.
+Five independent arms, because each covers a hole in the others.
 
 1. **The whole existing suite, unchanged.** Measured on this worktree at
    pristine `origin/master` (`git stash -u`, run, pop): **28 files / 376
    tests**. With the change: the same 28 files and the same 376 tests still
    pass, plus 58 new ones in `src/core/supplier/__tests__/` and 3 in the
-   architecture test — 437 total. No
-   existing test was edited except `architecture.test.ts`, which gained the two
-   §7.2 rules and lost nothing.
+   architecture test — 437 total. No existing test was edited except
+   `architecture.test.ts`, which gained the two §7.2 rules and lost nothing.
 2. **A structural no-push assertion on the wiring.** `zero-delta.test.ts` hands
    the flag-off arm a transport that *throws on any call* and asserts it never
    fires. A green suite cannot tell you a network client was never built rather
@@ -223,6 +222,12 @@ Four independent arms, because each covers a hole in the others.
 4. **The architecture test**, which now fails if anything outside
    `src/core/supplier/` imports an adapter or branches on the supplier mode —
    §7.2's rules 2 and 3, the difference between a switch and a fork.
+5. **`npm run e2e`, 15/15.** A production build, driven as a contractor, with
+   the flag off. The unit suite proves the pieces; this proves the seams, which
+   is where every serious bug this project has had actually lived. It is the
+   arm that would catch a boot-order mistake the other three cannot see.
+   `npm run security` re-run too (0 failures) because `parseConfig` is the
+   server's gate as well, and this change widened it.
 
 `AppContext` gains one field (`supplier`) and `clock` / `pricing` / `sim` are
 untouched, pinned by an exact-keys assertion.
@@ -321,7 +326,14 @@ Named, with the reason, in rough priority order.
 9. **Delivery addresses, catalog detail, events, assist.** All Stage 2+ and all
    behind unbuilt routes.
 10. **Re-record the fixtures against a live DIB-479 server** once it merges.
-11. **`npm run e2e` / `a11y` / `security` were not re-run.** No UI, no route,
-    and no server surface changed; the flag-off path is byte-identical and the
-    437-test suite plus the architecture test cover the seam. Worth a run in
-    1c, when there is finally a screen to walk.
+11. **`npm run a11y` was not re-run.** No screen, token or copy changed. The
+    other two on-demand gates WERE run, and both are zero-delta evidence in
+    their own right:
+    - `npm run e2e` — **15/15 journeys**, driving a production build as a
+      contractor with the flag off. A green unit suite proves the pieces; this
+      proves the seams, which is where every serious bug this project has had
+      actually lived.
+    - `npm run security` — **0 failures**. `parseConfig` is the server's gate
+      too, and this change widened it, so the credential-exposure and
+      DNS-rebinding checks were re-run rather than assumed.
+    a11y is worth a run in 1c, when there is finally a login screen to walk.
