@@ -47,6 +47,15 @@ describe('browsing the catalogue', () => {
     expect(result.emptyMessage).toBeUndefined();
   });
 
+  it('opens in the yard’s own order, not alphabetically', () => {
+    // Alphabetical put `1" River Rock`, `2-6" River Rock` and `3/4"
+    // Clearstone` at the top of the catalogue — a shelf sorted by punctuation.
+    // Unsearched browsing follows the dealer's category order instead.
+    const first = browse({}).rows[0]?.product;
+    expect(first?.categoryId).toBe(PAVERS);
+    expect(browse({ sort: 'name' }).rows[0]?.product.name).toBe('1" River Rock');
+  });
+
   it('caps what it returns but still says how many matched', () => {
     const result = browse({}, 12);
     expect(result.rows).toHaveLength(12);
@@ -202,6 +211,19 @@ describe('the product page', () => {
       expect(alternate.product.specClass).toBe('paver-80mm-vehicular');
     }
     expect(driveway?.alternates.some((row) => row.product.sku === 'PVR-TB-BLU60-SM')).toBe(false);
+  });
+
+  it('never crosses a material class either', () => {
+    // Outdoor porcelain carries the tag `slab`, which the seed's paver test
+    // matched first — so a 20mm porcelain tile was filed as a 60mm concrete
+    // paver and offered as an interchangeable swap. Different material,
+    // different bedding, twice the price.
+    const paver = detail('PVR-TB-BLU60-SM', 1);
+    expect(paver?.alternates.some((row) => row.product.sku === 'POR-BWS-2X2-GREY')).toBe(false);
+
+    const porcelain = detail('POR-BWS-2X2-GREY', 1);
+    expect(porcelain?.product.specClass).toBe('porcelain-slab');
+    expect(porcelain?.alternates).toEqual([]);
   });
 
   it('carries the unit the product is actually sold in', () => {

@@ -201,7 +201,7 @@ export function buildCatalogBrowse(input: BuildCatalogBrowseInput): CatalogBrows
     : matched;
 
   const rows = stocked.map((product) => toCatalogRow(product, quoteFor));
-  sortRows(rows, filter.sort ?? 'relevance', Boolean(query));
+  sortRows(rows, filter.sort ?? 'relevance', Boolean(query), categories);
 
   const limited = rows.slice(0, input.limit ?? DEFAULT_LIMIT);
   const breadcrumb = category ? categoryPath(categories, category.id) : [];
@@ -257,7 +257,12 @@ function emptyCopy(
   };
 }
 
-function sortRows(rows: CatalogRow[], sort: CatalogSort, hasQuery: boolean): void {
+function sortRows(
+  rows: CatalogRow[],
+  sort: CatalogSort,
+  hasQuery: boolean,
+  categories: readonly Category[],
+): void {
   switch (sort) {
     case 'price-low':
       rows.sort((a, b) => a.quote.unitPrice - b.quote.unitPrice);
@@ -268,11 +273,22 @@ function sortRows(rows: CatalogRow[], sort: CatalogSort, hasQuery: boolean): voi
     case 'name':
       rows.sort((a, b) => a.product.name.localeCompare(b.product.name));
       return;
-    default:
-      // Relevance means "the order the search gave us". With no search there is
-      // no relevance to preserve, so fall back to something stable a person can
-      // scan: name within category.
-      if (!hasQuery) rows.sort((a, b) => a.product.name.localeCompare(b.product.name));
+    default: {
+      // Relevance means "the order the search gave us", so a search is left
+      // alone. With no search there is no relevance to preserve — and pure
+      // alphabetical opens the catalogue on `1" River Rock`, `2-6" River
+      // Rock`, `3/4" Clearstone`, which is a list sorted by punctuation. The
+      // dealer's own category order puts pavers at the top, the way the yard
+      // is laid out.
+      if (hasQuery) return;
+      const order = new Map(categories.map((category, index) => [category.id, index]));
+      rows.sort(
+        (a, b) =>
+          (order.get(a.product.categoryId) ?? Number.MAX_SAFE_INTEGER) -
+            (order.get(b.product.categoryId) ?? Number.MAX_SAFE_INTEGER) ||
+          a.product.name.localeCompare(b.product.name),
+      );
+    }
   }
 }
 

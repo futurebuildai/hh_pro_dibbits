@@ -7,10 +7,12 @@ import { AssistantSheet } from '@ui/components/assistant/AssistantSheet';
 import { useStore } from '@ui/hooks/useStore';
 import { PortalLayout, type PortalTab } from '@ui/layouts/PortalLayout';
 import { BoardPage } from '@ui/pages/BoardPage';
+import { CatalogPage } from '@ui/pages/CatalogPage';
 import { CustomerQuotePage } from '@ui/pages/CustomerQuotePage';
 import { OrderPage } from '@ui/pages/OrderPage';
 import { OrderTrackingPage } from '@ui/pages/OrderTrackingPage';
 import { PayPage } from '@ui/pages/PayPage';
+import { ProductPage } from '@ui/pages/ProductPage';
 import { ProjectPage } from '@ui/pages/ProjectPage';
 import { QuoteStudioPage } from '@ui/pages/QuoteStudioPage';
 import { TeamPage } from '@ui/pages/TeamPage';
@@ -22,6 +24,7 @@ import {
   Routes,
   useNavigate,
   useParams,
+  useSearchParams,
 } from 'react-router';
 
 // Wire the core once, before first render. If a poisoned save makes boot
@@ -53,6 +56,9 @@ export function App() {
         <Route path="/q/:token" element={<PublicQuote />} />
         <Route path="/projects/:projectId" element={<Shell />} />
         <Route path="/catalog" element={<Shell />} />
+        {/* A product is its own destination, so the phone's back button
+            returns to the search that found it rather than leaving the app. */}
+        <Route path="/catalog/:sku" element={<Shell />} />
         <Route path="/pay" element={<Shell />} />
         <Route path="/more" element={<Shell />} />
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -64,6 +70,9 @@ export function App() {
 function Shell() {
   const navigate = useNavigate();
   const params = useParams();
+  // The catalogue keeps its filters in the query string, so opening a product
+  // and coming back does not silently reset what was typed.
+  const [search, setSearch] = useSearchParams();
   const account = useStore(sessionStore, (state) => state.account);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
@@ -101,6 +110,7 @@ function Shell() {
   const path = window.location.pathname;
   const orderId = params.orderId;
   const projectId = params.projectId;
+  const sku = params.sku;
   const isQuoteStudio = path.endsWith('/quote');
   const isTracking = path.endsWith('/tracking');
 
@@ -114,8 +124,8 @@ function Shell() {
 
   const heading = orderId
     ? { title: 'Order', subtitle: undefined }
-    : projectId
-      ? { title: 'Project', subtitle: undefined }
+    : projectId || sku
+      ? { title: 'Product', subtitle: undefined }
       : tab === 'board'
         ? { title: 'Procurement Board', subtitle: account?.name }
         : {
@@ -133,7 +143,7 @@ function Shell() {
         onOpenDemo={() => setDemoOpen(true)}
         title={heading.title}
         subtitle={heading.subtitle}
-        hideChrome={Boolean(orderId || projectId)}
+        hideChrome={Boolean(orderId || projectId || sku)}
       >
         {orderId && isQuoteStudio ? (
           <QuoteStudioPage orderId={orderId} onBack={() => navigate(`/orders/${orderId}`)} />
@@ -153,14 +163,29 @@ function Shell() {
             onBack={() => navigate('/')}
             onOpenOrder={(id) => navigate(`/orders/${id}`)}
           />
+        ) : sku ? (
+          <ProductPage
+            sku={sku}
+            onBack={() => navigate({ pathname: '/catalog', search: search.toString() })}
+            onOpenProduct={(next) =>
+              navigate({ pathname: `/catalog/${next}`, search: search.toString() })
+            }
+            onOpenPlan={(id) => navigate(`/orders/${id}`)}
+          />
         ) : tab === 'board' ? (
           <BoardPage onOpenOrder={(id) => navigate(`/orders/${id}`)} />
+        ) : tab === 'catalog' ? (
+          <CatalogPage
+            search={search}
+            onSearchChange={(next) => setSearch(next, { replace: true })}
+            onOpenProduct={(next) =>
+              navigate({ pathname: `/catalog/${next}`, search: search.toString() })
+            }
+          />
         ) : tab === 'pay' ? (
           <PayPage onOpenOrder={(id) => navigate(`/orders/${id}`)} />
-        ) : tab === 'more' ? (
-          <TeamPage />
         ) : (
-          <ComingSoon tab={tab} />
+          <TeamPage />
         )}
       </PortalLayout>
 
@@ -179,16 +204,4 @@ function Shell() {
 function PublicQuote() {
   const params = useParams();
   return <CustomerQuotePage token={params.token ?? ''} />;
-}
-
-function ComingSoon({ tab }: { tab: PortalTab }) {
-  const copy: Record<string, string> = {
-    catalog: 'Browse the full catalog with your account pricing. (M3.5)',
-  };
-
-  return (
-    <div className="flex min-h-[60vh] items-center justify-center p-8">
-      <p className="max-w-xs text-center text-sm text-text-subtle">{copy[tab]}</p>
-    </div>
-  );
 }

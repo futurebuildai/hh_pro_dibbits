@@ -101,6 +101,15 @@ function deriveSpecClass(raw: RawProduct): string | undefined {
   const tags = raw.tags.map((tag) => tag.toLowerCase());
   const name = raw.name.toLowerCase();
 
+  // Porcelain is tested BEFORE the paver branch, and that order is the whole
+  // point. Outdoor porcelain is tagged `slab`, so the paver test caught it
+  // first and filed a 20mm porcelain tile as a 60mm concrete paver — which the
+  // catalogue then offered as an interchangeable alternate. It is a different
+  // material on a different bedding at twice the price; a crew that swapped
+  // one for the other on the strength of that suggestion would be relaying the
+  // patio. Specific material wins over the generic shape word.
+  if (tags.includes('porcelain')) return 'porcelain-slab';
+
   // Pavers substitute WITHIN a thickness class and never across one. A 60mm
   // paver under a car fails, so offering one as an alternate to an 80mm
   // driveway paver would be a value-engineering suggestion that cracks. This
@@ -111,7 +120,6 @@ function deriveSpecClass(raw: RawProduct): string | undefined {
     if (tags.includes('50mm')) return 'paver-50mm-pedestrian';
     return 'paver-60mm';
   }
-  if (tags.includes('porcelain')) return 'porcelain-slab';
   if (tags.includes('wall')) return tags.includes('cap') ? 'wall-cap' : 'wall-segmental';
   if (tags.includes('step') || tags.includes('stepper')) return 'step-unit';
   if (tags.includes('natural-stone')) {
