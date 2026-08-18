@@ -91,8 +91,7 @@ async function main() {
    */
   if (await portInUse(PORT)) {
     throw new Error(
-      `port ${PORT} is already serving something. This smoke would attack THAT server, ` +
-        'not the one it is meant to test. Stop it and re-run.',
+      `port ${PORT} is already serving something. This smoke would attack THAT server, not the one it is meant to test. Stop it and re-run.`,
     );
   }
 
@@ -117,8 +116,7 @@ async function main() {
     for (let i = 0; i < 60; i++) {
       if (serverExited !== null) {
         throw new Error(
-          `the dev server exited (code ${serverExited}) before it served anything — ` +
-            'nothing below would have tested this repo.',
+          `the dev server exited (code ${serverExited}) before it served anything — nothing below would have tested this repo.`,
         );
       }
       try {

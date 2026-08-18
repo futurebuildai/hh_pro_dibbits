@@ -56,8 +56,7 @@ async function main() {
    */
   if (await portInUse(PORT)) {
     throw new Error(
-      `port ${PORT} is already serving something. These journeys would walk THAT build, ` +
-        'not this one. Stop it and re-run.',
+      `port ${PORT} is already serving something. These journeys would walk THAT build, not this one. Stop it and re-run.`,
     );
   }
 
@@ -112,6 +111,56 @@ async function main() {
       .waitFor({ state: 'visible', timeout: 5000 })
       .catch(() => {});
     check('an order opens with its scope priced', (await page.getByText(/below list/).count()) > 0);
+
+    // --- The catalogue, and the seam this whole feature rests on -------------
+    /**
+     * Browse -> product -> plan -> the board. Every piece has unit tests; what
+     * only a journey can prove is that the line the catalogue promised lands on
+     * the order the contractor picked, and that they can get to it from the
+     * confirmation. That is the difference between a catalogue and a cart.
+     */
+    await page.goto(`${BASE}/catalog`, { waitUntil: 'networkidle' });
+    await page.getByPlaceholder(/Search products/).fill('polymeric');
+    await page.waitForTimeout(400);
+    check(
+      'the catalog prices in the unit the product is sold in',
+      (await page.getByText('/bag').count()) > 0,
+    );
+
+    await page
+      .getByRole('button', { name: /Polymeric Jointing Sand/ })
+      .first()
+      .click();
+    await page.waitForURL(/\/catalog\/JNT-POLY-SAND/);
+    await page
+      .getByText(/Your account price/)
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    check(
+      'a product page quotes the account price, not list',
+      (await page.getByText(/Your account price/).count()) > 0,
+    );
+
+    await page.getByRole('button', { name: /to a plan/ }).click();
+    await page.waitForSelector('[role="dialog"]');
+    check(
+      'plans the supplier already holds are not offered as destinations',
+      (await page.getByRole('dialog').getByText('Permeable driveway').count()) === 0,
+    );
+
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: /Pool surround/ })
+      .click();
+    await page.waitForTimeout(500);
+    await page.getByRole('button', { name: 'Open plan' }).click();
+    await page.waitForURL(/\/orders\//);
+    await page.waitForTimeout(400);
+    check(
+      'the line lands on the plan that was chosen, and it can be opened',
+      (await page.getByText(/Polymeric Jointing Sand/).count()) > 0,
+    );
 
     // --- Role gating: the same app, a different person -----------------------
     await page.goto(`${BASE}/more`, { waitUntil: 'networkidle' });

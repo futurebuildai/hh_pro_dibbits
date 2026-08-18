@@ -7,6 +7,8 @@
  * problems, and none of this had ever been measured.
  */
 import { execSync, spawn } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import net from 'node:net';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
@@ -22,6 +24,11 @@ const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 const SCREENS = [
   { name: 'board', path: '/', wait: 'article' },
+  { name: 'catalog', path: '/catalog', wait: 'text=In stock only' },
+  // A filtered, EMPTY result is its own screen: it is all text on a bare
+  // surface, which is where a contrast failure hides with nothing around it.
+  { name: 'catalog-empty', path: '/catalog?q=zzzz', wait: 'text=Nothing in the catalog' },
+  { name: 'product', path: '/catalog/PVR-TB-BLU60-SM', wait: 'text=Your account price' },
   { name: 'order', path: '/orders/ord_miller_frame', wait: 'text=below list' },
   { name: 'quote-studio', path: '/orders/ord_miller_frame/quote', wait: 'text=Customer quote' },
   { name: 'tracking', path: '/orders/ord_wilson_frame/tracking', wait: 'text=Out for delivery' },
@@ -31,10 +38,45 @@ const SCREENS = [
   { name: 'admin', path: '/admin.html', wait: 'text=Admin token' },
 ];
 
+/** Is anything already listening? A taken port means we would audit IT, not us. */
+function portInUse(port) {
+  return new Promise((resolve) => {
+    const socket = net.connect({ host: '127.0.0.1', port });
+    socket.on('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.on('error', () => resolve(false));
+    socket.setTimeout(1000, () => {
+      socket.destroy();
+      resolve(false);
+    });
+  });
+}
+
 async function main() {
   execSync('npm run build', { cwd: ROOT, stdio: 'inherit' });
+
+  /**
+   * The port must be OURS, and the app on it must be THIS app.
+   *
+   * `npm run security` and `npm run guide` both learned this the hard way — a
+   * preview server left behind by a sibling checkout answers every page, and
+   * the run then grades a different application. For an accessibility audit
+   * the failure is silent and the wrong direction: a hardened stale server
+   * reports zero violations for code nobody measured.
+   */
+  if (await portInUse(PORT)) {
+    throw new Error(
+      `port ${PORT} is already serving something. The audit would measure THAT app, not this one. Stop it and re-run.`,
+    );
+  }
+
+  // `detached` so the process GROUP can be killed: `server.kill()` reaps only
+  // the `npx` wrapper and leaves the real vite child holding the port.
   const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
     cwd: ROOT,
+    detached: true,
     stdio: 'ignore',
   });
 
@@ -49,6 +91,16 @@ async function main() {
         /* not up */
       }
       await new Promise((r) => setTimeout(r, 250));
+    }
+
+    const expectedTitle = /<title>([^<]+)<\/title>/.exec(
+      readFileSync(join(ROOT, 'index.html'), 'utf8'),
+    )?.[1];
+    const servedTitle = /<title>([^<]+)<\/title>/.exec(await (await fetch(BASE)).text())?.[1];
+    if (expectedTitle && servedTitle !== expectedTitle) {
+      throw new Error(
+        `:${PORT} is serving "${servedTitle}", not "${expectedTitle}". Refusing to audit another application and report it as this one.`,
+      );
     }
 
     const context = await browser.newContext({ viewport: PHONE, deviceScaleFactor: 2 });
@@ -74,8 +126,7 @@ async function main() {
           .waitFor({ state: 'visible', timeout: 5000 });
       } catch {
         throw new Error(
-          `${screen.name} (${screen.path}) never showed ${JSON.stringify(screen.wait)} — ` +
-            'auditing it would report a clean page that was never there.',
+          `${screen.name} (${screen.path}) never showed ${JSON.stringify(screen.wait)} — auditing it would report a clean page that was never there.`,
         );
       }
 
@@ -107,7 +158,14 @@ async function main() {
     await context.close();
   } finally {
     await browser.close();
-    server.kill();
+    try {
+      process.kill(-server.pid, 'SIGTERM');
+    } catch {
+      server.kill();
+    }
+    for (let i = 0; i < 20 && (await portInUse(PORT)); i++) {
+      await new Promise((r) => setTimeout(r, 150));
+    }
   }
 
   console.log(`\n${failures.length} serious/critical violations`);

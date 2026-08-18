@@ -52,10 +52,10 @@ for (const product of products) {
   writeFileSync(join(OUT, `${product.sku}.svg`), svg);
 }
 
-const byConfidence = colours.reduce(
-  (acc, c) => ({ ...acc, [c.confidence]: (acc[c.confidence] ?? 0) + 1 }),
-  {},
-);
+const byConfidence = {};
+for (const colour of colours) {
+  byConfidence[colour.confidence] = (byConfidence[colour.confidence] ?? 0) + 1;
+}
 process.stdout.write(
   `${products.length} swatches, ${Math.round(bytes / 1024)} KB total\n` +
     `  confidence: ${Object.entries(byConfidence)
