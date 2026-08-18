@@ -14,7 +14,7 @@
  */
 
 import { execSync, spawn } from 'node:child_process';
-import { mkdirSync, readFileSync, renameSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync } from 'node:fs';
 import net from 'node:net';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -261,33 +261,80 @@ async function main() {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(250);
 
-    // ---- 8. Blocked move --------------------------------------------------
+    // ---- 8-12. The catalogue, as its own destination -----------------------
+    /**
+     * Nothing in this block MUTATES the demo. The add-to-plan sheet is opened
+     * and dismissed rather than committed: a line added here would change the
+     * board totals in every screenshot that follows, and the rest of the guide
+     * tells the board's story with specific numbers in the prose.
+     *
+     * Extending this file: a new screen needs a `shoot()` AND an assertion
+     * that the screen actually rendered (`expectText`), or the capture happily
+     * photographs whatever was on screen instead.
+     */
+    await page.getByRole('button', { name: 'Catalog', exact: true }).click();
+    await page.waitForURL(/\/catalog/);
+    await expectText(page, 'In stock only');
+    await shoot(page, '08-catalog', 'The catalog, with your account price on every row');
+
+    // Scoped to the chip row by `aria-pressed`: "Hardscape" also matches the
+    // Hardscape Block Adhesive product row, and a name regex would resolve to
+    // two elements and fail the whole run.
+    await categoryChip(page, 'Hardscape').click();
+    await page.waitForTimeout(250);
+    await categoryChip(page, 'Pavers').click();
+    await expectText(page, 'Hardscape \u203a Pavers');
+    await shoot(page, '09-catalog-category', 'Categories drill in rather than listing everything');
+
+    await page.getByPlaceholder(/Search products/).fill('mahogany door');
+    await expectText(page, 'Nothing in Pavers matches');
+    await shoot(page, '10-catalog-empty', 'An empty result says what happened, and what to try');
+
+    await page.getByRole('button', { name: /Clear filters/ }).click();
+    await page.waitForTimeout(250);
+    await page.getByRole('button', { name: /Techo-Bloc Blu 60 Smooth/ }).click();
+    await page.waitForURL(/\/catalog\/PVR-TB-BLU60-SM/);
+    await expectText(page, 'Your account price');
+    // A real patio, so the volume break has something to say.
+    await page.getByLabel(/Quantity in/).fill('480');
+    await expectText(page, 'your price drops to');
+    await shoot(page, '11-catalog-product', 'One product, priced at the quantity you need', {
+      fullPage: true,
+    });
+
+    await page.getByRole('button', { name: /to a plan/ }).click();
+    await page.waitForSelector('[role="dialog"]');
+    await expectText(page, 'Add to a plan');
+    await shoot(page, '12-catalog-add-to-plan', 'The action is a plan, not a cart');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(250);
+    // ---- 13. Blocked move --------------------------------------------------
     await page.goto(`${BASE}/`);
     await page.waitForSelector('article');
     await dragCardToStage(page, 'Paver field', 'Order');
     await page.waitForSelector('[role="dialog"]');
     await expectText(page, 'needs dealer pricing');
-    await shoot(page, '08-blocked-move', 'The board explains why a move isn’t allowed');
+    await shoot(page, '13-blocked-move', 'The board explains why a move isn’t allowed');
     await page.getByRole('button', { name: /Got it/ }).click();
     await page.waitForTimeout(300);
 
-    // ---- 9. Allowed move --------------------------------------------------
+    // ---- 14. Allowed move --------------------------------------------------
     await dragCardToStage(page, 'Paver field', 'Quote');
     await page.waitForSelector('[role="dialog"]');
     await expectText(page, 'quote desk');
-    await shoot(page, '09-confirm-move', 'Every stage move names its consequence first');
+    await shoot(page, '14-confirm-move', 'Every stage move names its consequence first');
     await page.getByRole('button', { name: /Send to quote desk/ }).click();
     await page.waitForTimeout(500);
 
-    // ---- 10. The supplier is working --------------------------------------
+    // ---- 15. The supplier is working --------------------------------------
     await page.getByRole('tab', { name: /Quote/ }).click();
     await expectText(page, 'Sent to quote desk');
-    await shoot(page, '10-at-quote-desk', 'The card shows what Gable is doing');
+    await shoot(page, '15-at-quote-desk', 'The card shows what Gable is doing');
 
-    // ---- 11. Demo controls ------------------------------------------------
+    // ---- 16. Demo controls ------------------------------------------------
     await page.getByRole('button', { name: 'Demo controls' }).click();
     await page.waitForSelector('[role="dialog"]');
-    await shoot(page, '11-demo-controls', 'Demo controls: move the clock, not the simulation');
+    await shoot(page, '16-demo-controls', 'Demo controls: move the clock, not the simulation');
 
     // Advance until the desk answers.
     for (let i = 0; i < 2; i++) {
@@ -299,23 +346,23 @@ async function main() {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(400);
 
-    // ---- 12. Quote came back ----------------------------------------------
+    // ---- 17. Quote came back ----------------------------------------------
     await expectText(page, 'Priced — ready to order');
-    await shoot(page, '12-quote-priced', 'The quote comes back priced, and the block clears');
+    await shoot(page, '17-quote-priced', 'The quote comes back priced, and the block clears');
 
-    // ---- 13. Activity -----------------------------------------------------
+    // ---- 18. Activity -----------------------------------------------------
     await page.getByRole('button', { name: /^Activity/ }).click();
     await page.waitForSelector('[role="dialog"]');
     await expectText(page, 'priced');
-    await shoot(page, '13-activity', 'What the supplier did while you weren’t looking');
+    await shoot(page, '18-activity', 'What the supplier did while you weren’t looking');
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
-    // ---- 14. Customer quote studio ---------------------------------------
+    // ---- 19. Customer quote studio ---------------------------------------
     await page.goto(`${BASE}/orders/ord_miller_deck/quote`);
     await page.getByRole('button', { name: /Build customer quote/ }).click();
     await expectText(page, 'Gross margin');
-    await shoot(page, '14-quote-studio', 'The quote studio: markup, labor, and your margin');
+    await shoot(page, '19-quote-studio', 'The quote studio: markup, labor, and your margin');
 
     await page.getByRole('button', { name: /Send to customer/ }).click();
     await expectText(page, 'Share link');
@@ -325,50 +372,50 @@ async function main() {
     const token = shareHref?.match(/\/q\/(\w+)/)?.[1];
     if (!token) throw new Error('no share token was minted');
 
-    // ---- 15. The homeowner's view ----------------------------------------
+    // ---- 20. The homeowner's view ----------------------------------------
     await page.goto(`${BASE}/q/${token}`);
     await expectText(page, 'Your selections');
-    await shoot(page, '15-customer-quote', 'What the homeowner sees — contractor-branded', {
+    await shoot(page, '20-customer-quote', 'What the homeowner sees — contractor-branded', {
       fullPage: true,
     });
 
-    // ---- 16. Product narrative -------------------------------------------
+    // ---- 21. Product narrative -------------------------------------------
     await page
       .getByRole('button', { name: /Yorkville/ })
       .first()
       .click();
     await expectText(page, 'Product details');
-    await shoot(page, '16-product-story', 'Selections carry a full product narrative');
+    await shoot(page, '21-product-story', 'Selections carry a full product narrative');
     await page.getByRole('button', { name: 'Close' }).click();
     await page.waitForTimeout(300);
 
-    // ---- 17. Sign --------------------------------------------------------
+    // ---- 22. Sign --------------------------------------------------------
     await page.getByRole('button', { name: /Review & sign/ }).click();
     await expectText(page, 'Your full legal name');
     await page.getByLabel(/full legal name/i).fill('Dana Miller');
     await drawSignature(page);
     await page.getByRole('checkbox').check();
-    await shoot(page, '17-signature', 'Accepting requires a typed name and a signature');
+    await shoot(page, '22-signature', 'Accepting requires a typed name and a signature');
 
     await page.getByRole('button', { name: /Accept & sign/ }).click();
     await expectText(page, 'Accepted');
-    await shoot(page, '18-accepted', 'The signed record stays on the proposal', {
+    await shoot(page, '23-accepted', 'The signed record stays on the proposal', {
       fullPage: true,
     });
 
-    // ---- 19. Order tracking ----------------------------------------------
+    // ---- 24. Order tracking ----------------------------------------------
     await page.goto(`${BASE}/orders/ord_wilson_frame/tracking`);
     await expectText(page, 'Out for delivery');
-    await shoot(page, '19-order-tracking', 'Tracking an order through fulfillment', {
+    await shoot(page, '24-order-tracking', 'Tracking an order through fulfillment', {
       fullPage: true,
     });
 
-    // ---- 20. Pay ----------------------------------------------------------
+    // ---- 25. Pay ----------------------------------------------------------
     await page.goto(`${BASE}/pay`);
     await expectText(page, 'Outstanding balance');
-    await shoot(page, '20-pay', 'Open invoices with aging — including counter sales');
+    await shoot(page, '25-pay', 'Open invoices with aging — including counter sales');
 
-    // ---- 21. Payment sheet -------------------------------------------------
+    // ---- 26. Payment sheet -------------------------------------------------
     // The real input is sr-only behind a styled box (correct a11y), so click
     // the label rather than the input.
     const rows = page.locator('li label');
@@ -376,18 +423,18 @@ async function main() {
     for (let i = 0; i < count; i++) await rows.nth(i).click();
     await page.getByRole('button', { name: /Pay \d+ invoice/ }).click();
     await expectText(page, 'Pay with');
-    await shoot(page, '21-payment-sheet', 'ACH is free; the card fee is shown before you pay');
+    await shoot(page, '26-payment-sheet', 'ACH is free; the card fee is shown before you pay');
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
-    // ---- 22. Project drill-down ------------------------------------------
+    // ---- 27. Project drill-down ------------------------------------------
     await page.goto(`${BASE}/projects/prj_wilson`);
     await expectText(page, 'across 3 orders');
-    await shoot(page, '22-project', 'One project, its orders across three stages', {
+    await shoot(page, '27-project', 'One project, its orders across three stages', {
       fullPage: true,
     });
 
-    // ---- 23. The assistant, unconfigured ----------------------------------
+    // ---- 28. The assistant, unconfigured ----------------------------------
     // A preview build has no proxy, so the health check fails and this is the
     // honest state: disabled, with no mock replies standing in for a model.
     await page.goto(`${BASE}/`);
@@ -396,13 +443,13 @@ async function main() {
     await expectText(page, "isn't switched on yet");
     await shoot(
       page,
-      '23-assistant-nokey',
+      '28-assistant-nokey',
       'No key configured: disabled, never faked — and the supplier is who turns it on',
     );
     await page.keyboard.press('Escape');
     await page.waitForTimeout(250);
 
-    // ---- 24. The assistant, configured ------------------------------------
+    // ---- 29. The assistant, configured ------------------------------------
     // Only the health check is stubbed. Nothing puts words in the model's
     // mouth — this is the panel you get once the key is set, before you type.
     await page.route('**/api/anthropic/health', (route) =>
@@ -412,41 +459,67 @@ async function main() {
     await page.waitForSelector('article');
     await page.getByRole('button', { name: 'Ask the assistant' }).click();
     await expectText(page, 'material list');
-    await shoot(page, '25-assistant', 'Hand it your list — typed, spoken, or photographed');
+    await shoot(page, '29-assistant', 'Hand it your list — typed, spoken, or photographed');
 
-    // ---- 26. The team -----------------------------------------------------
+    // ---- 30. The team -----------------------------------------------------
     await page.goto(`${BASE}/more`);
     await expectText(page, 'What each role can do');
-    await shoot(page, '26-team', 'Your crew, and what each role may do', { fullPage: true });
+    await shoot(page, '30-team', 'Your crew, and what each role may do', { fullPage: true });
 
-    // ---- 27. Switching people ---------------------------------------------
+    // ---- 31. Switching people ---------------------------------------------
     await page.getByRole('button', { name: 'Switch person', exact: true }).click();
     await expectText(page, "Who's using this?");
-    await shoot(page, '27-person-switcher', 'Acting as someone applies their permissions');
+    await shoot(page, '31-person-switcher', 'Acting as someone applies their permissions');
     await page.keyboard.press('Escape');
     await page.waitForTimeout(250);
 
     await phone.close();
 
-    // ---- 25. Desktop ------------------------------------------------------
+    // ---- 32. Desktop ------------------------------------------------------
     const desk = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
     const wide = await desk.newPage();
     await wide.goto(`${BASE}/`);
     await wide.waitForSelector('article');
-    await shoot(wide, '28-desktop-board', 'The same board on desktop');
+    await shoot(wide, '32-desktop-board', 'The same board on desktop');
 
-    // ---- 26. Dark mode ----------------------------------------------------
+    // ---- 33. Dark mode ----------------------------------------------------
     await wide.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
-    await shoot(wide, '29-desktop-dark', 'Dark mode');
+    await shoot(wide, '33-desktop-dark', 'Dark mode');
     await wide.evaluate(() => document.documentElement.removeAttribute('data-theme'));
 
-    // ---- 30. The dealer admin console --------------------------------------
+    // ---- 34. The dealer admin console --------------------------------------
     // A different user entirely. With no HHPRO_ADMIN_TOKEN set in a
     // preview build, this is the sign-in it correctly refuses past.
     await wide.goto(`${BASE}/admin.html`);
     await expectText(wide, 'Admin token');
-    await shoot(wide, '30-admin-signin', 'The dealer admin console, gated');
+    await shoot(wide, '34-admin-signin', 'The dealer admin console, gated');
     await desk.close();
+
+    /**
+     * Every image the prose points at must exist.
+     *
+     * The markdown and the PNG folder are two files that can disagree, and
+     * renumbering a shot is exactly how a link dies quietly: the capture still
+     * succeeds, every screen still renders, and one image in the middle of the
+     * guide is a broken icon nobody notices until the next milestone. The
+     * capture already refuses to photograph a screen that is missing; it now
+     * also refuses to leave the guide pointing at a file that is not there.
+     */
+    const guide = readFileSync(join(ROOT, 'docs/user-guide.md'), 'utf8');
+    const referenced = [...guide.matchAll(/screenshots\/([\w.-]+\.png)/g)].map((match) => match[1]);
+    const missing = [...new Set(referenced)].filter((file) => !existsSync(join(OUT, file)));
+    if (missing.length > 0) {
+      throw new Error(
+        `docs/user-guide.md points at ${missing.length} screenshot(s) this run did not produce: ` +
+          `${missing.join(', ')}. Fix the prose or add the step.`,
+      );
+    }
+    const orphans = shots
+      .map((shot) => `${shot.name}.png`)
+      .filter((file) => !referenced.includes(file));
+    if (orphans.length > 0) {
+      process.stdout.write(`  ! captured but never shown in the guide: ${orphans.join(', ')}\n`);
+    }
 
     process.stdout.write(`\n${shots.length} screenshots written to docs/screenshots/\n`);
   } finally {
@@ -460,6 +533,11 @@ async function main() {
       await new Promise((r) => setTimeout(r, 150));
     }
   }
+}
+
+/** A category filter chip — the only buttons on the catalog carrying aria-pressed. */
+function categoryChip(page, name) {
+  return page.locator('button[aria-pressed]', { hasText: name }).first();
 }
 
 /** Draws a plausible signature on the canvas pad. */

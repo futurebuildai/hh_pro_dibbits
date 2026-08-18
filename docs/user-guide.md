@@ -5,7 +5,8 @@ real contractor would actually do: look at what needs attention, build a scope,
 see your pricing, and move an order forward.
 
 > **Status: through Milestone 8, plus the L8 remediation, team roles, a mobile
-> UX pass, an accessibility pass, and the dealer admin console.**
+> UX pass, an accessibility pass, the dealer admin console, and the catalog
+> as its own destination.**
 > Everything below is live and clickable.
 > Things that don't exist yet are called out honestly in
 > [What isn't built yet](#what-isnt-built-yet) rather than being implied.
@@ -110,6 +111,12 @@ Type a product name or paste a SKU. Adding something already on the order bumps
 its quantity instead of creating a duplicate line — which also means the
 combined quantity can reach a volume break.
 
+This is the quick path when you already know what you want and you are standing
+in the order. When you want to *look* — compare two pavers, check what a tonne
+of base costs, see what is on the yard — that is the [Catalog](#4-the-catalog),
+and it works the other way round: find the product first, then choose the plan
+it goes on.
+
 ### Start from a template
 
 ![Starting from a bill-of-materials template](screenshots/06-add-templates.png)
@@ -132,14 +139,98 @@ is worse than no number.
 
 ---
 
-## 4. Moving an order forward
+## 4. The catalog
+
+Tap **Catalog**. This is the yard, with your prices on it.
+
+![The catalog, with your account price on every row](screenshots/08-catalog.png)
+
+Every row carries **what you pay, in the unit the thing is actually sold in** —
+per square foot for pavers, per tonne for base, per bag for jointing sand —
+with list struck through beside it and the stock position said out loud. That
+matters more here than in most catalogs: "$36.13 /tonne" is a number you can
+build a quote from, and "$42.50 EA" for a tonne of gravel is not a number at
+all.
+
+The prices are the same ones the board uses. There is no separate "catalog
+price" that turns into something else once it is on an order — the contract
+price your rep negotiated on Yorkville shows up here as 22% off list while
+everything else in Hardscape shows 18%, because it is the same pricing engine
+answering.
+
+### Categories drill in rather than listing everything
+
+![Categories drill in rather than listing everything](screenshots/09-catalog-category.png)
+
+Eighteen headings across the top of a phone is a wall. Tap **Hardscape** and
+the row becomes what is under it; tap **Pavers** and it stays on its siblings,
+so you can step across to Retaining Walls without going back up. The counts are
+live, and a heading with nothing under it is not shown at all — a tap that
+leads to "no products" is a tap you paid for.
+
+The search, the category and **In stock only** all live in the address bar. So
+backing out of a product returns you to the exact list you were reading, and a
+filtered catalog is a link you can send to your PM.
+
+### When nothing matches, it says so
+
+![An empty result says what happened, and what to try](screenshots/10-catalog-empty.png)
+
+Not "0 results". *"Nothing in Pavers matches “mahogany door”."* — the words you
+typed and the place you were looking, because "wrong word" and "wrong category"
+are different problems with different fixes. Searching the whole catalog for
+something Dibbits Landscape Supply genuinely does not stock points you at the
+special-order route instead, which is where that job actually gets done.
+
+### One product, at the quantity you need
+
+![One product, priced at the quantity you need](screenshots/11-catalog-product.png)
+
+The quantity control is the point of this page, not a form field. Hardscape
+pricing moves with volume, so the price answers back as the number changes —
+and the next break is a sentence rather than arithmetic:
+
+> Order **600 sq ft** or more and your price drops to **$4.85**/sq ft.
+
+**Interchangeable with this** only ever offers products that genuinely
+substitute. A 60mm patio paver is not offered as an alternate for an 80mm
+driveway paver, and outdoor porcelain is not offered as an alternate for
+concrete — different material, different bedding, and a swap that would mean
+relaying the job.
+
+### Add it to a plan. There is no cart
+
+![The action is a plan, not a cart](screenshots/12-catalog-add-to-plan.png)
+
+This is the one place where this product looks least like a store, and it is
+deliberate. A cart is a second place your intentions live: no job, no delivery
+date, no site, and nothing on the board to remind you it exists. So the button
+asks the question a cart never does — **which plan?**
+
+- Every plan listed is a Plan-stage order that already belongs to a job.
+- Plans Dibbits Landscape Supply already holds are not offered at all. The
+  scope is locked once they are pricing or picking it, so a destination that
+  would refuse on tap is not shown as a destination.
+- If the plan already carries that SKU, the row says so **before** you tap, and
+  adding **raises that line's quantity** rather than creating a second one —
+  which also means the combined quantity can reach a volume break.
+- **Start a new plan** creates one draft order on the job you pick, in Plan,
+  with the line already on it. If anything about the line is wrong, the draft
+  is not left behind.
+
+Whichever you choose, the confirmation offers **Open plan**, because material
+that landed somewhere you cannot see is exactly the cart behaviour this avoids.
+
+---
+
+## 5. Moving an order forward
 
 Press and hold a card, then drag it onto a stage. The stage bar becomes your
 drop targets.
 
 ### When the rules say no
 
-![The board explains why a move isn't allowed](screenshots/08-blocked-move.png)
+![The board explains why a move isn't allowed](screenshots/13-blocked-move.png)
 
 The "Decking & rail" order contains a special-order rail kit with no dealer
 price, so it can't jump straight to Order. Rather than the card just refusing to
@@ -153,7 +244,7 @@ number nobody has agreed to.
 
 ### When it's allowed
 
-![Every stage move names its consequence first](screenshots/09-confirm-move.png)
+![Every stage move names its consequence first](screenshots/14-confirm-move.png)
 
 Every cross-stage move confirms first, and names the consequence in plain
 language — because dragging a card is about to put work on someone's desk or
@@ -164,17 +255,17 @@ commit you to a purchase. You should never find that out afterwards.
 
 ---
 
-## 5. Dibbits Landscape Supply works while you don't
+## 6. Dibbits Landscape Supply works while you don't
 
 Once you send an order, the card tells you what's happening on their side without
 you opening anything.
 
-![The card shows what Dibbits Landscape Supply is doing](screenshots/10-at-quote-desk.png)
+![The card shows what Dibbits Landscape Supply is doing](screenshots/15-at-quote-desk.png)
 
 The desk takes hours, not milliseconds — a person is pricing it, and an instant
 answer would be a lie. Which is a problem for a demo, so:
 
-![Demo controls: move the clock, not the simulation](screenshots/11-demo-controls.png)
+![Demo controls: move the clock, not the simulation](screenshots/16-demo-controls.png)
 
 **Demo controls** (the wand in the header) move the *clock*, not the simulation.
 The supplier's delays stay realistic; you just stop waiting through them.
@@ -188,7 +279,7 @@ The supplier's delays stay realistic; you just stop waiting through them.
 
 Skip forward twice and the quote comes back:
 
-![The quote comes back priced, and the block clears](screenshots/12-quote-priced.png)
+![The quote comes back priced, and the block clears](screenshots/17-quote-priced.png)
 
 Compare this card to before. The total went from **$1,160.04 to $2,228.61** —
 Dibbits Landscape Supply priced the special-order rail kit. The "1 needs pricing" warning is gone,
@@ -198,7 +289,7 @@ works.
 
 ### What happened while you were away
 
-![What the supplier did while you weren't looking](screenshots/13-activity.png)
+![What the supplier did while you weren't looking](screenshots/18-activity.png)
 
 The bell counts things Dibbits Landscape Supply did. Sim events are frequent at speed, so they
 accumulate here behind a badge rather than interrupting you with toasts.
@@ -229,11 +320,11 @@ they are.
 
 ---
 
-## 6. Selling the job to your customer
+## 7. Selling the job to your customer
 
 Open any order and tap **Customer quote**.
 
-![The quote studio: markup, labor, and your margin](screenshots/14-quote-studio.png)
+![The quote studio: markup, labor, and your margin](screenshots/19-quote-studio.png)
 
 This is your document, not Dibbits Landscape Supply's. Set a material markup, add labor and
 overhead, and your **gross margin stays on screen the whole time** — this is the
@@ -245,7 +336,7 @@ protecting you on. The app says so rather than letting you find out later.
 
 ### What your customer opens
 
-![What the homeowner sees — contractor-branded](screenshots/15-customer-quote.png)
+![What the homeowner sees — contractor-branded](screenshots/20-customer-quote.png)
 
 Your brand, your phone number, your license. **Dibbits Landscape Supply appears nowhere**,
 and neither does your cost. It's a proposal, and it reads like one on the phone
@@ -253,7 +344,7 @@ it'll actually be opened on.
 
 The important split: **selections get a story, commodities get a line.**
 
-![Selections carry a full product narrative](screenshots/16-product-story.png)
+![Selections carry a full product narrative](screenshots/21-product-story.png)
 
 Your customer agonised over the decking colour. They did not choose the joist
 hangers. So the Trex gets photography, the manufacturer's description, coverage,
@@ -265,13 +356,13 @@ actually made under a parts list.
 
 ### Signing
 
-![Accepting requires a typed name and a signature](screenshots/17-signature.png)
+![Accepting requires a typed name and a signature](screenshots/22-signature.png)
 
 Accepting isn't a button. Your customer types their full legal name, signs, and
 explicitly consents to signing electronically. A tap is a click; a signature is
 a decision — and it should feel like one on both sides.
 
-![The signed record stays on the proposal](screenshots/18-accepted.png)
+![The signed record stays on the proposal](screenshots/23-accepted.png)
 
 What's stored isn't a boolean. It's the typed name, the drawn mark, the exact
 consent wording they were shown, the timestamp, and **the total they agreed
@@ -284,11 +375,11 @@ one**, so a superseded proposal can't still be accepted.
 
 ---
 
-## 7. Tracking what's on the way
+## 8. Tracking what's on the way
 
 Once Dibbits Landscape Supply holds an order, open it and tap **Track this order**.
 
-![Tracking an order through fulfillment](screenshots/19-order-tracking.png)
+![Tracking an order through fulfillment](screenshots/24-order-tracking.png)
 
 The headline answers the only question that matters — *when is it arriving* —
 before anything else. Below it, the full history in the supplier's own words:
@@ -305,9 +396,9 @@ Two things you can do from here while they still make sense:
 
 ---
 
-## 8. Getting paid up
+## 9. Getting paid up
 
-![Open invoices with aging — including counter sales](screenshots/20-pay.png)
+![Open invoices with aging — including counter sales](screenshots/25-pay.png)
 
 Everything you owe Dibbits Landscape Supply, aged the way an AR statement does it. Tap a bucket to
 filter.
@@ -319,7 +410,7 @@ half your balance isn't worth opening.
 
 Select any number of invoices and pay them together.
 
-![ACH is free; the card fee is shown before you pay](screenshots/21-payment-sheet.png)
+![ACH is free; the card fee is shown before you pay](screenshots/26-payment-sheet.png)
 
 Every saved method is priced side by side, because **the difference is real
 money**: ACH is free, a card is 2.9%. On a $1,237 payment that's $35.88, and you
@@ -332,11 +423,11 @@ the happy path teaches nothing.
 
 ---
 
-## 9. Seeing a whole project
+## 10. Seeing a whole project
 
 Tap the project name in an order's header.
 
-![One project, its orders across three stages](screenshots/22-project.png)
+![One project, its orders across three stages](screenshots/27-project.png)
 
 The board answers *"what needs me next?"* across every job. This answers
 *"where does the Wilson house stand?"* — its three orders grouped by the stage
@@ -344,11 +435,11 @@ each one is actually in, with the project total across all of them.
 
 ---
 
-## 10. The assistant
+## 11. The assistant
 
 Tap **◆** in the middle of the bottom bar.
 
-![Hand it your list — typed, spoken, or photographed](screenshots/25-assistant.png)
+![Hand it your list — typed, spoken, or photographed](screenshots/29-assistant.png)
 
 Its main job is the boring one that costs you an hour: **turning a material
 list into order lines**. Give it the list however you already have it —
@@ -388,7 +479,7 @@ things" with nothing to check would not be worth trusting.
 
 ### Your supplier switches it on
 
-![No key configured: disabled, never faked — and the supplier is who turns it on](screenshots/23-assistant-nokey.png)
+![No key configured: disabled, never faked — and the supplier is who turns it on](screenshots/28-assistant-nokey.png)
 
 The assistant talks to a real Claude model. Until your supplier enables it, it
 renders disabled and says so — there is deliberately **no** canned fallback,
@@ -406,11 +497,11 @@ so if you run out for the day, it is a number they can raise.
 
 ---
 
-## 11. Your team
+## 12. Your team
 
 Tap **More**.
 
-![Your crew, and what each role may do](screenshots/26-team.png)
+![Your crew, and what each role may do](screenshots/30-team.png)
 
 A six-person outfit is not one login. Add the people who actually touch this —
 your PM, whoever pays the bills, the crew lead — and give each a role:
@@ -424,7 +515,7 @@ your PM, whoever pays the bills, the crew lead — and give each a role:
 
 Tap the initials chip in the header to switch between people.
 
-![Acting as someone applies their permissions](screenshots/27-person-switcher.png)
+![Acting as someone applies their permissions](screenshots/31-person-switcher.png)
 
 In this demo that stands in for logging in — pick Robin and the whole app behaves as
 accounts payable: the Pay screen works, and trying to send an order to the
@@ -438,15 +529,15 @@ check, not three, so nothing can slip through by a different route.
 
 ---
 
-## 12. On a desktop
+## 13. On a desktop
 
-![The same board on desktop](screenshots/28-desktop-board.png)
+![The same board on desktop](screenshots/32-desktop-board.png)
 
 Same data, same rules — a four-column kanban with a sidebar instead of a bottom
 bar. Drag works the same way. The assistant docks to the right edge rather than
 covering the screen.
 
-![Dark mode](screenshots/29-desktop-dark.png)
+![Dark mode](screenshots/33-desktop-dark.png)
 
 Dark mode is a first-class theme, not an inverted afterthought. The default is
 deliberately light: contractors use this in trucks and direct sun, where a dark
@@ -454,12 +545,12 @@ UI is unreadable.
 
 ---
 
-## 13. For the dealer: the admin console
+## 14. For the dealer: the admin console
 
 A different user entirely — the dealer's own staff, not the contractor — at
 `/admin.html`.
 
-![The dealer admin console, gated](screenshots/30-admin-signin.png)
+![The dealer admin console, gated](screenshots/34-admin-signin.png)
 
 It configures what used to be code: the Anthropic key this deployment runs on,
 the dealer's name and brand colour, which Claude model and what it may cost per
@@ -547,12 +638,18 @@ doesn't:
 
 | Feature | Milestone |
 |---|---|
-| Full catalog browsing as its own destination | M3.5 |
 | AI-generated takeoffs from drawings or dimensions | separate widget, later |
 | A real ERP connection (today Dibbits Landscape Supply is simulated) | M9+ |
+| A deployed home for all of this | M9 |
 
-The **Catalog** tab is still a placeholder that says what it will be. It
-doesn't fake a working feature.
+**Catalog browsing has moved off this list** — it is [section 4](#4-the-catalog)
+now, with the same account pricing the board uses. What it deliberately does
+*not* have is a cart, a wishlist, or a saved-for-later: the only way out of a
+product is onto a plan.
+
+Two smaller things it does not do yet, so nobody goes looking: there is no
+"order it again" from a past job, and the catalog does not know your takeoff —
+you type the quantity, and it prices what you typed.
 
 ---
 
