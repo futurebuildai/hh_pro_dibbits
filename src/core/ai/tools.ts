@@ -16,6 +16,7 @@ import { type Result, err, ok } from '../lib/result';
 import { buildArSummary, buildInvoiceRows } from '../selectors/ar';
 import { buildBoardCards, groupByStage } from '../selectors/board';
 import { searchProducts } from '../selectors/order';
+import { quoteForAccount } from '../selectors/pricing';
 import {
   catalogStore,
   invoicesStore,
@@ -184,6 +185,12 @@ export const TOOLS: ToolDef[] = [
           productId: product.id,
           sku: product.sku,
           name: product.name,
+          // The description promised the contractor's account price and this
+          // returned list — so the assistant quoted retail for an account
+          // holding an 18% category rule and a contract SKU, on the one
+          // surface where the model is trusted to read numbers back. It goes
+          // through the same binding the catalog and the order page use.
+          yourPrice: formatCents(quoteForAccount(product, 1).unitPrice),
           listPrice: formatCents(product.listPrice),
           uom: product.baseUom,
           onHand: totalOnHand(product),

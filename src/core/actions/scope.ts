@@ -1,11 +1,11 @@
 import { getContext } from '../boot';
-import { DEMO_ACCOUNT } from '../data/account-seed';
 import type { BomTemplate } from '../data/template-seed';
 import type { Product } from '../domain/catalog';
 import type { Uom } from '../domain/catalog';
 import { SPECIAL_ORDER_PREFIX, type ScopeItem } from '../domain/project';
 import { newId } from '../lib/ids';
 import { type Result, err, ok } from '../lib/result';
+import { quoteForAccount } from '../selectors/pricing';
 import { catalogStore, ordersStore, scopeStore } from '../stores/root';
 import { listOf, patch, remove, upsert } from '../stores/store';
 import { requireCapability } from './team';
@@ -15,8 +15,6 @@ import { requireCapability } from './team';
  * items change, so the AI's tools in M8 inherit the pricing and validation
  * behaviour for free rather than reimplementing it.
  */
-
-const ACCOUNT = { accountId: DEMO_ACCOUNT.id, tierId: DEMO_ACCOUNT.pricingTierId };
 
 function itemsForOrder(orderId: string): ScopeItem[] {
   return listOf(scopeStore.get())
@@ -68,7 +66,7 @@ export function addCatalogItem(input: AddCatalogItemInput): Result<ScopeItem> {
   if (!product) return err(`No product matches "${input.product}".`);
   if (input.qty <= 0) return err('Quantity must be at least 1.');
 
-  const { pricing, clock } = getContext();
+  const { clock } = getContext();
   const existing = itemsForOrder(input.orderId);
 
   // Adding the same SKU twice bumps the quantity instead of creating a second
@@ -79,7 +77,7 @@ export function addCatalogItem(input: AddCatalogItemInput): Result<ScopeItem> {
     return updateItemQty(duplicate.id, duplicate.qty + input.qty);
   }
 
-  const quote = pricing.quote(product, input.qty, ACCOUNT);
+  const quote = quoteForAccount(product, input.qty);
   const item: ScopeItem = {
     id: newId('si'),
     orderId: input.orderId,
@@ -190,7 +188,7 @@ export function updateItemQtyDetailed(itemId: string, qty: number): Result<QtyCh
   if (item.kind === 'catalog' && item.productId) {
     const product = findProduct(item.productId);
     if (product) {
-      const quote = getContext().pricing.quote(product, qty, ACCOUNT);
+      const quote = quoteForAccount(product, qty);
       if (item.unitPrice !== undefined && quote.unitPrice !== item.unitPrice) {
         priceChanged = { from: item.unitPrice, to: quote.unitPrice };
       }
@@ -274,7 +272,6 @@ export function repriceOrder(orderId: string): Result<number> {
   const editable = assertEditable(orderId);
   if (!editable.ok) return editable;
 
-  const { pricing } = getContext();
   let collection = scopeStore.get();
   let changed = 0;
 
@@ -283,7 +280,7 @@ export function repriceOrder(orderId: string): Result<number> {
     const product = findProduct(item.productId);
     if (!product) continue;
 
-    const quote = pricing.quote(product, item.qty, ACCOUNT);
+    const quote = quoteForAccount(product, item.qty);
     if (quote.unitPrice !== item.unitPrice) {
       collection = patch(collection, item.id, {
         unitPrice: quote.unitPrice,
