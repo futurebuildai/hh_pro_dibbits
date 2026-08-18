@@ -351,7 +351,23 @@ describe('a "daily" cap means the dealer\'s day', () => {
    * or evening: in Ontario the cap lifted at 8pm and the console's usage
    * figure went to zero while the yard was still open, so a contractor capped
    * at lunchtime got a fresh allowance over dinner.
+   *
+   * The timezone is PINNED here rather than inherited from the machine. This
+   * test asserts that the local day and the UTC day disagree, which is only
+   * true on a host that has an offset — so on a UTC CI box (this one) it
+   * failed while the code was perfectly correct, and on an Ontario laptop it
+   * passed for a reason the test never stated. A check whose result depends on
+   * where it is run tells you about the machine, not the program.
    */
+  const hostTz = process.env.TZ;
+  beforeEach(() => {
+    process.env.TZ = 'America/Toronto';
+  });
+  afterEach(() => {
+    if (hostTz === undefined) delete process.env.TZ;
+    else process.env.TZ = hostTz;
+  });
+
   it('rolls over on the local day, not UTC', () => {
     // 23:30 local on the 5th is already the 6th in UTC.
     const lateEvening = new Date(2026, 7, 5, 23, 30, 0);
