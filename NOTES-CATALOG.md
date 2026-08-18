@@ -4,6 +4,14 @@ Working notes for `feature/catalog-destination`. What was decided and why, what
 the placeholder promised against what shipped, the mutation log, and what is
 parked.
 
+> **Where this was built.** Another session was switching branches inside
+> `/home/claude/repos/hh_pro_dibbits` while this work was in progress — the
+> shared checkout moved to `feature/staging-deploy` under my feet mid-edit. The
+> rest of the work was done in a git worktree at
+> `/home/claude/repos/hh_pro_catalog` so the two could not stomp each other.
+> Same repository, same branch, same remote; only the working directory
+> differs, and it can be removed with `git worktree remove` once merged.
+
 ---
 
 ## What the placeholder promised, and what shipped
