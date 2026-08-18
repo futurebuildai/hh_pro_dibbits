@@ -170,6 +170,7 @@ the tree was restored with `git checkout`.
 - **Going up a level needs the breadcrumb.** With a leaf category selected the
   chip row shows its siblings, and the way back out is **All** — there is no
   "‹ Hardscape" chip. Fine at two levels deep; not fine at four.
-- **The catalog is not in `npm run e2e`.** The journey test walks the board,
-  the order and the pay flow; browse → product → add-to-plan → the plan opens
-  on the board is a journey with seams worth testing.
+
+`npm run e2e` gained the journey that was originally on this list: browse →
+product → add to a plan → open the plan, plus an assertion that a plan the
+supplier already holds is never offered as a destination. 15/15.

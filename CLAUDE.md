@@ -14,7 +14,7 @@ The product replaces product-pages-and-carts with a **Procurement Board**: `Plan
 
 **Contractor adoption is the #1 KPI.** UI/UX quality outranks feature breadth. Mobile-first, desktop-capable.
 
-> Status: **M8 complete** — board, order workspace, project drill-down, ERP simulator, customer quotes, order tracking, AR/Pay, and the AI assistant. Remaining: catalog browsing as its own destination, and a deployment target (M9). See the plan in `/home/colton/.claude/plans/`.
+> Status: **M8 complete, plus the catalog destination** — board, order workspace, project drill-down, ERP simulator, customer quotes, order tracking, AR/Pay, the AI assistant, and catalog browsing with add-to-plan. Remaining: a deployment target (M9). See the plan in `/home/colton/.claude/plans/`.
 
 ## Commands
 ```bash
@@ -660,6 +660,75 @@ purchase — colour.
 - A missing swatch throws rather than falling back: a product with no colour
   would render the neutral glyph and look like a rendering fault instead of a
   missing catalogue entry.
+
+## The catalog destination (post-M8)
+
+`selectors/catalog.ts` + `actions/catalog.ts` + `domain/units.ts` +
+`pages/{CatalogPage,ProductPage}.tsx` + `components/catalog/*`.
+
+The Catalog tab was an honest placeholder for five milestones. It is now a real
+destination — browse, filter, a product page, and one action.
+
+**The action is ADD TO A PLAN, and there is still no cart.** A cart is a second
+place a contractor's intentions live: no job, no delivery date, no site, and
+nothing on the board to remind them it exists. `addProductToPlan` therefore
+lands lines on a Plan-stage order the contractor picks (or starts one), and the
+sheet lists only plans that can legally take a line — an order the supplier
+already holds is not shown as a destination at all, because a target that
+refuses on tap teaches nothing. It delegates to `addCatalogItem`, so a repeat
+SKU bumps a quantity, and it **creates nothing** when handed an existing plan.
+Starting a new plan rolls the empty draft back out if the line then refuses: a
+board card for work that does not exist is worse than an error.
+
+**`selectors/pricing.ts` is the single pricing binding, and it was missing.**
+`sim/pricing.ts` computed prices, but "engine + which account" was rebuilt at
+every call site — `actions/scope.ts` froze the demo account in a module
+constant, `OrderPage` hand-wrote `tierId: 'tier_pro'`. That second binding was
+already wrong for any contractor not on Pro, and a browsable catalogue would
+have been the third. Everything quotes through `quoteForAccount` now, including
+`search_catalog`, whose description promised the account price while it
+returned list.
+
+Two tests defend it, and both are needed: a behavioural one comparing every
+catalog row against the engine for all 45 products at four quantities, and a
+grep over `src/` for discount arithmetic outside `sim/pricing.ts`. A "list
+minus the tier discount" shortcut agrees on 40 of the 45 — it is wrong exactly
+where the commercial relationship lives.
+
+**Units are part of the price.** `domain/units.ts` holds one table of unit
+words because hardscape sells by area, weight and volume; `$42.50 EA` for a
+tonne of base is unreadable. Prices print as `$36.13 /tonne`, quantities as
+`640 sq ft`, and the quantity stepper steps by ten for area and length and by
+one for a fire pit kit. The test enumerates the whole `Uom` union: a missing
+entry renders `/undefined`, it does not throw.
+
+**Browse state lives in the URL** (`?q=&cat=&stock=&sort=`), same reasoning as
+M3's real routes: on a phone, opening a product and pressing back must return
+to the list you were reading.
+
+Two defects the rendered screens caught that no unit test would have:
+- The catalogue opened on `1" River Rock`, `2-6" River Rock`, `3/4"
+  Clearstone` — an unsearched shelf sorted alphabetically is sorted by
+  punctuation. Unfiltered browsing follows the dealer's category order now.
+- **Outdoor porcelain was offered as interchangeable with a concrete paver.**
+  `deriveSpecClass` tested the tag `slab` before `porcelain`, so a 20mm
+  porcelain tile was filed as a 60mm paver — the same class of mistake the
+  comment above it warns about for thicknesses, one material wider.
+
+### The guide capture now checks its own links
+`scripts/capture-guide.mjs` already failed when a screen was missing. It also
+fails when `docs/user-guide.md` references a PNG the run did not produce, and
+warns about shots captured but never shown. Renumbering twenty-two screenshots
+is exactly how a link dies quietly: nothing fails, one image is a broken icon,
+and nobody notices for a milestone.
+
+`npm run a11y` gained the same port guard and served-title check the guide and
+the security smoke already had, plus the three new screens (browse, an EMPTY
+filtered result, and a product). It found two real contrast failures in the new
+UI: a category count faded with `opacity-70` over `--text-muted` (3.52:1), and
+"Sold by the square foot" rendered as an info-tinted chip (4.42:1) — which was
+also a signal colour spent on a sentence that reports no state.
+
 
 ## The dealer's name is configuration, not a literal
 
