@@ -1,0 +1,133 @@
+# Deploy HH Pro to hhpro-staging.gablelbm.com on the EXISTING dibbits-staging
+# droplet (tor1, 178.128.237.81). Decision D-085, 2026-08-18.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# THIS FILE IS NOT ACTIVE WHERE IT SITS. Install it with:
+#
+#     mkdir -p .github/workflows
+#     git mv deploy/github-workflow-deploy-hhpro-staging.yml \
+#            .github/workflows/deploy-hhpro-staging.yml
+#
+# It lives in deploy/ because the fine-grained PAT available to the session that
+# wrote it has no `workflow` scope, and GitHub refuses any push that creates or
+# edits a file under .github/workflows/ without one. That is a credential
+# limitation, not a design choice — the move above needs a token with `workflow`
+# scope, or a human committing through the web UI. See RUNBOOK.md §4b.
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# MANUAL DISPATCH ONLY — deliberately no `push:` trigger.
+#
+# The sibling workflow in hardscapeos_dibbits deploys on every push to master.
+# This one must not: that droplet is shared, and D-085 authorised an additive,
+# reversible placement — not a pipeline that reshapes a co-tenant's web server
+# every time somebody merges. Deploys here are a decision, taken by a person.
+#
+# The runner exists because the prep container could not reach the droplet (no
+# ssh client, TCP/22 blocked). A GitHub runner can, using the same deploy key
+# hardscapeos_dibbits already uses.
+#
+# One-time setup — Settings → Secrets → Actions in THIS repo:
+#   STAGING_SSH_KEY   the deploy key authorized on the droplet
+#   STAGING_HOST      178.128.237.81
+#   STAGING_USER      root
+#
+# See deploy/RUNBOOK.md §4b. Run it with `dry_run: true` first.
+name: deploy-hhpro-staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run every safety check and change nothing'
+        type: boolean
+        default: true
+      skip_dns_check:
+        description: 'Proceed even if hhpro-staging.gablelbm.com does not resolve yet'
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-hhpro-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Guard — secrets present
+        env:
+          KEY: ${{ secrets.STAGING_SSH_KEY }}
+          HOST: ${{ secrets.STAGING_HOST }}
+        run: |
+          if [ -z "$KEY" ] || [ -z "$HOST" ]; then
+            echo "::error::STAGING_SSH_KEY / STAGING_HOST are not configured in this repo. See deploy/RUNBOOK.md §4b."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # The co-tenant is checked from the runner BEFORE anything is built or
+      # shipped, so an unhealthy droplet stops the job while it is still free to
+      # stop. staging_apply.sh checks it again on the box itself.
+      - name: Pre-flight — dibbits-staging must be healthy
+        run: |
+          echo "dibbits-staging BEFORE:"
+          curl -fsS --retry 3 --retry-delay 3 https://dibbits-staging.gablelbm.com/healthz
+          echo ""
+
+      - name: Build artifact bundle
+        run: bash deploy/build_bundle.sh
+
+      - name: Write SSH key (normalize + validate)
+        env:
+          KEY: ${{ secrets.STAGING_SSH_KEY }}
+        run: |
+          # Same normalization as hardscapeos_dibbits/.github/workflows/deploy-staging.yml:
+          # secrets pasted through editors lose the PEM line structure. Rebuild it
+          # deterministically and fail with a readable message rather than libcrypto noise.
+          raw=$(printf '%s' "$KEY" | sed -e 's/\\n/\n/g' | tr -d '\r')
+          body=$(printf '%s\n' "$raw" \
+            | sed -e 's/-----BEGIN OPENSSH PRIVATE KEY-----//' -e 's/-----END OPENSSH PRIVATE KEY-----//' \
+            | tr -d ' \t\n')
+          install -m 600 /dev/null key
+          { echo '-----BEGIN OPENSSH PRIVATE KEY-----'
+            printf '%s\n' "$body" | fold -w 70
+            echo '-----END OPENSSH PRIVATE KEY-----'
+          } > key
+          if ! ssh-keygen -y -f key >/dev/null 2>&1; then
+            echo "::error::STAGING_SSH_KEY does not parse as an unencrypted OpenSSH private key even after normalization — re-paste the full multi-line PEM."
+            exit 1
+          fi
+          echo "key OK — fingerprint: $(ssh-keygen -lf key | awk '{print $2}')"
+
+      - name: Ship + apply
+        env:
+          HOST: ${{ secrets.STAGING_HOST }}
+          USER: ${{ secrets.STAGING_USER || 'root' }}
+          DRY: ${{ inputs.dry_run && '1' || '0' }}
+          SKIPDNS: ${{ inputs.skip_dns_check && '1' || '0' }}
+        run: |
+          scp -i key -o StrictHostKeyChecking=accept-new hhpro-artifacts.tar.gz "$USER@$HOST:/tmp/hhpro-artifacts.tar.gz"
+          ssh -i key -o StrictHostKeyChecking=accept-new "$USER@$HOST" \
+            "HHPRO_DRY_RUN=$DRY HHPRO_SKIP_DNS_CHECK=$SKIPDNS bash -s" < deploy/staging_apply.sh
+
+      # Runs even on failure: if the apply rolled itself back, the thing everyone
+      # needs to know is whether the co-tenant came back green.
+      - name: Post-check — dibbits-staging must STILL be healthy
+        if: always()
+        run: |
+          echo "dibbits-staging AFTER:"
+          curl -fsS --retry 5 --retry-delay 4 https://dibbits-staging.gablelbm.com/healthz
+          echo ""
+
+      - name: Verify HH Pro is serving
+        if: ${{ !inputs.dry_run }}
+        run: |
+          curl -fsS --retry 5 --retry-delay 6 https://hhpro-staging.gablelbm.com/healthz
+          echo ""
