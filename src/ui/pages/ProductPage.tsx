@@ -135,8 +135,12 @@ export function ProductPage({ sku, onBack, onOpenProduct, onOpenPlan }: Props) {
             {detail.savedPercent > 0 ? (
               <Chip tone="success">{detail.savedPercent}% below list</Chip>
             ) : null}
-            <Chip tone="info">{soldBy(uom)}</Chip>
           </div>
+          {/* How it is sold is a caption, not a signal. It spent a version as
+              an info-tinted chip, which measured 4.42:1 and — worse — spent a
+              state colour on a sentence that reports no state. Chips here mean
+              stock and savings; prose is prose. */}
+          <p className="mt-2 text-[12px] text-text-muted">{soldBy(uom)}</p>
 
           {/* ---- Price, at this quantity ---- */}
           <section className="mt-4 rounded-[var(--radius-card)] border border-border bg-surface p-4">

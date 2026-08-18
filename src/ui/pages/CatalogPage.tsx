@@ -140,7 +140,11 @@ export function CatalogPage({ search, onSearchChange, onOpenProduct }: Props) {
               onClick={() => set('cat', categoryId === node.category.id ? '' : node.category.id)}
             >
               {node.category.name}
-              <span className="ml-1 text-[10.5px] opacity-70 tabular-nums">{node.count}</span>
+              {/* No opacity on the count. `opacity-70` over --text-muted
+                  measured 3.52:1 at 10.5px — under AA on the screen this
+                  product claims is read in direct sun. Size carries the
+                  hierarchy; the colour is inherited from the chip. */}
+              <span className="ml-1 text-[10.5px] tabular-nums">{node.count}</span>
             </FilterChip>
           ))}
         </div>
