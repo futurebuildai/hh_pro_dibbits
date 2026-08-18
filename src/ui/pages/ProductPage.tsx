@@ -37,13 +37,27 @@ interface Props {
 
 export function ProductPage({ sku, onBack, onOpenProduct, onOpenPlan }: Props) {
   const { products, categories, brands } = useStore(catalogStore, (state) => state);
-  const [qtyText, setQtyText] = useState<string | null>(null);
+  /**
+   * The typed quantity, kept PER UNIT rather than per product.
+   *
+   * Stepping through interchangeable pavers should compare them at the same
+   * 480 sq ft — that is the whole point of looking at alternates. Carrying
+   * that number onto a product sold by the tonne would price four hundred and
+   * eighty tonnes of armour stone, so the unit is what the value belongs to.
+   */
+  const [qtyByUnit, setQtyByUnit] = useState<Record<string, string>>({});
   const [addOpen, setAddOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; orderId?: string } | null>(null);
 
   const product = products.find((candidate) => candidate.sku === sku);
-  const step = product ? qtyStep(product.baseUom) : 1;
-  const qty = Math.max(1, Number(qtyText ?? step) || step);
+  const unit = product?.baseUom ?? 'EA';
+  const step = qtyStep(unit);
+  // The raw text is what the field shows; the price uses the last usable
+  // number. Coercing the text itself meant backspacing to clear the field
+  // snapped it back to "10" mid-edit, and the next keystroke made it 10640.
+  const typed = qtyByUnit[unit];
+  const qty = Math.max(1, Number(typed ?? step) || step);
+  const setQtyText = (value: string) => setQtyByUnit((current) => ({ ...current, [unit]: value }));
 
   const detail = useMemo(
     () =>
@@ -163,6 +177,7 @@ export function ProductPage({ sku, onBack, onOpenProduct, onOpenPlan }: Props) {
             <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
               <span className="text-[13px] text-text-muted">How much?</span>
               <QtyControl
+                text={typed ?? String(step)}
                 qty={qty}
                 step={step}
                 unit={unitShort(uom)}
@@ -272,12 +287,15 @@ export function ProductPage({ sku, onBack, onOpenProduct, onOpenPlan }: Props) {
 }
 
 function QtyControl({
+  text,
   qty,
   step,
   unit,
   onChange,
   onText,
 }: {
+  /** What the field shows — may be mid-edit, and may be empty. */
+  text: string;
   qty: number;
   step: number;
   unit: string;
@@ -298,7 +316,7 @@ function QtyControl({
         <label>
           <span className="sr-only">Quantity in {unit}</span>
           <input
-            value={qty}
+            value={text}
             inputMode="numeric"
             onChange={(event) => onText(event.target.value.replace(/[^\d]/g, ''))}
             className="h-11 w-16 bg-transparent text-center font-medium text-[15px] tabular-nums outline-none"
