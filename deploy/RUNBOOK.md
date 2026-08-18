@@ -25,7 +25,8 @@ Prepared and verified in a container that **cannot reach the droplet**:
 | Build (`npm run build`) | ✅ verified — 1853 modules, `dist/` complete |
 | Static serving model | ✅ verified end-to-end against the real `dist/` |
 | `deploy/prod-entry.ts` (optional Node entry) | ✅ bundles + runs; routes and path-traversal tested |
-| Caddy vhost, systemd unit, apply script | ✅ written, syntax-checked |
+| Caddy vhost | ✅ `caddy validate` clean, and every route exercised against a real Caddy |
+| systemd unit, apply script, bundle build | ✅ written, syntax-checked, bundle built end-to-end |
 | **DNS record** | ⛔ **PARKED** — see §2. No Cloudflare credential available. |
 | **Apply to droplet** | ⛔ **PARKED** — no `ssh` binary in the prep container and TCP/22 is blocked. |
 
@@ -351,9 +352,11 @@ Not enabled, because it is a product decision. The vhost carries a ready-to-past
    is the answer and it needs a key and a budget owner. Do not surprise them live.
 6. **DNS proxy-status is the most likely failure.** An orange-cloud record silently
    breaks ACME. §2 covers it; check it first if the site does not come up.
-7. **Caddyfile syntax could not be validated in the prep container** (no `caddy` binary).
-   `caddy validate` runs on the droplet before any reload and aborts safely on error, so
-   this fails closed — but expect the possibility of one correction on the first run.
+7. **The bundle is ~15 MB because `vite.config.ts` sets `sourcemap: true`.** That is a
+   deliberate app-level choice and useful on staging — a tester's console error is
+   readable — but it means the deployed release directory ships full sourcemaps publicly.
+   If the source of this app is considered sensitive, that is a decision to revisit in
+   the app config, not here.
 
 ---
 
@@ -371,3 +374,25 @@ Not enabled, because it is a product decision. The vhost carries a ready-to-past
   `/api/config` → 200 JSON; unknown `/api/*` → 404 JSON (never the SPA); path-traversal
   attempts (`/../../../etc/passwd`, percent-encoded, and `/assets/../../server/...`) leak
   nothing; `POST /api/anthropic/v1/messages` with no key → the built-in 503 message.
+- `deploy/build_bundle.sh` ran end-to-end: 15 MB bundle at `d712da0`, containing exactly
+  the four things `staging_apply.sh` asserts on.
+- **The vhost was validated and then actually executed.** `caddy validate` (v2.8.4) on the
+  installed form — SHA substituted, pulled in through the same `import conf.d/*.caddy`
+  line the apply script adds — returns *Valid configuration*. Caddy was then run against
+  the real `dist/`, and every route was exercised:
+
+  | Request | Result |
+  |---|---|
+  | `/healthz` | `200 {"status":"ok",...,"commit":"d712da0","serving":"static"}` |
+  | `/api/anthropic/health` | `200 {"ok":true,"hasKey":false}` |
+  | `/api/config`, `/api/admin/state` | `404` **JSON** — not the SPA |
+  | `/admin`, `/admin.html` | `404` |
+  | `/catalog`, `/pay`, `/orders/DEMO-1` | `200 text/html`, carrying `__HHPRO_CONFIG__` and `ln-dealer-brand` |
+  | `/` headers | `Cache-Control: no-cache`, `X-Robots-Tag: noindex, nofollow, noarchive`, `X-Content-Type-Options: nosniff`, no `Server` |
+  | `/assets/main-*.js` | `Cache-Control: public, max-age=31536000, immutable` |
+  | gzip | negotiated (1269 → 695 bytes) |
+  | traversal, raw and percent-encoded | nothing leaked |
+
+  So the routing contract in §5 is not a prediction — it is a transcript. What remains
+  unverified on the droplet is only what cannot be simulated: ACME issuance and the
+  interaction with the live Caddy instance.
