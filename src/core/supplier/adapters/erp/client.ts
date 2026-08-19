@@ -178,7 +178,13 @@ export function createErpClient(options: ErpClientOptions): ErpClient {
         return err(UNREACHABLE);
       }
 
-      if (response.status === 401) return endSession();
+      if (response.status === 401) {
+        // On the login route a 401 is a wrong password, not a lapsed session.
+        // Ending a session that was never established would announce
+        // `onSessionLost` at someone already sitting on the login screen.
+        if (path === '/login') return err(SUPPLIER_REFUSALS.badCredentials);
+        return endSession();
+      }
       // 403 and 404 are different answers and stay different sentences.
       if (response.status === 403) return err(NOT_PERMITTED);
       if (response.status === 404) return err(NOT_FOUND);

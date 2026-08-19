@@ -84,6 +84,24 @@ describe('401 ends the session', () => {
     expect(onSessionLost).toHaveBeenCalledTimes(1);
   });
 
+  it('but a 401 on the login route is a wrong password, not a lapsed session', async () => {
+    const onSessionLost = vi.fn();
+    const client = createErpClient({
+      baseUrl: BASE_URL,
+      fetch: () => Promise.resolve(json({ error: 'invalid_credentials' }, 401)),
+      onSessionLost,
+      sleep: noSleep,
+    });
+
+    const result = await client.authPost('/login', { email: 'a@b.c', password: 'wrong' });
+
+    expect(result).toEqual({ ok: false, error: SUPPLIER_REFUSALS.badCredentials });
+    // Telling someone who mistyped their password that they have been signed
+    // out — and bouncing them to the screen they are already on — is worse
+    // than useless.
+    expect(onSessionLost).not.toHaveBeenCalled();
+  });
+
   it('is not retried: a revoked session does not become more valid on attempt three', async () => {
     const replay = queued([json({}, 401), json({ ok: true })]);
     const client = createErpClient({ baseUrl: BASE_URL, fetch: replay.fetch, sleep: noSleep });

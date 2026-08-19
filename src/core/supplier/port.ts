@@ -58,6 +58,17 @@ export type SupplierMode = 'sim' | 'erp';
  */
 export const SUPPLIER_REFUSALS = {
   sessionEnded: 'Your session with the supplier has ended. Sign in again to continue.',
+  /**
+   * A 401 on the LOGIN route is a wrong password, not a lapsed session.
+   *
+   * The ERP answers both with the same status, and folding them together tells
+   * someone who has just mistyped their password that they have been signed
+   * out — of a session they never had. It also fires `onSessionLost`, so the
+   * shell "returns" to a login screen the contractor is already looking at.
+   * Generic on purpose: it names neither which half was wrong nor whether the
+   * email exists, matching the ERP's own constant-time miss path.
+   */
+  badCredentials: "That email and password don't match an account with the supplier.",
   notFound: "We couldn't find that with the supplier — it may have been removed.",
   notPermitted: "You don't have permission to do that — ask an account admin at your company.",
   unreachable: "We couldn't reach the supplier. Check your connection and try again.",

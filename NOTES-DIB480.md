@@ -187,10 +187,15 @@ simulator, the stage effects still call it directly, and `AppContext` gains
 | 5 | Unknown quote status defaults to `priced` | `erp-contract` → *reads a status this build has never seen as in-review, never as priced* |
 | 6 | Missing `balance_cents` defaults to `0` | `erp-contract` → *refuses a summary it cannot read rather than rendering a zero balance* |
 | 7 | Client reads `sessionStorage` directly | `architecture` → *the supplier adapters read no ambient browser global* |
+| 8 | A 401 on `/login` folded back into "session ended" | `client` → *but a 401 on the login route is a wrong password, not a lapsed session* |
 
 Each mutant was applied, the suite run, the named failure recorded, and the file
-reverted. Mutants 1–3 are the three the brief asked for; 4–7 are the guards that
-would otherwise have been assertions nobody had tested.
+reverted. Mutants 1–3 are the three the brief asked for; 4–8 are the guards that
+would otherwise have been assertions nobody had tested. Mutant 8 covers a bug
+this build actually had: a 401 on the LOGIN route is a wrong password, not a
+lapsed session, and treating it as one told a contractor who had just mistyped
+their password that they had been signed out — and fired `onSessionLost` at a
+screen they were already looking at.
 
 ### Gates
 
@@ -286,3 +291,65 @@ reset. Work was recovered from a copy under `/home/claude/dib480-backup/`. If
 another builder hits an empty `node_modules` in a checkout that was working
 minutes earlier, that is what happened; re-run `npm install` and check
 `git status` before assuming the branch is fine.
+
+---
+
+## POSTSCRIPT — this branch is the SECOND implementation of DIB-480
+
+The brief for this build said a predecessor "died at start with nothing
+committed". That was wrong. `origin/feature/dib-480-supplier-port` exists, has
+five commits, and is **further along than this branch**. It was found only at
+push time, because the environment reset described in PARK 8 also reset HEAD to
+`master` and lost the local branch ref — so the push failed and the remote was
+listed.
+
+Nothing of theirs was overwritten. This work went to
+`feature/dib-480-supplier-port-rebuild` instead, and the predecessor's branch was
+checked out and verified: **typecheck, test (439), build and check all green.**
+
+Where the predecessor's build is better, and why it should be the one that ships:
+
+- **`writes: null` plus a deny-list of every future write name.** Their
+  structural test denies not just today's four verbs but every mutating
+  capability in the spec's §2.2 endpoint map — `convertQuote`, `payInvoices`,
+  `confirmWillCallPickup`, `setUserRole` and the rest. A Stage 3 method landing
+  early under its eventual name is caught. This branch denies only the four.
+- **"Issues only GETs across every read."** They exercise all eleven reads and
+  assert the wire saw no other verb, plus "sends no body on any read". That is
+  strictly stronger than this branch's source-level grep for `'PUT'`/`'PATCH'`,
+  which a renamed helper could walk past.
+- **`SupplierPage<T>` is preserved.** They keep the ERP's `httpx.Page[T]`
+  envelope (`items`/`total`/`limit`/`offset`). This branch flattens lists to
+  arrays and loses the paging facts — which a real contractor's invoice list
+  needs on day one.
+- **ERP capabilities carried uncollapsed.** They keep `ErpCapabilities`
+  alongside the collapsed HH Pro six, which answers PARK 3 properly instead of
+  parking it: the Stage 3/4 stage guard can ask `submitRfq` vs `createOrders`
+  directly rather than needing a port change.
+- **`auth: null` on the sim.** The sim has no login (§1.1), and they say so.
+  This branch's `SimSupplier.login()` accepts any credentials and returns the
+  seeded identity — a fake door, and the more honest call is theirs.
+- **`badCredentials` vs `sessionGone`.** Their commit `aac8606` names exactly
+  the bug this branch also had. It has been fixed here (mutant 8) for parity,
+  but they found it first and without a second implementation to compare against.
+
+What this branch has that theirs does not, and is worth cherry-picking:
+
+- **`architecture.test.ts`: "the supplier adapters read no ambient browser
+  global."** Their architecture rules (adapter isolation, no mode-branching
+  above the port) are both good and this branch adopted neither; this one is
+  the reverse. Note their `platformFetch()` resolves `globalThis.fetch` lazily
+  and deliberately, with a reasoned comment — so the rule would need to permit
+  that one helper, or the ruling is that the host must always inject. Their
+  design is defensible; this is a difference to decide, not a defect to fix.
+- **A transport-level POST allowlist.** `AUTH_PATHS` refuses a POST to anything
+  but `/login` and `/token/refresh` **before a byte leaves**, proven by a test
+  asserting the injected fetch was never called. Theirs bounds POSTs by test
+  rather than by construction.
+- **A source test forbidding `{...raw}` in the mapper**, which is what keeps the
+  whitelist a whitelist under future edits rather than under review.
+
+**Recommendation: ship `feature/dib-480-supplier-port`.** Treat this branch as a
+second opinion that independently reached the same port shape from the same
+starting point — which is itself evidence the port was discovered rather than
+invented — and cherry-pick the three items above.
