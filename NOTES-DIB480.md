@@ -339,3 +339,131 @@ Named, with the reason, in rough priority order.
       too, and this change widened it, so the credential-exposure and
       DNS-rebinding checks were re-run rather than assumed.
     a11y is worth a run in 1c, when there is finally a login screen to walk.
+
+---
+
+## APPENDIX — the gate that merged this, and the second implementation
+
+Added at merge time. Everything above is the implementer's record and stands
+as written, with one correction noted below.
+
+### Two implementations existed
+
+`feature/dib-480-supplier-port` (this work, 5 commits) and
+`feature/dib-480-supplier-port-rebuild` (`b483035`, 3 commits) were built
+independently from the same spec and the same `origin/master` at `50713a4`.
+The second was started on a brief that said the first "died at start with
+nothing committed", which was wrong; it found the first branch at push time.
+
+**That the two arrived at the same port shape — reads over the three
+supplier-side collections, `SupplierWrites` as a verbatim lift of `Sim`, the
+sim as the permanent default — is the strongest evidence available that the
+port was discovered rather than invented.** Neither could see the other while
+building. Where they differ, they differ on judgement, not on the shape.
+
+This branch shipped, because it is the further along of the two: `writes: null`
+plus a deny-list naming every mutating capability in §2.2 rather than only
+today's four, "issues only GETs across every read" proven against the wire,
+`SupplierPage<T>` preserved so the paging facts survive, `ErpCapabilities`
+carried uncollapsed, and `auth: null` on the sim instead of a login that
+accepts anything.
+
+### Three things were taken from the rebuild
+
+Each landed as its own commit with the reasoning in the message.
+
+1. **`AUTH_PATHS`** — a POST outside `/login` and `/token/refresh` is refused
+   at the transport, before a byte leaves. This branch bounded POSTs by
+   exercising the adapter, which can only ever see the methods that exist
+   today.
+2. **"The supplier adapters read no ambient browser global"** in
+   `architecture.test.ts`. The two builds wrote non-overlapping halves of this
+   file's supplier rules; this is the half this branch did not have.
+3. **"The mapper never spreads a wire object"** — the structural half of a
+   property `erp-contract.test.ts` already proves behaviourally.
+
+Two of the three were deliberately NOT copied verbatim:
+
+- The rebuild banned `globalThis.fetch` outright, which would have failed on
+  this branch's `platformFetch()`. That helper is argued, not accidental —
+  lazy, ERP-arm-only, null-returning — so the ruling is that it stands and the
+  allowance is **pinned** by exact match (one file, one occurrence) rather than
+  waved through. A second `globalThis` in `supplier/` fails the suite.
+- The rebuild's mapper-spread test matched a NAME list
+  (`raw|body|row|hit|…`). This mapper names its wire parameters `wire`, so that
+  regex would have matched nothing and passed **vacuously**. It matches the
+  shape here instead, and `Object.assign` was added as the same leak in
+  different syntax.
+
+### Gates at the merge commit
+
+All seven, on the merged tree with all three cherry-picks:
+
+| Gate | Result |
+|---|---|
+| `typecheck` | clean |
+| `test` | **451** in 31 files |
+| `build` | clean |
+| `check` | clean, no reformatting |
+| `a11y` | 11 screens, 0 serious/critical |
+| `e2e` | 15/15 journeys |
+| `guide` | 34 captured — see the finding below |
+
+**PARK 11 above is now stale**: `npm run a11y` WAS re-run at the gate, and is
+green. The reasoning it gives for skipping it was sound; the run happened
+anyway because the flag-off claim is worth measuring rather than arguing.
+
+Zero-delta re-proved on the merged tree rather than inherited:
+`git show 50713a4:` every one of master's 28 test files, byte-identical
+including its own `architecture.test.ts`, run against the merged tree —
+**376/376**. Not adjusted, not re-recorded. Only three master-era files are
+modified at all (`boot.ts`, `domain/config.ts`, and `architecture.test.ts`,
+which is `154 added / 0 removed`).
+
+`createSupplier` is imported in exactly one place in the whole tree
+(`boot.ts`), no module outside `supplier/` imports an adapter or branches on
+the mode, and **nothing reads `context.supplier` yet** — which is PARK 1, and
+is precisely why the zero-delta claim is inspectable.
+
+Spot mutation re-run from the ledger (#1 on both branches): `usesErpReads`
+drops `&& config.stages.erpReads === true`. One test dies, by name —
+`zero-delta > gives the simulator to a wired-up dealer whose stage flag is
+still off`. Reverted; 451/451.
+
+### FINDING — `npm run guide` is not byte-stable, and was not before this
+
+Worth stating plainly because a flag-off change is supposed to leave the guide
+alone, and at first glance it does not.
+
+- Two `npm run guide` runs on **pristine master**, with none of this code
+  present, differ in **3 of 34** screenshots: `16-demo-controls`,
+  `18-activity`, `24-order-tracking`. All three are sim-clock / activity-feed
+  screens.
+- The merged tree's run differs from a master run in **exactly those same
+  three**, and is **byte-identical on the other 31**.
+
+So the guide is stable across this change wherever it is stable at all, and
+the churn is pre-existing. Two consequences, neither caused by DIB-480 and
+both parked:
+
+1. Those three screens carry non-deterministic content, so the guide cannot
+   serve as a byte-stability oracle for them.
+2. Separately, a guide run in this environment rewrites **22 of 34** PNGs
+   relative to what is committed — rendering drift from whatever machine last
+   committed them. `npm run guide` therefore dirties the tree anywhere.
+   Regenerated screenshots were **not** committed here: nothing visible
+   changed, and committing them would bake one machine's rendering into
+   history.
+
+### Two more parks from the gate
+
+- **The ERP adapter is in the flag-off bundle.** `createSupplier` imports
+  `createErpSupplier` statically, so the ~12 KB (~4 KB gzipped) of adapter,
+  client and mapper ships to every contractor on a sim deployment. `main.js`
+  went 369.81 KB → 381.80 KB. This repo has already made the other call once,
+  for the same reason, at a larger size: `session.ts` imports the Anthropic SDK
+  dynamically because nothing needs it until someone sends a message. Worth the
+  same treatment at Stage 1c, when the ERP arm finally has a caller.
+- **`package-lock.json` still says `"name": "lumbernow"`.** Every `npm install`
+  rewrites it to `hh-pro` and dirties the tree. Two lines, pre-existing, left
+  alone here to keep this merge to its subject.
