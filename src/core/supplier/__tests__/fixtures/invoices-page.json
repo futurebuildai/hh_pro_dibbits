@@ -1,0 +1,35 @@
+{
+  "items": [
+    {
+      "id": "inv_9142",
+      "invoice_no": "INV-9142",
+      "customer_id": "cus_copps",
+      "order_id": "ord_7690",
+      "status": "PARTIALLY_PAID",
+      "issue_date": "2026-07-31T00:00:00Z",
+      "due_date": "2026-08-30T00:00:00Z",
+      "subtotal_cents": 90000,
+      "tax_cents": 11700,
+      "holdback_cents": 0,
+      "total_cents": 101700,
+      "balance_cents": 51700
+    },
+    {
+      "id": "inv_9088",
+      "invoice_no": "INV-9088",
+      "customer_id": "cus_copps",
+      "order_id": "",
+      "status": "FINALIZED",
+      "issue_date": "2026-07-14T00:00:00Z",
+      "due_date": "2026-08-13T00:00:00Z",
+      "subtotal_cents": 24000,
+      "tax_cents": 3120,
+      "holdback_cents": 0,
+      "total_cents": 27120,
+      "balance_cents": 27120
+    }
+  ],
+  "total": 2,
+  "limit": 25,
+  "offset": 0
+}

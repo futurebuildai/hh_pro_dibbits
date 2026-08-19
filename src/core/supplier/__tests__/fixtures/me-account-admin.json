@@ -1,0 +1,22 @@
+{
+  "id": "pu_ryan",
+  "customer_id": "cus_copps",
+  "email": "ryan@coppslandscaping.example",
+  "name": "Ryan Rood",
+  "role": "account_admin",
+  "status": "active",
+  "notification_prefs": {},
+  "created_at": "2026-03-02T14:11:09Z",
+  "updated_at": "2026-08-11T09:24:31Z",
+  "capabilities": {
+    "manage_users": true,
+    "view_billing": true,
+    "pay_invoices": true,
+    "manage_payment_methods": true,
+    "submit_rfq": true,
+    "create_orders": true,
+    "view_orders_deliveries": true,
+    "edit_delivery_instructions": true,
+    "manage_files": true
+  }
+}

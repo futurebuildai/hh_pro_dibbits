@@ -1,0 +1,22 @@
+{
+  "id": "pu_dana",
+  "customer_id": "cus_copps",
+  "email": "dana@coppslandscaping.example",
+  "name": "Dana Reyes",
+  "role": "buyer_no_pay",
+  "status": "active",
+  "notification_prefs": {},
+  "created_at": "2026-04-08T08:30:15Z",
+  "updated_at": "2026-08-01T13:45:02Z",
+  "capabilities": {
+    "manage_users": false,
+    "view_billing": true,
+    "pay_invoices": false,
+    "manage_payment_methods": false,
+    "submit_rfq": true,
+    "create_orders": true,
+    "view_orders_deliveries": true,
+    "edit_delivery_instructions": true,
+    "manage_files": true
+  }
+}

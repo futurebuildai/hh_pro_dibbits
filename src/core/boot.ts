@@ -1,3 +1,4 @@
+import { dealerConfig } from './config/runtime';
 import {
   DEMO_ACCOUNT,
   DEMO_USER,
@@ -46,6 +47,8 @@ import {
   teamStore,
 } from './stores/root';
 import { collectionFrom } from './stores/store';
+import { createSupplier } from './supplier/index';
+import type { SupplierPort } from './supplier/port';
 
 /**
  * Wires the app together once, at startup.
@@ -61,6 +64,13 @@ export interface AppContext {
   pricing: PricingEngine;
   sim: Sim;
   seed: number;
+  /**
+   * The supplier behind the port (connection spec §7.1). Sim by default; the
+   * ERP read adapter when `supplier.stages.erpReads` is on. `clock`, `pricing`
+   * and `sim` stay exactly where they are — Stage 1 is additive, and nothing
+   * above the port reads `mode`.
+   */
+  supplier: SupplierPort;
 }
 
 let context: AppContext | null = null;
@@ -188,7 +198,14 @@ export function boot(options: BootOptions = {}): AppContext {
 
   // The sim reads sessionStore, so it is built after the session is set.
   const sim = createSim(clock, seed);
-  context = { clock, pricing, sim, seed };
+  // One line, two implementations, no fork. `sim` is handed IN rather than
+  // built by the factory — there is exactly one simulator per boot, and a
+  // second one would put a second scheduler on the same persisted queue.
+  const supplier = createSupplier(dealerConfig().supplier, {
+    sim,
+    nowIso: () => clock.nowIso(),
+  });
+  context = { clock, pricing, sim, seed, supplier };
 
   // Keep the persisted clock anchor current so a reload resumes, not restarts.
   // Leader-only: a follower's anchor is a stale copy adopted at boot, and

@@ -1,0 +1,18 @@
+{
+  "account": {
+    "customer_id": "cus_copps",
+    "account_no": "C-10428",
+    "name": "Copps Landscaping Ltd.",
+    "customer_type": "CONTRACTOR",
+    "branch_id": "br_kitchener",
+    "payment_terms_days": 30,
+    "credit_limit_cents": 2000000,
+    "on_hold": false,
+    "tax_exempt": false,
+    "balance_cents": 1420000,
+    "is_active": true
+  },
+  "open_balance_cents": 1420000,
+  "available_credit_cents": 580000,
+  "recent_orders": []
+}

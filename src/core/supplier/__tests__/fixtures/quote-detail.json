@@ -1,0 +1,22 @@
+{
+  "id": "qt_3355",
+  "quote_no": "Q-3355",
+  "customer_id": "cus_copps",
+  "status": "SENT",
+  "valid_until": "2026-09-01T00:00:00Z",
+  "subtotal_cents": 786000,
+  "tax_cents": 102180,
+  "total_cents": 888180,
+  "created_at": "2026-08-17T16:48:55Z",
+  "lines": [
+    {
+      "line_no": 1,
+      "product_id": "prd_mega_arbel",
+      "description": "Mega Arbel Slab",
+      "qty_entered": "6.000",
+      "uom_entered": "PLT",
+      "unit_price_cents": 131000,
+      "line_total_cents": 786000
+    }
+  ]
+}

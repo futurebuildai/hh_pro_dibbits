@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "product_id": "prd_blu60_champagne",
+      "sku": "TB-BLU60-CHM",
+      "name": "Blu 60 Smooth Paver — Champagne",
+      "category": "Pavers",
+      "base_uom": "SF"
+    },
+    {
+      "product_id": "prd_ha_base",
+      "sku": "AGG-HPB-19MM",
+      "name": "19mm High Performance Bedding",
+      "category": "Aggregates",
+      "base_uom": "TON"
+    },
+    {
+      "product_id": "prd_mega_arbel",
+      "sku": "TB-MEGA-ARBEL",
+      "name": "Mega Arbel Slab",
+      "category": "Slabs",
+      "base_uom": "PLT"
+    },
+    {
+      "product_id": "prd_unknown_uom",
+      "sku": "MSC-CRATE-01",
+      "name": "Returnable Shipping Crate",
+      "category": "Miscellaneous",
+      "base_uom": "CRATE"
+    }
+  ]
+}

@@ -43,11 +43,33 @@ export interface AssistantConfig {
   hasCredential?: boolean | undefined;
 }
 
+/**
+ * The staged ERP rollout's flags (connection spec §7.3).
+ *
+ * One key per stage, added as its stage is funded — not the whole ladder up
+ * front, because a flag that exists before the code it gates is a switch a
+ * dealer can flip into nothing. Absent is off, which is the only state the
+ * product has ever shipped in.
+ */
+export interface SupplierStages {
+  /** Stage 1: auth, /me + capabilities, branding, catalog, orders/invoices/quotes reads. */
+  erpReads: boolean;
+}
+
 export interface SupplierConfig {
   /** Net terms in days, used for invoice due dates. */
   termsDays: number;
   /** Percent, e.g. 2.9. Shown to the contractor before they choose a card. */
   cardFeePercent: number;
+  /**
+   * Which supplier is behind the port. `sim` is the default and a permanent,
+   * supported mode — the demo, the guide capture, and the e2e suite all run on
+   * it, which is what keeps it from rotting (§7.2).
+   */
+  mode: 'sim' | 'erp';
+  /** The dealer's ERP root, e.g. `https://erp.dealer.example`. ERP mode only. */
+  baseUrl?: string | undefined;
+  stages: SupplierStages;
 }
 
 export interface DealerConfig {
@@ -72,6 +94,8 @@ export const DEFAULT_CONFIG: DealerConfig = {
   supplier: {
     termsDays: 30,
     cardFeePercent: 2.9,
+    mode: 'sim',
+    stages: { erpReads: false },
   },
   features: {
     assistant: true,
@@ -133,6 +157,26 @@ export function isValidLogo(value: string): boolean {
   if (trimmed === '') return true;
   if (trimmed.startsWith('/') && !trimmed.startsWith('//')) return true;
   return /^data:image\/(png|jpeg|svg\+xml|webp);base64,[A-Za-z0-9+/=]+$/.test(trimmed);
+}
+
+/**
+ * An ERP root this app is willing to point a bearer token at.
+ *
+ * Absolute `http:`/`https:` only. A relative value would resolve against
+ * whatever page happens to be open — so a dealer typo could aim the adapter,
+ * and the contractor's token, at the app's own origin — and a non-http scheme
+ * is not something to send a credential over at all. Refused rather than
+ * repaired, on the same reasoning as the colour: refusing is easy to verify.
+ */
+export function isValidSupplierBaseUrl(value: string): boolean {
+  const trimmed = value.trim();
+  if (trimmed === '') return false;
+  try {
+    const url = new URL(trimmed);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
 }
 
 function clampNumber(value: unknown, fallback: number): number {
@@ -207,6 +251,29 @@ export function parseConfig(raw: unknown): Result<DealerConfig> {
     Math.min(10, clampNumber(supplier.cardFeePercent, DEFAULT_CONFIG.supplier.cardFeePercent)),
   );
 
+  // ERP mode is only real with a base URL this app is willing to send a bearer
+  // token to. A `mode:"erp"` with a missing or hostile URL costs the MODE, not
+  // the rest of the config — the same "a bad value costs that value" rule the
+  // colour follows. The stage flags go down with it, so a half-configured
+  // connection cannot leave `erpReads` on pointing at nothing.
+  //
+  // This is the config layer, and it is the ONLY place a supplier mode is ever
+  // downgraded. At runtime the adapter never falls back: a 401 ends the session
+  // and shows the login screen rather than quietly resuming the simulator, and
+  // a portal that starts serving fabricated prices when its ERP session lapses
+  // is the worst failure this integration can have.
+  const requestedBaseUrl = typeof supplier.baseUrl === 'string' ? supplier.baseUrl.trim() : '';
+  const baseUrl = isValidSupplierBaseUrl(requestedBaseUrl) ? requestedBaseUrl : '';
+  const mode: SupplierConfig['mode'] = supplier.mode === 'erp' && baseUrl !== '' ? 'erp' : 'sim';
+
+  const rawStages = (supplier.stages ?? {}) as Record<string, unknown>;
+  const stages: SupplierStages = { ...DEFAULT_CONFIG.supplier.stages };
+  if (mode === 'erp') {
+    for (const key of Object.keys(DEFAULT_CONFIG.supplier.stages) as (keyof SupplierStages)[]) {
+      if (typeof rawStages[key] === 'boolean') stages[key] = rawStages[key] as boolean;
+    }
+  }
+
   const resolvedFeatures = { ...DEFAULT_CONFIG.features };
   for (const key of Object.keys(DEFAULT_CONFIG.features) as FeatureKey[]) {
     if (typeof features[key] === 'boolean') resolvedFeatures[key] = features[key] as boolean;
@@ -219,7 +286,13 @@ export function parseConfig(raw: unknown): Result<DealerConfig> {
       ...(logoUrl ? { logoUrl } : {}),
     },
     assistant: { model, maxTokens, dailyRequestCap, houseRules },
-    supplier: { termsDays, cardFeePercent },
+    supplier: {
+      termsDays,
+      cardFeePercent,
+      mode,
+      ...(mode === 'erp' ? { baseUrl } : {}),
+      stages,
+    },
     features: resolvedFeatures,
   });
 }
