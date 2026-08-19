@@ -298,4 +298,13 @@ export const SUPPLIER_ERRORS = {
   aborted: 'That request was cancelled.',
   malformed: 'The supplier sent something this app could not read.',
   notConfigured: 'The supplier connection is not configured.',
+  /**
+   * A POST aimed anywhere but the two auth routes. Stage 1 reads; it does not
+   * write. This one should never reach a contractor — it is what the transport
+   * answers a caller bug with — but it is written as a sentence anyway,
+   * because every other refusal here can end up in front of a person or in a
+   * `tool_result`, and the one that is "internal" today is the one that gets
+   * rendered raw later.
+   */
+  readOnly: 'This connection can only read from the supplier right now.',
 } as const;

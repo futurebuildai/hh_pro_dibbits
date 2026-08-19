@@ -71,6 +71,21 @@ export interface ErpClient {
 
 export const PORTAL_ROOT = '/api/portal/v1';
 
+/**
+ * The only two paths this client may POST to.
+ *
+ * Stage 1 is read-only, and read-only enforced by a comment is a convention.
+ * The allowlist makes it a property of the TRANSPORT: a future adapter method
+ * that means to write is refused by its own client before a byte leaves,
+ * whatever the calling code believes it is doing. Neither of these two writes a
+ * supplier-side fact — one establishes a session, the other renews it.
+ *
+ * `structure.test.ts` already proves the adapter as built issues only GETs.
+ * That test can only see the methods that exist today; this cannot be walked
+ * past by adding one.
+ */
+export const AUTH_PATHS = ['/login', '/token/refresh'] as const;
+
 /** Two retries, on the transport failures that are plausibly transient. */
 const MAX_RETRIES = 2;
 const BACKOFF_MS = [200, 600] as const;
@@ -173,6 +188,14 @@ export function createErpClient(options: ErpClientOptions): ErpClient {
 
   return {
     async send<T>(request: ErpRequest): Promise<Result<T>> {
+      // Checked HERE rather than at the call site, and before the first
+      // attempt, so the refusal costs no request. Returned as a `Result`
+      // rather than thrown: this is a caller bug, and the codebase's whole
+      // refusal convention is that a failure arrives on the same channel a
+      // rejected board drop does.
+      if (request.method === 'POST' && !(AUTH_PATHS as readonly string[]).includes(request.path)) {
+        return err<T>(SUPPLIER_ERRORS.readOnly);
+      }
       for (let tries = 0; ; tries += 1) {
         const outcome = await attempt<T>(request);
         if (outcome !== 'retry') return outcome;

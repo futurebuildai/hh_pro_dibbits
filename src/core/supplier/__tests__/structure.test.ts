@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { createErpSupplier } from '../adapters/erp';
-import { SUPPLIER_WRITE_METHODS, type SupplierPort } from '../port';
+import { AUTH_PATHS, createErpClient } from '../adapters/erp-client';
+import {
+  SUPPLIER_ERRORS,
+  SUPPLIER_WRITE_METHODS,
+  type SupplierPort,
+  memoryTokenStore,
+} from '../port';
 import { BASE_URL, noWait, recorder, signedInRoutes } from './recorded';
 
 /**
@@ -115,5 +121,66 @@ describe('the ERP adapter exposes no write', () => {
     await supplier.reads.listOrders();
     await supplier.reads.getInvoice('inv_9142');
     for (const call of rec.calls) expect(call.body).toBeUndefined();
+  });
+});
+
+/**
+ * The same claim one layer down, and made by CONSTRUCTION rather than by
+ * exercise.
+ *
+ * The suite above proves the adapter as built issues only GETs. It can only
+ * see the methods that exist today: a Stage 4 `updateSiteInstructions` added
+ * next quarter would POST to `/orders/{id}/delivery-instructions` and the test
+ * would never call it. The transport's own allowlist is what stops that one,
+ * on the day it is written, without anybody having to remember to extend a
+ * test.
+ */
+describe('the transport refuses a POST outside the two auth routes', () => {
+  function client(onCall: () => void) {
+    return createErpClient({
+      baseUrl: BASE_URL,
+      tokens: memoryTokenStore(),
+      wait: noWait,
+      fetch: () => {
+        onCall();
+        throw new Error('the transport must not be reached for a refused POST');
+      },
+    });
+  }
+
+  it('names exactly two paths', () => {
+    expect([...AUTH_PATHS]).toEqual(['/login', '/token/refresh']);
+  });
+
+  it.each(['/orders', '/orders/ord_7741/delivery-instructions', '/invoices/pay', '/quotes'])(
+    'refuses POST %s without touching the network',
+    async (path) => {
+      let calls = 0;
+      const result = await client(() => {
+        calls += 1;
+      }).send({ method: 'POST', path });
+
+      // The refusal must cost nothing. A green suite cannot tell you a request
+      // was never sent rather than merely never mattered; a fetch that throws
+      // on any call can.
+      expect(calls).toBe(0);
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error).toBe(SUPPLIER_ERRORS.readOnly);
+    },
+  );
+
+  it('still lets the two auth routes through', async () => {
+    const rec = recorder(signedInRoutes());
+    const sender = createErpClient({
+      baseUrl: BASE_URL,
+      fetch: rec.fetch,
+      tokens: memoryTokenStore(),
+      wait: noWait,
+    });
+    for (const path of AUTH_PATHS) {
+      const result = await sender.send({ method: 'POST', path, body: {}, anonymous: true });
+      expect(result.ok).toBe(true);
+    }
+    expect(rec.writes().map((call) => call.route)).toEqual([...AUTH_PATHS]);
   });
 });
