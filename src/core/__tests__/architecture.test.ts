@@ -146,3 +146,99 @@ describe('the supplier port is a switch, not a fork', () => {
     expect(violations).toEqual([]);
   });
 });
+
+/**
+ * The supplier seam is the one place in `src/core` that talks to a network, so
+ * it gets a stricter rule than the rest of the directory: not just
+ * framework-free, GLOBAL-free.
+ *
+ * An adapter that reached for `window.sessionStorage` or `location` would work
+ * in a browser, pass review, then fail in the node test project or an embedded
+ * Lit build — and, worse, it would take the CREDENTIAL-CUSTODY decision away
+ * from the host that has to make it. `TokenStore` is injected precisely so
+ * core never chooses where a bearer token lives.
+ *
+ * Comments are stripped before every scan below. This codebase's prose explains
+ * at length why a token must not go near `localStorage`, and a check that fails
+ * on the documentation of its own rule is a check somebody deletes.
+ */
+describe('the supplier adapters read no ambient browser global', () => {
+  const files = collectTsFiles(join(CORE_DIR, 'supplier')).filter(
+    (file) => !file.includes('__tests__'),
+  );
+
+  function codeOf(file: string): string {
+    return readFileSync(file, 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/.*$/gm, '');
+  }
+
+  it('finds supplier source files to check', () => {
+    expect(files.length).toBeGreaterThan(0);
+  });
+
+  /**
+   * No exceptions on this half, ever. These are the globals that decide where a
+   * credential lives and whether a module can run outside a browser.
+   */
+  it('touches no DOM, storage or location global', () => {
+    const BANNED = [
+      /(?<!\w)window\s*\./,
+      /(?<!\w)document\s*\./,
+      /(?<!\w)localStorage\b/,
+      /(?<!\w)sessionStorage\b/,
+      /(?<!\w)location\s*\./,
+      /(?<!\w)navigator\s*\./,
+    ];
+    const violations: string[] = [];
+    for (const file of files) {
+      const code = codeOf(file);
+      for (const pattern of BANNED) {
+        if (pattern.test(code)) {
+          violations.push(`${relative(CORE_DIR, file)} reads ${pattern.source}`);
+        }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
+  /**
+   * `globalThis` gets ONE allowance, and it is pinned here rather than waved
+   * through.
+   *
+   * `platformFetch()` in `adapters/erp-client.ts` resolves the platform `fetch`
+   * lazily, off `globalThis` rather than as a bare `fetch(...)`, and only on
+   * the ERP arm of `createSupplier` — so the flag-off build never touches a
+   * network global at all, and a runtime without one gets a loud throw rather
+   * than a crash three frames later. That is a deliberate, argued design and
+   * the ruling here is that it stands.
+   *
+   * What must not happen is a SECOND one appearing under cover of the first.
+   * So the exception is stated as an exact-match assertion: one file, one
+   * occurrence. A new `globalThis` anywhere in `supplier/` fails this, and
+   * whoever adds it has to come and argue for it here.
+   */
+  it('reaches for globalThis in exactly one place, and it is platformFetch', () => {
+    const readers = files
+      .map((file) => ({ name: relative(CORE_DIR, file), code: codeOf(file) }))
+      .filter((entry) => /\bglobalThis\b/.test(entry.code));
+
+    expect(readers.map((entry) => entry.name)).toEqual(['supplier/adapters/erp-client.ts']);
+
+    const client = readers[0];
+    expect(client?.code.match(/\bglobalThis\b/g) ?? []).toHaveLength(1);
+    expect(client?.code).toContain('export function platformFetch(): FetchLike | null {');
+  });
+
+  /**
+   * The other half of the same argument: a bare `fetch(...)` call closes over
+   * an ambient binding at module load, which is the thing `platformFetch` was
+   * written to avoid. Every transport in here arrives as a parameter.
+   */
+  it('calls no bare fetch', () => {
+    const violations = files
+      .filter((file) => /(?<![\w.])fetch\s*\(/.test(codeOf(file)))
+      .map((file) => relative(CORE_DIR, file));
+    expect(violations).toEqual([]);
+  });
+});
