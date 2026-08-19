@@ -73,6 +73,47 @@ describe('src/core stays framework-free', () => {
     expect(violations).toEqual([]);
   });
 
+  /**
+   * The supplier port is the seam a real ERP connects through, and the ERP
+   * adapter is the one place in `src/core` that talks to a network. It stays
+   * framework-free the same way everything else here does — but it also has to
+   * stay GLOBAL-free, which is a stricter rule and a new one.
+   *
+   * An adapter that reads `globalThis.fetch`, `window.sessionStorage` or
+   * `location` would work in a browser, pass review, and then fail in the node
+   * test project or in an embedded Lit build — and worse, it would take its
+   * credential custody decision away from the host that has to make it. Every
+   * capability the adapter needs is injected.
+   */
+  it('the supplier adapters read no ambient browser global', () => {
+    const BANNED_GLOBALS = [
+      /\bglobalThis\s*\.\s*fetch\b/,
+      /(?<!\w)window\s*\./,
+      /(?<!\w)document\s*\./,
+      /(?<!\w)localStorage\b/,
+      /(?<!\w)sessionStorage\b/,
+      /(?<!\w)location\s*\./,
+    ];
+    const violations: string[] = [];
+
+    for (const file of files) {
+      const relativePath = relative(CORE_DIR, file);
+      if (!relativePath.startsWith('supplier/')) continue;
+      if (relativePath.includes('__tests__')) continue;
+      // Comments are stripped: this file's own prose explains at length why a
+      // token must not go near `localStorage`, and a check that fails on the
+      // documentation of the rule it enforces is a check nobody will keep.
+      const source = readFileSync(file, 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/\/\/.*$/gm, '');
+      for (const pattern of BANNED_GLOBALS) {
+        if (pattern.test(source)) violations.push(`${relativePath} reads ${pattern.source}`);
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+
   it('never reaches into src/ui', () => {
     const violations: string[] = [];
 

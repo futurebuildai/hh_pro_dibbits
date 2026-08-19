@@ -1,3 +1,4 @@
+import { dealerConfig } from './config/runtime';
 import {
   DEMO_ACCOUNT,
   DEMO_USER,
@@ -46,6 +47,9 @@ import {
   teamStore,
 } from './stores/root';
 import { collectionFrom } from './stores/store';
+// Through the switch, never at an adapter: choosing a supplier is
+// `createSupplier`'s job and nobody else's.
+import { type FetchLike, type Supplier, type TokenStore, createSupplier } from './supplier/index';
 
 /**
  * Wires the app together once, at startup.
@@ -61,6 +65,16 @@ export interface AppContext {
   pricing: PricingEngine;
   sim: Sim;
   seed: number;
+  /**
+   * The supplier behind the port — the simulator, or the ERP read adapter when
+   * `supplier.mode` is 'erp' and `erpReads` is on.
+   *
+   * `sim` stays alongside it and keeps its exact shape. Stage 1 leaves every
+   * WRITE with the simulator, so the stage effects and the demo controls are
+   * untouched; introducing the port without moving a single call site is what
+   * makes the flag-off path provably identical to the build before it.
+   */
+  supplier: Supplier;
 }
 
 let context: AppContext | null = null;
@@ -86,6 +100,21 @@ export interface BootOptions {
   seed?: number;
   /** Ignore persisted state and rebuild from the scenario. */
   reset?: boolean;
+  /**
+   * The host's fetch, for ERP mode. Injected rather than read from a global
+   * because `src/core` reads no ambient globals — that is what lets the node
+   * test project run it, and what will let a Lit build embed it.
+   */
+  fetch?: FetchLike;
+  /**
+   * Where the bearer token lives. Defaults to memory; a browser shell supplies
+   * a `sessionStorage`-backed store, deliberately NOT `localStorage` and not
+   * one of the persisted stores — a token must never land in the
+   * `hh:corrupt-backup` stash or ride a cross-tab `storage` event.
+   */
+  tokens?: TokenStore;
+  /** Called once when a 401 clears the session, so the shell can show login. */
+  onSessionLost?: () => void;
 }
 
 const DEFAULT_SEED = 20_260_730;
@@ -188,7 +217,18 @@ export function boot(options: BootOptions = {}): AppContext {
 
   // The sim reads sessionStore, so it is built after the session is set.
   const sim = createSim(clock, seed);
-  context = { clock, pricing, sim, seed };
+  // One decision, taken once. Nothing above the port ever asks which mode it
+  // is in; a conditional in actions/, selectors/, domain/ or ui/ would be the
+  // fork this seam exists to prevent.
+  const supplier = createSupplier({
+    config: dealerConfig().supplier,
+    sim,
+    clock,
+    ...(options.fetch ? { fetch: options.fetch } : {}),
+    ...(options.tokens ? { tokens: options.tokens } : {}),
+    ...(options.onSessionLost ? { onSessionLost: options.onSessionLost } : {}),
+  });
+  context = { clock, pricing, sim, seed, supplier };
 
   // Keep the persisted clock anchor current so a reload resumes, not restarts.
   // Leader-only: a follower's anchor is a stale copy adopted at boot, and

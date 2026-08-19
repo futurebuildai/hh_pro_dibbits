@@ -44,10 +44,32 @@ export interface AssistantConfig {
 }
 
 export interface SupplierConfig {
-  /** Net terms in days, used for invoice due dates. */
+  /** Net terms in days, used for invoice due dates. ERP mode: server wins. */
   termsDays: number;
   /** Percent, e.g. 2.9. Shown to the contractor before they choose a card. */
   cardFeePercent: number;
+  /**
+   * Which supplier answers.
+   *
+   * `sim` is the default and is a permanent, supported mode — the demo, the
+   * captured guide, the e2e suite and a dealer's evaluation all run on it, so
+   * it never becomes dead code and never rots.
+   *
+   * Resolving to `erp` requires a usable `baseUrl`: see `parseConfig`.
+   */
+  mode: 'sim' | 'erp';
+  /** Origin of the dealer's HardscapeOS. Required when mode is 'erp'. */
+  baseUrl?: string | undefined;
+  /**
+   * Stage 1 of the ERP rollout: reads only — login and refresh, `/me` and
+   * capabilities, config/branding, catalog search, dashboard/billing, and
+   * orders/invoices/quotes read. Every WRITE still goes to the simulator.
+   *
+   * A stage flag, not a feature flag: `features` gates presentation, and this
+   * decides which system of record answers a question. Off is
+   * indistinguishable from the ERP adapter not existing.
+   */
+  erpReads: boolean;
 }
 
 export interface DealerConfig {
@@ -72,6 +94,8 @@ export const DEFAULT_CONFIG: DealerConfig = {
   supplier: {
     termsDays: 30,
     cardFeePercent: 2.9,
+    mode: 'sim',
+    erpReads: false,
   },
   features: {
     assistant: true,
@@ -133,6 +157,25 @@ export function isValidLogo(value: string): boolean {
   if (trimmed === '') return true;
   if (trimmed.startsWith('/') && !trimmed.startsWith('//')) return true;
   return /^data:image\/(png|jpeg|svg\+xml|webp);base64,[A-Za-z0-9+/=]+$/.test(trimmed);
+}
+
+/**
+ * The dealer's ERP origin.
+ *
+ * Absolute and http(s) only. A relative path would resolve against whatever
+ * page happened to be open; `userinfo` in the authority is refused because a
+ * credential belongs in the token store, never in a URL that ends up in logs.
+ */
+export function isValidBaseUrl(value: string): boolean {
+  const trimmed = value.trim();
+  if (trimmed === '') return false;
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return false;
+    return url.username === '' && url.password === '';
+  } catch {
+    return false;
+  }
 }
 
 function clampNumber(value: unknown, fallback: number): number {
@@ -207,6 +250,24 @@ export function parseConfig(raw: unknown): Result<DealerConfig> {
     Math.min(10, clampNumber(supplier.cardFeePercent, DEFAULT_CONFIG.supplier.cardFeePercent)),
   );
 
+  // A base URL good enough to talk to an ERP: absolute, http(s), no credentials
+  // smuggled into the authority. A relative or malformed one is not "nearly
+  // right" — every request built from it would 404 into the SPA fallback.
+  const requestedBaseUrl = typeof supplier.baseUrl === 'string' ? supplier.baseUrl.trim() : '';
+  const baseUrl = isValidBaseUrl(requestedBaseUrl) ? requestedBaseUrl : '';
+
+  // `mode` resolves to 'erp' only when it can actually be honoured. A
+  // deployment that asks for the ERP without saying where it is has configured
+  // nothing usable, and the same "a bad value costs that value" rule that
+  // stops one hand-edited colour reverting every setting applies here.
+  //
+  // This is NOT the forbidden fallback. That rule is about RUNTIME: an adapter
+  // must never answer a lapsed session with simulated data. This is
+  // configuration, decided once, before a contractor sees anything — and the
+  // admin console can show that the mode did not take.
+  const mode: SupplierConfig['mode'] = supplier.mode === 'erp' && baseUrl ? 'erp' : 'sim';
+  const erpReads = supplier.erpReads === true && mode === 'erp';
+
   const resolvedFeatures = { ...DEFAULT_CONFIG.features };
   for (const key of Object.keys(DEFAULT_CONFIG.features) as FeatureKey[]) {
     if (typeof features[key] === 'boolean') resolvedFeatures[key] = features[key] as boolean;
@@ -219,7 +280,13 @@ export function parseConfig(raw: unknown): Result<DealerConfig> {
       ...(logoUrl ? { logoUrl } : {}),
     },
     assistant: { model, maxTokens, dailyRequestCap, houseRules },
-    supplier: { termsDays, cardFeePercent },
+    supplier: {
+      termsDays,
+      cardFeePercent,
+      mode,
+      ...(baseUrl ? { baseUrl } : {}),
+      erpReads,
+    },
     features: resolvedFeatures,
   });
 }

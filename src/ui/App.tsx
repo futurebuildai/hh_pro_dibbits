@@ -27,15 +27,24 @@ import {
   useSearchParams,
 } from 'react-router';
 
+/**
+ * The browser's fetch, handed to core rather than reached for by it.
+ *
+ * `src/core` reads no ambient globals — that is what lets its tests run in
+ * node and what will let a Lit build embed it — so the shell is where the
+ * host's capabilities are injected. In sim mode nothing uses this.
+ */
+const hostFetch = (input: string, init?: RequestInit) => globalThis.fetch(input, init);
+
 // Wire the core once, before first render. If a poisoned save makes boot
 // itself throw, wipe and reseed rather than white-screening forever — the
 // stored state that caused the crash would otherwise crash every reload too.
 try {
-  boot();
+  boot({ fetch: hostFetch });
 } catch (error) {
   console.error('[app] boot failed — clearing saved state and reseeding', error);
   clearPersistedState();
-  boot({ reset: true });
+  boot({ reset: true, fetch: hostFetch });
 }
 
 /**
