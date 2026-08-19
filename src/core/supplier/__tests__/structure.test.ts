@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { createErpSupplier } from '../adapters/erp';
 import { AUTH_PATHS, createErpClient } from '../adapters/erp-client';
@@ -182,5 +184,58 @@ describe('the transport refuses a POST outside the two auth routes', () => {
       expect(result.ok).toBe(true);
     }
     expect(rec.writes().map((call) => call.route)).toEqual([...AUTH_PATHS]);
+  });
+});
+
+/**
+ * The mapper is a WHITELIST, and this keeps it one under future edits rather
+ * than under review.
+ *
+ * `erp-contract.test.ts` already proves the property behaviourally, and proves
+ * it well: it poisons every fixture with the full confidential set
+ * (`margin_bps`, `floor_bps`, `cost_cents`, `bypass_reason`, …) and asserts the
+ * mapped output is still clean. That arm is stronger than this one wherever it
+ * reaches — but it can only reach the mapper functions a fixture exercises,
+ * and it catches a leak on the day someone runs the suite rather than on the
+ * day the line is typed.
+ *
+ * This is the cheap structural half, from the second implementation (b483035):
+ * forbid the SYNTAX that would end the whitelist. One `{...raw}` in `erp-map.ts`
+ * publishes the dealer's floor the first time the server-side projection
+ * drifts, and every review that reads it as harmless is right until it isn't.
+ *
+ * DELIBERATE DEVIATION from the rebuild's version, which matched a name list
+ * (`raw|body|row|hit|user|config|account|line`). This branch's mapper names its
+ * wire parameters `wire`, so that list would have matched nothing and passed
+ * VACUOUSLY — a green test asserting a property nobody had checked. Matching
+ * the shape instead of the names has no such failure mode: a spread of any
+ * identifier fails, and the conditional-key idiom `...(cond ? {k: v} : {})`,
+ * which builds an object literal rather than copying one, is what remains
+ * legal.
+ *
+ * Scoped to `erp-map.ts`, which is the only translation point. `erp.ts` spreads
+ * an already-MAPPED `SupplierSession` to attach expiries — a domain value built
+ * from named fields, which is the thing this rule exists to guarantee, not a
+ * hole in it.
+ */
+describe('the mapper never spreads a wire object', () => {
+  /** Comments stripped: the file's own prose discusses `{...raw}` by name. */
+  const source = readFileSync(join(__dirname, '..', 'adapters', 'erp-map.ts'), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\/\/.*$/gm, '');
+
+  it('builds every domain value from named fields', () => {
+    // `...(` is the conditional-key idiom and stays legal; `...anything` else
+    // is copying a value wholesale, which is the only way a field nobody
+    // named reaches a contractor's screen.
+    const spreads = source.match(/\.\.\.\s*[A-Za-z_$][\w$]*/g) ?? [];
+    expect(spreads).toEqual([]);
+  });
+
+  it('does not copy one in through the side door either', () => {
+    // `Object.assign(domain, wire)` is the same leak with different syntax,
+    // and it is the one a reviewer who has internalised "no spreads" reads
+    // straight past.
+    expect(source).not.toContain('Object.assign');
   });
 });
