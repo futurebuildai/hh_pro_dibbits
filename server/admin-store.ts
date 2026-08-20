@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { type DealerConfig, parseConfig } from '../src/core/domain/config';
+import { applySupplierEnv } from './supplier-env';
 
 /**
  * The dealer's runtime configuration, on disk.
@@ -103,9 +104,19 @@ function readJson(file: string): unknown {
  * The dealer's public config, defaults filled in. Re-validated on every read
  * because the file is hand-editable, and a bad value on disk must degrade to a
  * default rather than reaching the page.
+ *
+ * The SUPPLIER block can be overlaid from the environment (DIB-501,
+ * server/supplier-env.ts) so a static-hosted deployment — where this file
+ * never exists — can still be pointed at a real ERP by its service variables.
+ * The overlay happens BEFORE parseConfig, so the env is validated exactly as
+ * the file is; and with no HHPRO_SUPPLIER_* variable set it is a no-op, which
+ * keeps sim the default everywhere it always was. One consequence to know
+ * about: on a host where BOTH the env and the admin console are live, /state
+ * shows the env-overlaid supplier block and a console save persists it — the
+ * env is authoritative for the supplier seam on such a host by design.
  */
 export function readConfig(): DealerConfig {
-  const parsed = parseConfig(readJson(CONFIG_FILE) ?? {});
+  const parsed = parseConfig(applySupplierEnv(readJson(CONFIG_FILE) ?? {}, process.env));
   if (parsed.ok) return parsed.value;
   console.error('[admin] stored config is invalid; serving defaults —', parsed.error);
   const fallback = parseConfig({});

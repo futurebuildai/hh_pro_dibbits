@@ -3,7 +3,10 @@
  * serialize them. This file is the ONLY place those names appear; everything
  * else in the adapter speaks domain types.
  *
- * Provenance (hardscapeos, branch `feedback/dib-479-portal-stage1a`):
+ * Provenance (hardscapeos, originally branch `feedback/dib-479-portal-stage1a`;
+ * re-verified against `origin/master` at 88b17b1 and against the LIVE staging
+ * responses of dibbits-staging.gablelbm.com for DIB-501 — every struct below
+ * matched, and the login/refresh asymmetry still holds on master):
  *   portal/model.go        LoginResponse, User, Config
  *   portal/refresh.go      RefreshResponse
  *   portal/settings.go     MeResponse (User embedded + capabilities)

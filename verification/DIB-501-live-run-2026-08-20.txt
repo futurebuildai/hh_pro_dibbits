@@ -1,0 +1,63 @@
+
+ RUN  v4.1.10 /home/claude/repos/hh_pro_dibbits
+
+[live] signed in: Dibbits Demo (Owner) (account_admin)
+[live] capabilities: {"manageUsers":true,"viewBilling":true,"payInvoices":true,"managePaymentMethods":true,"submitRfq":true,"createOrders":true,"viewOrdersDeliveries":true,"editDeliveryInstructions":true,"manageFiles":true}
+ ✓ |live| src/core/supplier/__tests__/erp-staging.live.ts > live staging reads — https://dibbits-staging.gablelbm.com > login carried no expiry (C-1) and the session carries no token 2ms
+ ✓ |live| src/core/supplier/__tests__/erp-staging.live.ts > live staging reads — https://dibbits-staging.gablelbm.com > GET /me answers the resolved capability map, not a role string to guess from 60ms
+[live] branding: {"companyName":"Dibbits Landscape Supply","brandColor":"#E8A74E"}
+[live] paver hits: [
+ {
+  "productId": "a7000000-0000-4000-9000-000000000011",
+  "sku": "DBS-OAKS-VINTAGE",
+  "name": "Oaks Vintage Paver",
+  "category": "PAVER",
+  "baseUom": "EA"
+ },
+ {
+  "productId": "a7000000-0000-4000-9000-000000000024",
+  "sku": "DBS-SIKA-SEALER",
+  "name": "Sika Paver Sealer 4L",
+  "category": "ACCESSORY",
+  "baseUom": "EA"
+ },
+ {
+  "productId": "a7000000-0000-4000-9000-000000000009",
+  "sku": "DBS-PM-LAFITT",
+  "name": "Permacon Lafitt Paver",
+  "category": "PAVER",
+  "baseUom": "EA"
+ },
+ {
+  "productId": "a7000000-0000-4000-9000-000000000017",
+  "sku": "DBS-PORCEA-2424",
+  "name": "Porcea Porcelain Paver 24x24",
+  "category": "PAVER",
+  "baseUom": "EA"
+ },
+ {
+  "productId": "a7000000-0000-4000-9000-000000000006",
+  "sku": "DBS-UL-ILCAMPO",
+  "name": "Unilock Il Campo Paver",
+  "category": "PAVER",
+  "baseUom": "EA"
+ }
+]
+ ✓ |live| src/core/supplier/__tests__/erp-staging.live.ts > live staging reads — https://dibbits-staging.gablelbm.com > GET /config maps to validated dealer branding 60ms
+ ✓ |live| src/core/supplier/__tests__/erp-staging.live.ts > live staging reads — https://dibbits-staging.gablelbm.com > catalog search returns real hits with translated UOMs, price-free 66ms
+[live] account: {"accountId":"df000000-0000-4000-9000-000000000001","accountNumber":"CUST-DEMO-CP03","name":"Dibbits Demo Contractor","customerType":"CONTRACTOR","branchId":"5d1b3f6e-0000-4000-9000-000000000001","paymentTermsDays":30,"creditLimit":5000000,"onHold":false,"openBalance":70000,"availableCredit":4930000}
+[live] billing: {"openBalance":70000,"creditLimit":5000000,"availableCredit":4930000,"onHold":false,"paymentTermsDays":30}
+ ✓ |live| src/core/supplier/__tests__/erp-staging.live.ts > live staging reads — https://dibbits-staging.gablelbm.com > dashboard and billing summary agree on the account money facts 129ms
+[live] orders total=5: [{"id":"86b744fc-c0bf-4b07-a3c7-91b860d428f4","orderId":"","number":"#SO-TRT-43","status":"invoiced","fulfillment":"willcall","submittedAt":"2026-08-20T12:19:09.053188Z","subtotal":101700,"tracking":[]},{"id":"ae58d658-427f-40a1-b10e-e7603cb2a7ba","orderId":"","number":"#SO-TRT-42","status":"invoiced","fulfillment":"willcall","submittedAt":"2026-08-20T12:18:06.42263Z","subtotal":101700,"tracking":[]}]
+[live] invoices total=4: [{"id":"0dd4ec29-9616-4754-9f5f-667da1722018","number":"#INV-30","accountId":"df000000-0000-4000-9000-000000000001","salesOrderId":"ae58d658-427f-40a1-b10e-e7603cb2a7ba","origin":"portal","issuedAt":"2026-08-20T00:00:00Z","dueAt":"2026-08-20T00:00:00Z","subtotal":101700,"balance":0,"description":""},{"id":"096f4f98-8a6d-4ed0-94a6-4f7061813a48","number":"#INV-31","accountId":"df000000-0000-4000-9000-000000000001","salesOrderId":"86b744fc-c0bf-4b07-a3c7-91b860d428f4","origin":"portal","issuedAt":"2026-08-20T00:00:00Z","dueAt":"2026-08-20T00:00:00Z","subtotal":101700,"balance":0,"description":""}]
+[live] quotes total=2: [{"id":"2cbb6e96-c88d-4a05-a2c9-d2709a15a718","orderId":"","number":"#Q-4","status":"in-review","submittedAt":"2026-08-19T17:24:00.117657Z","expiresAt":"2026-09-18T00:00:00Z","linePrices":[]},{"id":"df000000-0000-4000-9000-0000000000c1","orderId":"","number":"Q-DEMO-CP03","status":"priced","submittedAt":"2026-07-16T19:57:47.868809Z","expiresAt":"2026-08-15T00:00:00Z","linePrices":[]}]
+ ✓ |live| src/core/supplier/__tests__/erp-staging.live.ts > live staging reads — https://dibbits-staging.gablelbm.com > orders, invoices and quotes read as pages of mapped domain objects 250ms
+[live] refresh: expiresAt=2026-08-21T06:31:27.600645629Z sessionExpiresAt=2026-08-27T18:31:26Z
+ ✓ |live| src/core/supplier/__tests__/erp-staging.live.ts > live staging reads — https://dibbits-staging.gablelbm.com > a made-up id answers not-found, cross-tenant-safe by construction 62ms
+ ✓ |live| src/core/supplier/__tests__/erp-staging.live.ts > live staging reads — https://dibbits-staging.gablelbm.com > refresh slides the window and hands over both instants 61ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  18:31:25
+   Duration  1.56s (transform 211ms, setup 0ms, import 262ms, tests 1.07s, environment 0ms)
+

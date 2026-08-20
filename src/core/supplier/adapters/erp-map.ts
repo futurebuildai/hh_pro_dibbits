@@ -97,11 +97,46 @@ function iso(value: unknown): string {
   return Number.isNaN(Date.parse(raw)) ? '' : raw;
 }
 
-const UOMS: readonly Uom[] = ['EA', 'SF', 'LF', 'TON', 'CY', 'PLT', 'BG', 'BX', 'RL', 'BD'];
+/**
+ * The ERP speaks its own UOM vocabulary (`uoms` table, migration 0002):
+ * `PC, EA, LYR, PLT, BOX, BAG, SF, M2, LF, KG, T, CYD`. HH Pro's `Uom` union
+ * spells several of the same physical units differently, and the first live
+ * read against dibbits-staging surfaced the drift: every `PC` paver and `BAG`
+ * of sand came back `baseUom: null` because the old table only recognised
+ * HH Pro's own spellings.
+ *
+ * The rule for an entry here is EXACT 1:1 sameness of the physical unit —
+ * a bag is a bag, a tonne is a tonne, a piece is a count of one exactly as
+ * "each" is. Anything that would need a CONVERSION is refused, not converted:
+ * `M2` is not `SF` (×10.764), `KG` is not `TON` (×1000), and a `LYR` (layer)
+ * has no HH Pro unit at all. Those stay `null` under the house rule that a
+ * wrong unit is the most expensive wrong number in this vertical.
+ *
+ * HH Pro's own codes stay accepted as identities so recorded fixtures and any
+ * future ERP that adopts the same spellings keep working.
+ */
+const UOM_FROM_WIRE: Record<string, Uom> = {
+  // Identities — codes both vocabularies share, plus HH Pro's own spellings.
+  EA: 'EA',
+  SF: 'SF',
+  LF: 'LF',
+  TON: 'TON',
+  CY: 'CY',
+  PLT: 'PLT',
+  BG: 'BG',
+  BX: 'BX',
+  RL: 'RL',
+  BD: 'BD',
+  // ERP spellings of the same physical unit (uoms table, migration 0002).
+  PC: 'EA', // "Piece" — count of one, exactly what EA renders as ("each")
+  BAG: 'BG',
+  BOX: 'BX',
+  T: 'TON', // both are the metric tonne
+  CYD: 'CY', // both are the cubic yard
+};
 
 export function mapUom(value: unknown): Uom | null {
-  const raw = str(value).toUpperCase();
-  return (UOMS as readonly string[]).includes(raw) ? (raw as Uom) : null;
+  return UOM_FROM_WIRE[str(value).toUpperCase()] ?? null;
 }
 
 export function mapErpCapabilities(wire: WireCapabilities | undefined): ErpCapabilities {
