@@ -250,7 +250,7 @@ curl -fsS https://hhpro-staging.gablelbm.com/healthz
 # → {"status":"ok","service":"hhpro-staging","mode":"sim","commit":"<sha>","serving":"static"}
 
 # client routes boot the SPA rather than 404
-for p in / /catalog /pay /more /orders/DEMO-1; do
+for p in / /today /catalog /pay /orders/DEMO-1; do
   echo "$p $(curl -s -o /dev/null -w '%{http_code}' https://hhpro-staging.gablelbm.com$p)"
 done
 
@@ -384,7 +384,7 @@ Not enabled, because it is a product decision. The vhost carries a ready-to-past
 - **Nothing on the droplet was modified.** No SSH client exists in the prep container and
   TCP/22 is blocked from it, so no change was possible; none was attempted.
 - `npm run build` succeeds; `dist/index.html` carries the injected dealer config.
-- Static serving proven against the real `dist/`: `/`, `/catalog`, `/pay`, `/more`,
+- Static serving proven against the real `dist/`: `/`, `/today`, `/catalog`, `/pay`,
   `/orders/:id` → `200 text/html`; `/admin` → the admin bundle; assets and favicon → 200.
 - `deploy/prod-entry.ts` bundles with esbuild and runs: `/healthz`, `/api/anthropic/health`,
   `/api/config` → 200 JSON; unknown `/api/*` → 404 JSON (never the SPA); path-traversal

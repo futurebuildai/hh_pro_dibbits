@@ -500,7 +500,7 @@ so if you run out for the day, it is a number they can raise.
 
 ## 12. Your team
 
-Tap **More**.
+Tap your avatar in the header to open the profile sheet.
 
 ![Your crew, and what each role may do](screenshots/30-team.png)
 
@@ -514,7 +514,7 @@ your PM, whoever pays the bills, the crew lead — and give each a role:
 | **Accounts payable** | Sees everything, pays invoices, manages payment methods. No ordering. |
 | **Field** | Sees orders and deliveries, confirms will-call pickups. Read-only otherwise. |
 
-Tap the initials chip in the header to switch between people.
+Tap **Switch person** in the profile sheet to change who is acting.
 
 ![Acting as someone applies their permissions](screenshots/31-person-switcher.png)
 

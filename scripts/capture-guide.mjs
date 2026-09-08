@@ -474,7 +474,7 @@ async function main() {
     await shoot(page, '29-assistant', 'Hand it your list — typed, spoken, or photographed');
 
     // ---- 30. The team -----------------------------------------------------
-    await page.goto(`${BASE}/more`);
+    await page.getByRole('button', { name: /open profile/i }).click();
     await expectText(page, 'What each role can do');
     await shoot(page, '30-team', 'Your crew, and what each role may do', { fullPage: true });
 

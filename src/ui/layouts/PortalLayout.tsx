@@ -4,19 +4,11 @@ import { unreadCount } from '@core/domain/activity';
 import { activityStore, sessionStore } from '@core/stores/root';
 import { teamStore } from '@core/stores/root';
 import { DealerLogo } from '@ui/components/brand/DealerLogo';
+import { ProfileSheet } from '@ui/components/profile/ProfileSheet';
 import { Avatar } from '@ui/components/team/Avatar';
-import { PersonSwitcher } from '@ui/components/team/PersonSwitcher';
 import { useStore } from '@ui/hooks/useStore';
 import { cn } from '@ui/lib/cn';
-import {
-  Bell,
-  CreditCard,
-  LayoutGrid,
-  MoreHorizontal,
-  Search,
-  Sparkles,
-  Wand2,
-} from 'lucide-react';
+import { Bell, CreditCard, LayoutGrid, Search, Sparkles, Sun, Wand2 } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
 /**
@@ -27,12 +19,17 @@ import { type ReactNode, useState } from 'react';
  * the mandate. Orders, quotes, and invoices are not destinations — they are
  * stages of the board.
  *
+ * Today leads because it is the screen that answers "what needs me first?".
+ * Board, Catalog, and Pay are the three jobs a contractor does; the profile
+ * sheet (off the avatar) holds everything about who is using the app and how
+ * this device looks, so it does not compete for a top-level tab.
+ *
  * Mobile is a bottom tab bar with the assistant raised in the centre: it is the
  * differentiating feature and it lands under the thumb. Desktop is a sidebar,
  * because a 1400px screen with a bottom bar wastes the whole left edge.
  */
 
-export type PortalTab = 'board' | 'catalog' | 'pay' | 'more';
+export type PortalTab = 'today' | 'board' | 'catalog' | 'pay';
 
 interface Props {
   tab: PortalTab;
@@ -49,10 +46,10 @@ interface Props {
 }
 
 const ALL_NAV: { id: PortalTab; label: string; icon: typeof LayoutGrid }[] = [
+  { id: 'today', label: 'Today', icon: Sun },
   { id: 'board', label: 'Board', icon: LayoutGrid },
   { id: 'catalog', label: 'Catalog', icon: Search },
   { id: 'pay', label: 'Pay', icon: CreditCard },
-  { id: 'more', label: 'More', icon: MoreHorizontal },
 ];
 
 /**
@@ -83,7 +80,7 @@ export function PortalLayout({
   const unread = useStore(activityStore, unreadCount);
   useStore(teamStore, (state) => state);
   const acting = activeMember();
-  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <div className="min-h-dvh bg-surface-2 lg:flex">
@@ -131,7 +128,7 @@ export function PortalLayout({
           {acting ? (
             <button
               type="button"
-              onClick={() => setSwitcherOpen(true)}
+              onClick={() => setProfileOpen(true)}
               className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-sm font-medium text-brand-chrome-muted transition-colors hover:bg-brand-chrome-2 hover:text-brand-chrome-on"
             >
               {/* onChrome: the role tint is keyed to platform hues, and a
@@ -194,8 +191,8 @@ export function PortalLayout({
                 {acting ? (
                   <button
                     type="button"
-                    onClick={() => setSwitcherOpen(true)}
-                    aria-label={`Acting as ${acting.name} — switch person`}
+                    onClick={() => setProfileOpen(true)}
+                    aria-label={`Acting as ${acting.name} — open profile`}
                     className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-brand-chrome-2 lg:hidden"
                   >
                     <Avatar initials={acting.initials} role={acting.role} size="sm" onChrome />
@@ -272,7 +269,7 @@ export function PortalLayout({
         </div>
       </nav>
 
-      <PersonSwitcher open={switcherOpen} onOpenChange={setSwitcherOpen} />
+      <ProfileSheet open={profileOpen} onOpenChange={setProfileOpen} />
     </div>
   );
 }

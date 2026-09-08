@@ -10,7 +10,7 @@ import { Monitor, Moon, Sun } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 
 /**
- * Appearance, under More.
+ * Appearance, in the profile sheet.
  *
  * The dark palette has been complete and first-class in `theme.css` since the
  * design system was written, and until now nothing in the product could reach

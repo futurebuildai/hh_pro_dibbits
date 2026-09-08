@@ -15,7 +15,7 @@ import { PayPage } from '@ui/pages/PayPage';
 import { ProductPage } from '@ui/pages/ProductPage';
 import { ProjectPage } from '@ui/pages/ProjectPage';
 import { QuoteStudioPage } from '@ui/pages/QuoteStudioPage';
-import { TeamPage } from '@ui/pages/TeamPage';
+import { TodayPage } from '@ui/pages/TodayPage';
 import { useEffect, useState } from 'react';
 import {
   Navigate,
@@ -60,7 +60,7 @@ export function App() {
             returns to the search that found it rather than leaving the app. */}
         <Route path="/catalog/:sku" element={<Shell />} />
         <Route path="/pay" element={<Shell />} />
-        <Route path="/more" element={<Shell />} />
+        <Route path="/today" element={<Shell />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
@@ -82,8 +82,8 @@ function Shell() {
   // server holds a key or the contractor pasted their own, so the health
   // answer is kept separate and OR-ed with local state.
   const [serverHasKey, setServerHasKey] = useState<boolean | null>(null);
-  // Subscribed, so a key added or removed from EITHER key sheet (the
-  // assistant's or the More page's) re-gates the assistant immediately.
+  // Subscribed, so a key added or removed from the assistant sheet re-gates
+  // the assistant immediately.
 
   useEffect(() => {
     // A hung dev server must not leave the assistant stuck on "checking"
@@ -114,12 +114,12 @@ function Shell() {
   const isQuoteStudio = path.endsWith('/quote');
   const isTracking = path.endsWith('/tracking');
 
-  const tab: PortalTab = path.startsWith('/catalog')
-    ? 'catalog'
-    : path.startsWith('/pay')
-      ? 'pay'
-      : path.startsWith('/more')
-        ? 'more'
+  const tab: PortalTab = path.startsWith('/today')
+    ? 'today'
+    : path.startsWith('/catalog')
+      ? 'catalog'
+      : path.startsWith('/pay')
+        ? 'pay'
         : 'board';
 
   const heading = orderId
@@ -128,10 +128,12 @@ function Shell() {
       ? { title: 'Product', subtitle: undefined }
       : tab === 'board'
         ? { title: 'Procurement Board', subtitle: account?.name }
-        : {
-            title: tab === 'catalog' ? 'Catalog' : tab === 'pay' ? 'Pay' : 'Team',
-            subtitle: undefined,
-          };
+        : tab === 'today'
+          ? { title: 'Today', subtitle: account?.name }
+          : {
+              title: tab === 'catalog' ? 'Catalog' : 'Pay',
+              subtitle: undefined,
+            };
 
   return (
     <>
@@ -172,6 +174,8 @@ function Shell() {
             }
             onOpenPlan={(id) => navigate(`/orders/${id}`)}
           />
+        ) : tab === 'today' ? (
+          <TodayPage />
         ) : tab === 'board' ? (
           <BoardPage onOpenOrder={(id) => navigate(`/orders/${id}`)} />
         ) : tab === 'catalog' ? (
@@ -184,9 +188,7 @@ function Shell() {
           />
         ) : tab === 'pay' ? (
           <PayPage onOpenOrder={(id) => navigate(`/orders/${id}`)} />
-        ) : (
-          <TeamPage />
-        )}
+        ) : null}
       </PortalLayout>
 
       <ActivitySheet open={activityOpen} onOpenChange={setActivityOpen} />

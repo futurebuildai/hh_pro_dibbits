@@ -497,7 +497,8 @@ out of it:
 ## Team roles (post-M8)
 
 `domain/team.ts` (roles + capability matrix) + `actions/team.ts`
-(`requireCapability`, the gate) + `pages/TeamPage.tsx` + `components/team/*`.
+(`requireCapability`, the gate) + `components/profile/ProfileSheet.tsx` +
+`components/team/*`.
 
 **Four roles, because a six-person outfit is not one login:** owner, project
 manager (`pm`), accounts payable (`ap`), field. Only ACTIONS are gated —
