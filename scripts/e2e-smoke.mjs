@@ -163,6 +163,9 @@ async function main() {
     );
 
     // --- Role gating: the same app, a different person -----------------------
+    // The order page renders without the app chrome, so go home first — the
+    // avatar (and the profile sheet behind it) only exists inside the chrome.
+    await page.goto(BASE, { waitUntil: 'networkidle' });
     await page.getByRole('button', { name: /open profile/i }).click();
     await page.getByRole('button', { name: 'Switch person', exact: true }).click();
     await page.getByRole('dialog').getByText('Robin Alvarez').click();
