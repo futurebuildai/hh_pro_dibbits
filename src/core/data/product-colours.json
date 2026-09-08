@@ -1,187 +1,187 @@
 [
   {
-    "sku": "PVR-TB-BLU60-SM",
-    "colourName": "Beige Cream",
-    "primaryHex": "#ddcfbf",
-    "secondaryHex": "#d8c8b5",
+    "sku": "PVR-ACK-PASEO60",
+    "colourName": "Antique Pewter FM",
+    "primaryHex": "#868481",
+    "secondaryHex": "#7a7875",
+    "texture": "smooth",
+    "confidence": "medium",
+    "contested": false
+  },
+  {
+    "sku": "PVR-ACK-HOLL80",
+    "colourName": "Charcoal FM",
+    "primaryHex": "#5A554A",
+    "secondaryHex": "#4e4a41",
     "texture": "smooth",
     "confidence": "high",
     "contested": false
   },
   {
-    "sku": "PVR-TB-BLU80-SL",
-    "colourName": "Shale Grey",
-    "primaryHex": "#8c8684",
-    "secondaryHex": "#716c68",
-    "texture": "slate",
-    "confidence": "high",
-    "contested": false
-  },
-  {
-    "sku": "PVR-TB-ANTIKA",
-    "colourName": "Onyx Black",
-    "primaryHex": "#5c5855",
-    "secondaryHex": "#474747",
+    "sku": "PVR-ACK-SIENA70",
+    "colourName": "Antique Pewter TM",
+    "primaryHex": "#868481",
+    "secondaryHex": "#7a7875",
     "texture": "tumbled",
     "confidence": "high",
-    "contested": true
-  },
-  {
-    "sku": "PVR-TB-BOREALIS",
-    "colourName": "Hazelnut Brandy",
-    "primaryHex": "#958477",
-    "secondaryHex": "#7d6b5a",
-    "texture": "wood-grain",
-    "confidence": "high",
     "contested": false
   },
   {
-    "sku": "PVR-TB-HEXA",
-    "colourName": "Beige Cream",
-    "primaryHex": "#c4b39b",
-    "secondaryHex": "#d8c8b5",
+    "sku": "PVR-ACK-SLAB2460",
+    "colourName": "Antique Pewter FM",
+    "primaryHex": "#868481",
+    "secondaryHex": "#7a7875",
     "texture": "smooth",
     "confidence": "medium",
-    "contested": true
-  },
-  {
-    "sku": "STP-TB-BOREALIS",
-    "colourName": "Hazelnut Brandy",
-    "primaryHex": "#988879",
-    "secondaryHex": "#7d6b5a",
-    "texture": "wood-grain",
-    "confidence": "high",
     "contested": false
   },
   {
-    "sku": "STP-TB-MAYA",
-    "colourName": "Victoria",
+    "sku": "PVR-ACK-HEX80",
+    "colourName": "Graphite FM",
+    "primaryHex": "#5E5B55",
+    "secondaryHex": "#525049",
+    "texture": "smooth",
+    "confidence": "low",
+    "contested": false
+  },
+  {
+    "sku": "STP-UNL-BHILL",
+    "colourName": "Natural grey (representative \u2014 no published Beacon Hill Smooth stepper hex)",
+    "primaryHex": "#988879",
+    "secondaryHex": "#7d6f63",
+    "texture": "smooth",
+    "confidence": "low",
+    "contested": true
+  },
+  {
+    "sku": "STP-RCP-AGG",
+    "colourName": "Natural aggregate (representative \u2014 no published hex)",
     "primaryHex": "#b9b5b0",
     "secondaryHex": "#a19b97",
-    "texture": "slate",
+    "texture": "aggregate",
+    "confidence": "low",
+    "contested": true
+  },
+  {
+    "sku": "PVR-ACK-COMBO60",
+    "colourName": "Catina Blend FM",
+    "primaryHex": "#9D8365",
+    "secondaryHex": "#8f765b",
+    "texture": "tumbled",
+    "confidence": "medium",
+    "contested": false
+  },
+  {
+    "sku": "PVR-ACK-PASEO6X9",
+    "colourName": "Charcoal FM",
+    "primaryHex": "#5A554A",
+    "secondaryHex": "#4e4a41",
+    "texture": "smooth",
     "confidence": "high",
     "contested": false
   },
   {
-    "sku": "PVR-OAK-YORK60",
-    "colourName": "Champagne (OAKS standard; Dibbits' default selection. Full range: Champagne, Cloudburst, Marble Grey, Milano, Onyx, Umber)",
-    "primaryHex": "#877f74",
-    "secondaryHex": "#988f85",
+    "sku": "PVR-ACK-PASEOGR60",
+    "colourName": "Catina Blend FM",
+    "primaryHex": "#9D8365",
+    "secondaryHex": "#8f765b",
     "texture": "smooth",
     "confidence": "medium",
     "contested": false
   },
   {
-    "sku": "PVR-OAK-RIALTO60",
-    "colourName": "Champagne (shown first on the manufacturer's colour row = hero; also Dibbits' default. Full range: Champagne, Greyfield, Marble Grey, Onyx)",
-    "primaryHex": "#a99f95",
-    "secondaryHex": "#c0b6ac",
+    "sku": "PVR-ACK-PALERMO70",
+    "colourName": "Graphite FM",
+    "primaryHex": "#5E5B55",
+    "secondaryHex": "#525049",
     "texture": "textured",
     "confidence": "high",
     "contested": false
   },
   {
-    "sku": "PVR-OAK-NUEVA60",
-    "colourName": "Champagne (shown first on the manufacturer's colour row = hero; also Dibbits' default. Full range: Champagne, Cloudburst, Greyfield, Marble Grey, Onyx \u2014 Dibbits additionally stocks Milano and Umber)",
-    "primaryHex": "#89847c",
-    "secondaryHex": "#99948c",
-    "texture": "smooth",
-    "confidence": "high",
-    "contested": false
-  },
-  {
-    "sku": "PVR-OAK-RIDGE70",
-    "colourName": "Champagne (listed first on the manufacturer's spec sheet = hero. Official range is Champagne, Executive, Onyx)",
-    "primaryHex": "#938b7e",
-    "secondaryHex": "#a1998c",
-    "texture": "textured",
-    "confidence": "high",
-    "contested": false
-  },
-  {
-    "sku": "WAL-OAK-MODAN",
-    "colourName": "Champagne (shown first on the manufacturer's colour row = hero; also Dibbits' default. Official range: Champagne, Cloudburst, Marble Grey, Twilight \u2014 Dibbits additionally stocks Greyfield and Milano)",
+    "sku": "WAL-KEY-COMPAC",
+    "colourName": "Warm grey (representative \u2014 Keystone publishes no swatch hex for Compac via RCP)",
     "primaryHex": "#88827a",
     "secondaryHex": "#95918b",
     "texture": "smooth",
+    "confidence": "low",
+    "contested": true
+  },
+  {
+    "sku": "WAL-KEY-VERAZZO",
+    "colourName": "Light grey (representative \u2014 no published Verazzo swatch hex)",
+    "primaryHex": "#a5a5a2",
+    "secondaryHex": "#969699",
+    "texture": "split-face",
+    "confidence": "low",
+    "contested": true
+  },
+  {
+    "sku": "FIR-BLV-SEMPLICE",
+    "colourName": "Warm grey-taupe blend (representative \u2014 no published Semplice swatch hex)",
+    "primaryHex": "#8a746a",
+    "secondaryHex": "#a29b96",
+    "texture": "split-face",
+    "confidence": "low",
+    "contested": true
+  },
+  {
+    "sku": "PVR-ACK-AQUAVIA80",
+    "colourName": "Antique Pewter TM",
+    "primaryHex": "#868481",
+    "secondaryHex": "#7a7875",
+    "texture": "tumbled",
     "confidence": "high",
     "contested": false
   },
   {
-    "sku": "WAL-OAK-GRANDLEDGE",
-    "colourName": "Ash (the standard/hero colour; range is Ash, Canyon, and Saddle as special order)",
-    "primaryHex": "#a5a5a2",
-    "secondaryHex": "#969699",
-    "texture": "split-face",
-    "confidence": "high",
-    "contested": true
-  },
-  {
-    "sku": "FIR-KIT-ROUND",
-    "colourName": "Mountain (a warm grey-taupe split-face blend) \u2014 representative rather than definitive, see source note",
-    "primaryHex": "#8a746a",
-    "secondaryHex": "#a29b96",
-    "texture": "split-face",
-    "confidence": "medium",
-    "contested": true
-  },
-  {
-    "sku": "PVR-PMC-MELV80",
-    "colourName": "Range Newport Grey",
-    "primaryHex": "#6f6f70",
-    "secondaryHex": "#6a6761",
+    "sku": "PVR-ACK-4X1260",
+    "colourName": "Antique Pewter FM",
+    "primaryHex": "#868481",
+    "secondaryHex": "#7a7875",
     "texture": "smooth",
     "confidence": "medium",
-    "contested": true
+    "contested": false
   },
   {
-    "sku": "PVR-PMC-MOND60",
-    "colourName": "Newport Grey",
-    "primaryHex": "#6c6b70",
-    "secondaryHex": "#6e6960",
-    "texture": "textured",
-    "confidence": "high",
-    "contested": true
-  },
-  {
-    "sku": "PVR-BRN-NORDIC60",
-    "colourName": "Blackwood",
-    "primaryHex": "#8a898c",
-    "secondaryHex": "#6e675d",
+    "sku": "PVR-ACK-HOLL60",
+    "colourName": "Charcoal FM",
+    "primaryHex": "#5A554A",
+    "secondaryHex": "#4e4a41",
     "texture": "smooth",
-    "confidence": "medium",
-    "contested": true
+    "confidence": "high",
+    "contested": false
   },
   {
-    "sku": "PVR-BWS-TREV50",
-    "colourName": "Grey Mix",
-    "primaryHex": "#999ca1",
-    "secondaryHex": "#62625f",
+    "sku": "PVR-ACK-PALAZZO50",
+    "colourName": "Natural Pewter",
+    "primaryHex": "#B5B0AA",
+    "secondaryHex": "#a39e98",
     "texture": "textured",
     "confidence": "medium",
-    "contested": true
+    "contested": false
   },
   {
     "sku": "AGG-HPB-BULK",
-    "colourName": "Natural limestone grey (light grey with beige cast) \u2014 HPB is sold in one colour only",
+    "colourName": "Natural crushed-rock grey-tan \u2014 Class II road base is sold in one colour",
     "primaryHex": "#74716a",
     "secondaryHex": "#c3c0ba",
     "texture": "aggregate",
-    "confidence": "high",
+    "confidence": "medium",
     "contested": true
   },
   {
     "sku": "AGG-SCREEN-BULK",
-    "colourName": "Light limestone grey (grey-beige) \u2014 screenings come in one colour",
-    "primaryHex": "#b4b2ac",
-    "secondaryHex": "#d2d0ca",
+    "colourName": "Desert gold-tan (representative \u2014 classic SoCal decomposed granite cast)",
+    "primaryHex": "#b0916a",
+    "secondaryHex": "#c4a87f",
     "texture": "aggregate",
     "confidence": "medium",
-    "contested": false
+    "contested": true
   },
   {
     "sku": "AGG-CLEAR34-BULK",
-    "colourName": "Washed limestone grey-white (\"clear\" limestone, no fines)",
+    "colourName": "Washed crushed gravel \u2014 mixed grey-tan, no fines",
     "primaryHex": "#a4a39e",
     "secondaryHex": "#d4d1c8",
     "texture": "aggregate",
@@ -199,7 +199,7 @@
   },
   {
     "sku": "AGG-CLEAR34-BAG",
-    "colourName": "Washed limestone grey-white (\"clear\" limestone, no fines) \u2014 identical material to the bulk SKU",
+    "colourName": "Washed crushed gravel \u2014 mixed grey-tan, identical material to the bulk SKU",
     "primaryHex": "#8c8782",
     "secondaryHex": "#d4d1c8",
     "texture": "aggregate",
@@ -244,7 +244,7 @@
   },
   {
     "sku": "SOL-TOPSOIL-CY",
-    "colourName": "Mid-dark earth brown \u2014 screened topsoil, no manufacturer colour name",
+    "colourName": "Mid-dark earth brown \u2014 amended topsoil, no manufacturer colour name",
     "primaryHex": "#5e4633",
     "secondaryHex": "#74604a",
     "texture": "organic",
@@ -271,11 +271,11 @@
   },
   {
     "sku": "NST-FLAG-RANDOM",
-    "colourName": "Wiarton buff/brown mixed with grey \u2014 Dibbits' random flagstone is Wiarton limestone (they also list a \"Wiarton Jumbo\" variant on the same page)",
+    "colourName": "Buff-brown mixed with grey (representative random flagstone \u2014 no single source quarry)",
     "primaryHex": "#a49a88",
     "secondaryHex": "#8b8880",
     "texture": "split-face",
-    "confidence": "medium",
+    "confidence": "low",
     "contested": true
   },
   {
@@ -289,7 +289,7 @@
   },
   {
     "sku": "NST-ARMOUR-2MAN",
-    "colourName": "Grey (quarried Ontario limestone armour stone), with buff/tan weathered facing",
+    "colourName": "Grey quarried armour stone, with buff-tan weathered facing",
     "primaryHex": "#9b9b97",
     "secondaryHex": "#a8977b",
     "texture": "split-face",
@@ -369,32 +369,32 @@
     "contested": true
   },
   {
-    "sku": "WAL-PMC-CAP-SQ",
-    "colourName": "Scandina Grey (assumed \u2014 the SKU names no colour)",
+    "sku": "WAL-KEY-CAP-SQ",
+    "colourName": "Grey (assumed \u2014 the SKU names no colour, no published Keystone cap hex)",
     "primaryHex": "#b0aeaa",
     "secondaryHex": "#8d8b86",
     "texture": "smooth",
     "confidence": "low",
-    "contested": false
+    "contested": true
   },
   {
-    "sku": "STP-BRN-SUPERIOR",
-    "colourName": "Manitou",
+    "sku": "STP-RCP-SMOOTH16",
+    "colourName": "Natural grey (representative \u2014 no published hex)",
     "primaryHex": "#9c9081",
     "secondaryHex": "#7a6e60",
     "texture": "textured",
     "confidence": "low",
-    "contested": false,
+    "contested": true,
     "note": "texture corrected: organic is the soil/mulch treatment"
   },
   {
-    "sku": "POR-BWS-2X2-GREY",
-    "colourName": "Grey (generic mid-grey outdoor porcelain)",
+    "sku": "POR-RCP-QUARTZO24",
+    "colourName": "Quartzo Gray (RCP name; hex representative \u2014 no published swatch)",
     "primaryHex": "#8b8d8e",
     "secondaryHex": "#6d7071",
     "texture": "smooth",
     "confidence": "low",
-    "contested": false
+    "contested": true
   },
   {
     "sku": "LGT-LED-PATH",

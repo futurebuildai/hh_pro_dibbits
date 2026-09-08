@@ -28,7 +28,7 @@ const SCREENS = [
   // A filtered, EMPTY result is its own screen: it is all text on a bare
   // surface, which is where a contrast failure hides with nothing around it.
   { name: 'catalog-empty', path: '/catalog?q=zzzz', wait: 'text=Nothing in the catalog' },
-  { name: 'product', path: '/catalog/PVR-TB-BLU60-SM', wait: 'text=Your account price' },
+  { name: 'product', path: '/catalog/PVR-ACK-PASEO60', wait: 'text=Your account price' },
   { name: 'order', path: '/orders/ord_miller_frame', wait: 'text=below list' },
   { name: 'quote-studio', path: '/orders/ord_miller_frame/quote', wait: 'text=Customer quote' },
   { name: 'tracking', path: '/orders/ord_wilson_frame/tracking', wait: 'text=Out for delivery' },

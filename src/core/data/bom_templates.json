@@ -13,12 +13,12 @@
       {
         "productId": 24,
         "quantity": 22,
-        "notes": "HPB \u2014 6\" compacted base, allow for compaction"
+        "notes": "Class II base \u2014 6\" compacted, allow for compaction"
       },
       {
         "productId": 25,
         "quantity": 6,
-        "notes": "Screenings \u2014 1\" bedding course, screeded"
+        "notes": "DG \u2014 1\" bedding course, screeded"
       },
       {
         "productId": 6,
@@ -51,7 +51,7 @@
       {
         "productId": 25,
         "quantity": 8,
-        "notes": "Levelling pad \u2014 6\" compacted screenings"
+        "notes": "Levelling pad \u2014 6\" compacted DG"
       },
       {
         "productId": 14,
@@ -61,7 +61,7 @@
       {
         "productId": 26,
         "quantity": 14,
-        "notes": "Clearstone \u2014 12\" drainage zone behind the wall"
+        "notes": "3/4\" crushed gravel \u2014 12\" drainage zone behind the wall"
       },
       {
         "productId": 40,
@@ -94,7 +94,7 @@
       {
         "productId": 26,
         "quantity": 48,
-        "notes": "Clearstone \u2014 10\" open-graded base"
+        "notes": "3/4\" crushed gravel \u2014 10\" open-graded base"
       },
       {
         "productId": 25,

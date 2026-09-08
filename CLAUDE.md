@@ -642,8 +642,9 @@ specific SKU, and it still carries the thing that actually decides a hardscape
 purchase — colour.
 
 - **The colours are measured, not invented.** They came from a research pass
-  over the manufacturers' own published swatches (Techo-Bloc, OAKS, Permacon,
-  Brown's, Bestway, Ecoraster), with every medium/high-confidence claim then
+  over the manufacturers' own published swatches (Acker-Stone, Keystone,
+  Unilock, RCP Block & Brick, Bella Vista, Ecoraster), with every
+  medium/high-confidence claim then
   handed to a skeptic to refute; 20 of 45 were corrected that way. Each entry
   keeps its `confidence` and `colourName`, so the five that are honest
   inferences from product type stay labelled `low` rather than quietly
