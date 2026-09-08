@@ -185,7 +185,7 @@ describe('the loop', () => {
     const h = harness([
       {
         toolName: 'add_materials',
-        toolInput: { orderId: PERGOLA, product: 'PVR-OAK-YORK60', qty: 40 },
+        toolInput: { orderId: PERGOLA, product: 'PVR-ACK-COMBO60', qty: 40 },
       },
       { text: 'Added 40 studs.' },
     ]);

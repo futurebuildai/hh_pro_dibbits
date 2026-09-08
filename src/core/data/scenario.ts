@@ -163,10 +163,10 @@ export function buildScenario(ctx: Ctx): ScenarioData {
     inDays: 16,
     sortOrder: 1,
   });
-  line(millerSurface.id, 'PVR-OAK-YORK60', 640);
+  line(millerSurface.id, 'PVR-ACK-COMBO60', 640);
   // Three weeks out against a date sixteen days away — this is the card that
   // makes the lead-time warning mean something.
-  line(millerSurface.id, 'PVR-TB-BOREALIS', 120, 'Feature band around the firepit');
+  line(millerSurface.id, 'PVR-ACK-SLAB2460', 120, 'Feature band around the firepit');
   line(millerSurface.id, 'JNT-POLY-SAND', 8);
   special(millerSurface.id, 'SO-COPING-BULL', 'Bullnose coping — sawn granite, 24" radius', 18);
 
@@ -176,7 +176,7 @@ export function buildScenario(ctx: Ctx): ScenarioData {
     inDays: 24,
     sortOrder: 0,
   });
-  line(andersonDrive.id, 'PVR-TB-BLU80-SL', 1180);
+  line(andersonDrive.id, 'PVR-ACK-HOLL80', 1180);
   line(andersonDrive.id, 'AGG-CLEAR34-BULK', 62);
   line(andersonDrive.id, 'GRD-ECO-STD', 1180);
   special(andersonDrive.id, 'SO-DRAIN-TRENCH', 'Trench drain — 12m run with cast grate', 1);
@@ -189,8 +189,8 @@ export function buildScenario(ctx: Ctx): ScenarioData {
     sortOrder: 0,
     poNumber: 'PO-4471',
   });
-  line(wilsonWall.id, 'WAL-OAK-MODAN', 420);
-  line(wilsonWall.id, 'WAL-PMC-CAP-SQ', 88);
+  line(wilsonWall.id, 'WAL-KEY-COMPAC', 420);
+  line(wilsonWall.id, 'WAL-KEY-CAP-SQ', 88);
   line(wilsonWall.id, 'AGG-CLEAR34-BULK', 28);
 
   const wilsonWalk = order('ord_wilson_roof', wilson.id, 'Front walkway & steps', 'order', {
@@ -198,8 +198,8 @@ export function buildScenario(ctx: Ctx): ScenarioData {
     sortOrder: 1,
     poNumber: 'PO-4488',
   });
-  line(wilsonWalk.id, 'PVR-OAK-RIALTO60', 260);
-  line(wilsonWalk.id, 'STP-BRN-SUPERIOR', 6);
+  line(wilsonWalk.id, 'PVR-ACK-PASEO6X9', 260);
+  line(wilsonWalk.id, 'STP-RCP-SMOOTH16', 6);
 
   // Still being planned while the rest of the job is already moving.
   const wilsonBeds = order('ord_wilson_trim', wilson.id, 'Beds & plantings', 'plan', {
@@ -216,8 +216,8 @@ export function buildScenario(ctx: Ctx): ScenarioData {
     sortOrder: 0,
     poNumber: 'PO-4310',
   });
-  line(kirklandTerrace.id, 'FIR-KIT-ROUND', 1);
-  line(kirklandTerrace.id, 'PVR-TB-ANTIKA', 310);
+  line(kirklandTerrace.id, 'FIR-BLV-SEMPLICE', 1);
+  line(kirklandTerrace.id, 'PVR-ACK-SIENA70', 310);
 
   // --- An empty draft: the "add materials first" guard needs a target ------
   order('ord_miller_pergola', miller.id, 'Pool surround (rough idea)', 'plan', {

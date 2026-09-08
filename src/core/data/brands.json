@@ -1,43 +1,42 @@
 [
   {
     "id": 1,
-    "name": "Techo-Bloc",
-    "description": "Premium Quebec-made pavers, slabs, walls and steps.",
-    "website": "https://www.techo-bloc.com",
+    "name": "Acker-Stone Industries",
+    "description": "Southern California-made pavers and slabs, planted in Corona CA and Chandler AZ.",
+    "website": "https://www.ackerstone.com",
     "isActive": true,
-    "productCount": 5
+    "productCount": 13
   },
   {
     "id": 2,
-    "name": "OAKS Landscape Products",
-    "description": "Ontario-made pavers and segmental retaining wall systems.",
-    "website": "https://www.oakspavers.com",
-    "isActive": true,
-    "productCount": 5
-  },
-  {
-    "id": 3,
-    "name": "Permacon",
-    "description": "Pavers, slabs and wall units for eastern Canadian climates.",
-    "website": "https://www.permacon.ca",
+    "name": "Keystone",
+    "description": "Segmental retaining wall systems, stocked by RCP Block & Brick yards.",
+    "website": "https://www.keystonewalls.com",
     "isActive": true,
     "productCount": 3
   },
   {
-    "id": 4,
-    "name": "Brown's Concrete",
-    "description": "Ontario precast pavers, steppers and wall products.",
-    "website": "https://www.brownsconcrete.com",
+    "id": 3,
+    "name": "Unilock",
+    "description": "Premium pavers and steppers, carried in San Diego through RCP Block & Brick.",
+    "website": "https://www.unilock.com",
     "isActive": true,
-    "productCount": 2
+    "productCount": 1
+  },
+  {
+    "id": 4,
+    "name": "RCP Block & Brick",
+    "description": "San Diego County masonry and landscape yard \u2014 steppers, porcelain and bulk, six retail locations.",
+    "website": "https://www.rcpblock.com",
+    "isActive": true,
+    "productCount": 3
   },
   {
     "id": 5,
-    "name": "Bestway Stone",
-    "description": "Ontario manufacturer of pavers, slabs and coping.",
-    "website": "https://www.bestwaystone.com",
+    "name": "Bella Vista",
+    "description": "Fire pit and outdoor living kits, stocked by RCP Block & Brick.",
     "isActive": true,
-    "productCount": 2
+    "productCount": 1
   },
   {
     "id": 6,

@@ -49,7 +49,7 @@ describe('browsing the catalogue', () => {
 
   it('opens in the yard’s own order, not alphabetically', () => {
     // Alphabetical put `1" River Rock`, `2-6" River Rock` and `3/4"
-    // Clearstone` at the top of the catalogue — a shelf sorted by punctuation.
+    // Crushed Gravel` at the top of the catalogue — a shelf sorted by punctuation.
     // Unsearched browsing follows the dealer's category order instead.
     const first = browse({}).rows[0]?.product;
     expect(first?.categoryId).toBe(PAVERS);
@@ -73,8 +73,8 @@ describe('browsing the catalogue', () => {
     const hardscape = browse({ categoryId: HARDSCAPE });
     const pavers = browse({ categoryId: PAVERS });
     expect(hardscape.matched).toBeGreaterThan(pavers.matched);
-    expect(hardscape.rows.some((row) => row.product.sku === 'PVR-TB-BLU60-SM')).toBe(true);
-    expect(hardscape.rows.some((row) => row.product.sku === 'WAL-OAK-MODAN')).toBe(true);
+    expect(hardscape.rows.some((row) => row.product.sku === 'PVR-ACK-PASEO60')).toBe(true);
+    expect(hardscape.rows.some((row) => row.product.sku === 'WAL-KEY-COMPAC')).toBe(true);
     // And nothing from another root.
     expect(hardscape.rows.some((row) => row.product.sku === 'AGG-HPB-BULK')).toBe(false);
   });
@@ -85,18 +85,18 @@ describe('browsing the catalogue', () => {
   });
 
   it('searches by name, tag and SKU, and combines with the category', () => {
-    expect(browse({ query: 'borealis' }).rows.map((row) => row.product.sku)).toContain(
-      'PVR-TB-BOREALIS',
+    expect(browse({ query: '24x24' }).rows.map((row) => row.product.sku)).toContain(
+      'PVR-ACK-SLAB2460',
     );
     // A SKU paste goes straight to that product.
     expect(browse({ query: 'AGG-HPB-BULK' }).rows[0]?.product.sku).toBe('AGG-HPB-BULK');
     // Tag search: "permeable" is a tag, not a word in the name.
     expect(browse({ query: 'permeable' }).matched).toBeGreaterThan(0);
 
-    // Borealis exists as both a paver and a stepping stone; the category
-    // narrows it without changing the words typed.
-    const stepsOnly = browse({ query: 'borealis', categoryId: categoryId(13) });
-    expect(stepsOnly.rows.map((row) => row.product.sku)).toEqual(['STP-TB-BOREALIS']);
+    // 24x24 exists as both a concrete slab and a porcelain tile; the
+    // category narrows it without changing the words typed.
+    const porcelainOnly = browse({ query: '24x24', categoryId: categoryId(14) });
+    expect(porcelainOnly.rows.map((row) => row.product.sku)).toEqual(['POR-RCP-QUARTZO24']);
   });
 
   it('says plainly when nothing matched, and names what was searched', () => {
@@ -113,8 +113,8 @@ describe('browsing the catalogue', () => {
   });
 
   it('explains an empty in-stock filter differently from an empty search', () => {
-    const result = browse({ categoryId: PAVERS, inStockOnly: true, query: 'borealis' });
-    // Borealis is the special-order paver: nothing on the yard, three weeks out.
+    const result = browse({ categoryId: PAVERS, inStockOnly: true, query: 'PVR-ACK-SLAB2460' });
+    // The 24x24 slab is the special-order paver: nothing on the yard, three weeks out.
     expect(result.matched).toBe(0);
     expect(result.emptyMessage).toContain('matches');
 
@@ -130,12 +130,12 @@ describe('browsing the catalogue', () => {
   });
 
   it('states availability as a consequence, not arithmetic', () => {
-    const borealis = browse({ query: 'PVR-TB-BOREALIS' }).rows[0];
-    expect(borealis?.inStock).toBe(false);
-    expect(borealis?.availability).toBe('Out of stock — 21 days out');
+    const slab = browse({ query: 'PVR-ACK-SLAB2460' }).rows[0];
+    expect(slab?.inStock).toBe(false);
+    expect(slab?.availability).toBe('Out of stock — 21 days out');
 
-    const blu = browse({ query: 'PVR-TB-BLU60-SM' }).rows[0];
-    expect(blu?.availability).toBe('In stock');
+    const paseo = browse({ query: 'PVR-ACK-PASEO60' }).rows[0];
+    expect(paseo?.availability).toBe('In stock');
   });
 
   it('sorts by the price the contractor pays, not by list', () => {
@@ -147,15 +147,15 @@ describe('browsing the catalogue', () => {
     expect(high.rows[0]?.quote.unitPrice).toBe(prices[prices.length - 1]);
 
     // Sorting the whole catalogue is where the two orders genuinely disagree.
-    // Yorkville LISTS at $8.13, above the $8.00 river rock — but it carries a
+    // Combo Stone LISTS at $8.13, above the $8.00 river rock — but it carries a
     // negotiated $6.35 contract price while the rock only gets the 15%
     // aggregate rule ($6.80). "Cheapest first" on list prices would put them
     // the wrong way round on the contractor's own screen.
     const everything = browse({ sort: 'price-low' });
-    const yorkville = everything.rows.findIndex((row) => row.product.sku === 'PVR-OAK-YORK60');
+    const combo = everything.rows.findIndex((row) => row.product.sku === 'PVR-ACK-COMBO60');
     const riverRock = everything.rows.findIndex((row) => row.product.sku === 'DEC-RIVER-1IN');
-    expect(yorkville).toBeLessThan(riverRock);
-    expect(everything.rows[yorkville]?.product.listPrice).toBeGreaterThan(
+    expect(combo).toBeLessThan(riverRock);
+    expect(everything.rows[combo]?.product.listPrice).toBeGreaterThan(
       everything.rows[riverRock]?.product.listPrice ?? 0,
     );
   });
@@ -188,15 +188,15 @@ describe('the product page', () => {
   }
 
   it('resolves by SKU or by product id', () => {
-    const bySku = detail('PVR-OAK-YORK60', 1);
-    expect(bySku?.product.name).toBe('OAKS Yorkville 60');
-    expect(detail(bySku?.product.id ?? '', 1)?.product.sku).toBe('PVR-OAK-YORK60');
+    const bySku = detail('PVR-ACK-COMBO60', 1);
+    expect(bySku?.product.name).toBe('Acker-Stone Combo Stone 60mm');
+    expect(detail(bySku?.product.id ?? '', 1)?.product.sku).toBe('PVR-ACK-COMBO60');
     expect(detail('NOT-A-SKU', 1)).toBeUndefined();
   });
 
   it('re-prices as the quantity changes, because breaks are quantity-dependent', () => {
-    const one = detail('PVR-TB-BLU60-SM', 1);
-    const patio = detail('PVR-TB-BLU60-SM', 600);
+    const one = detail('PVR-ACK-PASEO60', 1);
+    const patio = detail('PVR-ACK-PASEO60', 600);
 
     expect(one?.quote.nextBreak?.minQty).toBe(600);
     expect(patio?.quote.unitPrice).toBeLessThan(one?.quote.unitPrice ?? 0);
@@ -207,7 +207,7 @@ describe('the product page', () => {
     // The dealer runs two yards; totalOnHand sums them, which is right for
     // the availability chip but wrong for "which yard has it". This is the
     // one place a contractor can see the split.
-    const paver = detail('PVR-TB-BLU60-SM', 1);
+    const paver = detail('PVR-ACK-PASEO60', 1);
     expect(paver?.stockByLocation.length).toBe(2);
     expect(paver?.stockByLocation.map((row) => row.name)).toEqual(['Point Loma', 'Julian']);
     // Excludes the DC warehouse on purpose: a contractor cannot walk into a
@@ -220,14 +220,14 @@ describe('the product page', () => {
   });
 
   it('offers alternates only within a substitutable class', () => {
-    const driveway = detail('PVR-TB-BLU80-SL', 1);
+    const driveway = detail('PVR-ACK-HOLL80', 1);
     // 80mm vehicular pavers substitute for each other. A 60mm patio paver
     // under a car is a crack, so it must never be offered as an alternate.
     expect(driveway?.alternates.length).toBeGreaterThan(0);
     for (const alternate of driveway?.alternates ?? []) {
       expect(alternate.product.specClass).toBe('paver-80mm-vehicular');
     }
-    expect(driveway?.alternates.some((row) => row.product.sku === 'PVR-TB-BLU60-SM')).toBe(false);
+    expect(driveway?.alternates.some((row) => row.product.sku === 'PVR-ACK-PASEO60')).toBe(false);
   });
 
   it('never crosses a material class either', () => {
@@ -235,17 +235,17 @@ describe('the product page', () => {
     // matched first — so a 20mm porcelain tile was filed as a 60mm concrete
     // paver and offered as an interchangeable swap. Different material,
     // different bedding, twice the price.
-    const paver = detail('PVR-TB-BLU60-SM', 1);
-    expect(paver?.alternates.some((row) => row.product.sku === 'POR-BWS-2X2-GREY')).toBe(false);
+    const paver = detail('PVR-ACK-PASEO60', 1);
+    expect(paver?.alternates.some((row) => row.product.sku === 'POR-RCP-QUARTZO24')).toBe(false);
 
-    const porcelain = detail('POR-BWS-2X2-GREY', 1);
+    const porcelain = detail('POR-RCP-QUARTZO24', 1);
     expect(porcelain?.product.specClass).toBe('porcelain-slab');
     expect(porcelain?.alternates).toEqual([]);
   });
 
   it('carries the unit the product is actually sold in', () => {
     expect(detail('AGG-HPB-BULK', 1)?.product.baseUom).toBe('TON');
-    expect(detail('PVR-TB-BLU60-SM', 1)?.product.baseUom).toBe('SF');
+    expect(detail('PVR-ACK-PASEO60', 1)?.product.baseUom).toBe('SF');
     expect(detail('JNT-POLY-SAND', 1)?.product.baseUom).toBe('BG');
   });
 });
@@ -288,7 +288,7 @@ describe('every catalog price comes from the ERP engine', () => {
     // 18% off the $8.13 list would be $6.67. The negotiated price is $6.35,
     // and a shortcut that applies the category rule uniformly would quietly
     // overcharge the contractor on the paver they lay most.
-    const row = browse({ query: 'PVR-OAK-YORK60' }).rows[0];
+    const row = browse({ query: 'PVR-ACK-COMBO60' }).rows[0];
     expect(row?.quote.unitPrice).toBe(635);
     expect(row?.quote.listPrice).toBe(813);
   });
@@ -379,7 +379,7 @@ describe('where a product can be added', () => {
   it('flags the plans that already carry the product', () => {
     const yorkville = catalogStore
       .get()
-      .products.find((product) => product.sku === 'PVR-OAK-YORK60');
+      .products.find((product) => product.sku === 'PVR-ACK-COMBO60');
     const flagged = targets(yorkville?.id);
     const surface = flagged.find((target) => target.order.id === 'ord_miller_deck');
     const empty = flagged.find((target) => target.order.id === 'ord_miller_pergola');

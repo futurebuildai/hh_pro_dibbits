@@ -67,7 +67,7 @@ describe('adding a catalog product to a plan', () => {
 
   it('prices the line through the account, not off the shelf', () => {
     const result = addProductToPlan({
-      product: 'PVR-OAK-YORK60',
+      product: 'PVR-ACK-COMBO60',
       qty: 120,
       destination: { kind: 'existing', orderId: EMPTY_DRAFT },
     });
@@ -83,11 +83,11 @@ describe('adding a catalog product to a plan', () => {
 
   it('bumps the quantity when the plan already carries that SKU', () => {
     const beforeItems = itemsOf(PAVER_DRAFT).length;
-    const existing = itemsOf(PAVER_DRAFT).find((item) => item.snapshot.sku === 'PVR-OAK-YORK60');
+    const existing = itemsOf(PAVER_DRAFT).find((item) => item.snapshot.sku === 'PVR-ACK-COMBO60');
     expect(existing?.qty).toBe(640);
 
     const result = addProductToPlan({
-      product: 'PVR-OAK-YORK60',
+      product: 'PVR-ACK-COMBO60',
       qty: 60,
       destination: { kind: 'existing', orderId: PAVER_DRAFT },
     });

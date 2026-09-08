@@ -16,7 +16,7 @@ const STANDARD_ACCOUNT = { accountId: 'acct_3', tierId: 'tier_standard' };
 function product(overrides: Partial<Product> = {}): Product {
   return {
     id: 'p_1',
-    sku: 'PVR-OAK-YORK60',
+    sku: 'PVR-ACK-COMBO60',
     name: "2x4x8' Douglas Fir",
     description: '',
     categoryId: 'c_1',
@@ -75,7 +75,7 @@ describe('ERP pricing precedence', () => {
   it('gives a contract price the final word', () => {
     const rules: PricingRule[] = [
       { kind: 'category', accountId: 'acct_1', categoryId: 'c_1', percentOffList: 22 },
-      { kind: 'contract', accountId: 'acct_1', sku: 'PVR-OAK-YORK60', unitPrice: toCents(4.62) },
+      { kind: 'contract', accountId: 'acct_1', sku: 'PVR-ACK-COMBO60', unitPrice: toCents(4.62) },
     ];
     const engine = createPricingEngine(TIERS, rules);
 
@@ -214,7 +214,7 @@ describe('volume breaks', () => {
     const skuScoped = createPricingEngine(TIERS, [
       {
         kind: 'volume',
-        sku: 'PVR-OAK-YORK60',
+        sku: 'PVR-ACK-COMBO60',
         breaks: [{ minQty: 250, unitPrice: toCents(3.98) }],
       },
     ]);
@@ -227,7 +227,7 @@ describe('volume breaks', () => {
     // negotiated down.
     const withContract = createPricingEngine(TIERS, [
       ...rules,
-      { kind: 'contract', accountId: 'acct_1', sku: 'PVR-OAK-YORK60', unitPrice: toCents(4.62) },
+      { kind: 'contract', accountId: 'acct_1', sku: 'PVR-ACK-COMBO60', unitPrice: toCents(4.62) },
     ]);
     const quote = withContract.quote(product(), 500, ACCOUNT);
 
@@ -239,10 +239,10 @@ describe('volume breaks', () => {
     // The dealer deliberately set a volume tier on this exact item, so it
     // applies even though a contract price exists.
     const engineWithSkuTier = createPricingEngine(TIERS, [
-      { kind: 'contract', accountId: 'acct_1', sku: 'PVR-OAK-YORK60', unitPrice: toCents(4.62) },
+      { kind: 'contract', accountId: 'acct_1', sku: 'PVR-ACK-COMBO60', unitPrice: toCents(4.62) },
       {
         kind: 'volume',
-        sku: 'PVR-OAK-YORK60',
+        sku: 'PVR-ACK-COMBO60',
         breaks: [{ minQty: 250, unitPrice: toCents(3.98) }],
       },
     ]);

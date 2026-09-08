@@ -62,12 +62,12 @@ export const PRICING_RULES: PricingRule[] = [
   {
     kind: 'contract',
     accountId: ACCOUNT_ID,
-    sku: 'PVR-OAK-YORK60',
+    sku: 'PVR-ACK-COMBO60',
     unitPrice: toCents(6.35),
   },
   // Volume breaks across pavers, in SQUARE FEET. Relative, not absolute, and
   // the reason is sharper here than it was in lumber: this category spans a
-  // $4.62/sf economy paver and a $17.67/sf wood-grain slab. One absolute break
+  // $4.62/sf economy paver and a $17.67/sf large-format slab. One absolute break
   // price across both would be nonsense on nearly all of it.
   //
   // The thresholds are a real patio and a real driveway, not round numbers:

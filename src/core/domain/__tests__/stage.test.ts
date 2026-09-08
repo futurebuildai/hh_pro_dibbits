@@ -36,7 +36,7 @@ function catalogItem(overrides: Overrides<ScopeItem> = {}): ScopeItem {
     orderId: 'ord_1',
     kind: 'catalog',
     productId: 'p_1',
-    snapshot: { sku: 'PVR-OAK-YORK60', name: 'Techo-Bloc Blu 60 Smooth' },
+    snapshot: { sku: 'PVR-ACK-COMBO60', name: 'Acker-Stone Combo Stone 60mm' },
     qty: 100,
     uom: 'EA',
     unitPrice: 462,

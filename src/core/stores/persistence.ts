@@ -52,8 +52,16 @@ const META_KEY = `${KEY_PREFIX}meta`;
  * dealer's name on the tracking page of the newly-rebranded demo, with no way
  * back short of Demo Reset. No MIGRATIONS entry, for the v4 reason: the old
  * name cannot be carried forward, so "reseed" is the correct answer.
+ *
+ * v6 is the catalog relocalization: the Canadian vendors (Techo-Bloc, OAKS,
+ * Permacon, Brown's, Bestway) were replaced with San Diego County ones
+ * (Acker-Stone, Keystone, Unilock, RCP Block & Brick, Bella Vista), and every
+ * affected SKU was renamed. Seeded orders, quotes and the contract pricing
+ * rule carry those SKU strings, and all of it is persisted — a browser holding
+ * v5 state would restore order lines pointing at SKUs the catalog no longer
+ * has. No MIGRATIONS entry, same reason as v4/v5: reseed is the correct answer.
  */
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 
 export interface PersistMeta {
   schemaVersion: number;
