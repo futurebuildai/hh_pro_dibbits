@@ -1,5 +1,37 @@
 # NOTES — session handoff (2026-09-08)
 
+**Second-session update (same day): the three outstanding threads below are now ALL
+MERGED to master.** The detailed sections are kept as history and reasoning.
+
+- §2 catalog relocalization — **APPLIED and MERGED** (`ca4a510`, branch
+  `feature/catalog-socal-vendors`). The mapping tables were applied verbatim; both
+  honesty calls (no wood-grain paver, no slate claim on Holland I) went in;
+  `SCHEMA_VERSION` 5→6; all gates green including a full guide-screenshot review.
+  Unverified items (Black Granite Chip, cedar mulches, Triple Mix) were deliberately
+  left unchanged — the open questions and what source would settle them live in
+  `NOTES-CATALOG.md`. Do not rename them without that source.
+- §3 UI/UX quick wins — **MERGED** (`e56b782`). The merge had broken
+  `scripts/e2e-smoke.mjs` (pre-selected overdue invoice made the script deselect its
+  way into a missing Pay button) — fixed in the catalog branch.
+- §4 Today dashboard — **PASS 1 MERGED** (`23a8396`, branch `feature/today-dashboard`):
+  nav is now `Today · Board · Catalog · Pay`, Team + Appearance live in a profile
+  sheet off the avatar, `/today` renders a real greeting page. **Next: pass 2** —
+  the rep card (static record in `demo-seed.json`), the 7-day delivery/pickup strip
+  (real dates only, decision 3 still binding), and the "Needs you" aggregation
+  selector. Pass 3 is the project×stage matrix over `buildProjectSummaries`. The
+  full plan remains at `/home/colton/.claude/plans/today-dashboard-redesign.md`.
+
+Two integration bugs found during pass 1, fixed before merge: the guide script's
+assistant panel has no Escape handling (close it by its own control), and the e2e
+role-gating step must leave the chrome-less order page before opening the profile
+sheet.
+
+---
+
+Original first-session handoff follows.
+
+---
+
 This session did four things, in order: rebranded the demo tenant to Gable Landscape
 Supply (MERGED), relocalized the demo geography to San Diego (MERGED, same branch),
 researched real San Diego vendors to replace the Canadian catalog (RESEARCHED, NOT YET
