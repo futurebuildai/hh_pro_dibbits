@@ -36,7 +36,7 @@ interface Props {
 }
 
 export function ProductPage({ sku, onBack, onOpenProduct, onOpenPlan }: Props) {
-  const { products, categories, brands } = useStore(catalogStore, (state) => state);
+  const { products, categories, brands, locations } = useStore(catalogStore, (state) => state);
   /**
    * The typed quantity, kept PER UNIT rather than per product.
    *
@@ -65,11 +65,12 @@ export function ProductPage({ sku, onBack, onOpenProduct, onOpenPlan }: Props) {
         products,
         categories,
         brands,
+        locations,
         productRef: sku,
         qty,
         quoteFor: accountQuoteFor,
       }),
-    [products, categories, brands, sku, qty],
+    [products, categories, brands, locations, sku, qty],
   );
 
   if (!detail) {
@@ -156,6 +157,14 @@ export function ProductPage({ sku, onBack, onOpenProduct, onOpenPlan }: Props) {
               stock and savings; prose is prose. */}
           <p className="mt-2 text-[12px] text-text-muted">{soldBy(uom)}</p>
 
+          {detail.stockByLocation.length > 0 ? (
+            <p className="mt-0.5 text-[12px] text-text-subtle">
+              {detail.stockByLocation
+                .map((row) => `${row.name} ${formatQty(row.onHand, uom)}`)
+                .join(' · ')}
+            </p>
+          ) : null}
+
           {/* ---- Price, at this quantity ---- */}
           <section className="mt-4 rounded-[var(--radius-card)] border border-border bg-surface p-4">
             <h3 className="sr-only">Your price</h3>
@@ -199,7 +208,16 @@ export function ProductPage({ sku, onBack, onOpenProduct, onOpenPlan }: Props) {
               <p className="mt-3 rounded-lg bg-surface-inset p-3 text-[12.5px] leading-relaxed">
                 Order <strong>{formatQty(quote.nextBreak.minQty, uom)}</strong> or more and your
                 price drops to <strong>{formatCents(quote.nextBreak.unitPrice)}</strong>
-                {perUnit(uom)}.
+                {perUnit(uom)}.{' '}
+                {quote.nextBreak.minQty > qty ? (
+                  <>
+                    {formatQty(quote.nextBreak.minQty - qty, uom)} more saves{' '}
+                    <strong>
+                      {formatCents(Math.round((quote.unitPrice - quote.nextBreak.unitPrice) * qty))}
+                    </strong>{' '}
+                    on this line.
+                  </>
+                ) : null}
               </p>
             ) : null}
           </section>

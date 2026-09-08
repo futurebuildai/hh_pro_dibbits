@@ -175,11 +175,12 @@ describe('the product page', () => {
   beforeEach(() => boot({ reset: true, seed: 20_260_730 }));
 
   function detail(ref: string, qty: number) {
-    const { products, categories, brands } = catalogStore.get();
+    const { products, categories, brands, locations } = catalogStore.get();
     return buildProductDetail({
       products,
       categories,
       brands,
+      locations,
       productRef: ref,
       qty,
       quoteFor: quoteForAccount,
@@ -200,6 +201,22 @@ describe('the product page', () => {
     expect(one?.quote.nextBreak?.minQty).toBe(600);
     expect(patio?.quote.unitPrice).toBeLessThan(one?.quote.unitPrice ?? 0);
     expect(patio?.extended).toBe((patio?.quote.unitPrice ?? 0) * 600);
+  });
+
+  it('breaks stock out by yard rather than only a total', () => {
+    // The dealer runs two yards; totalOnHand sums them, which is right for
+    // the availability chip but wrong for "which yard has it". This is the
+    // one place a contractor can see the split.
+    const paver = detail('PVR-TB-BLU60-SM', 1);
+    expect(paver?.stockByLocation.length).toBe(2);
+    expect(paver?.stockByLocation.map((row) => row.name)).toEqual(['Point Loma', 'Julian']);
+    // Excludes the DC warehouse on purpose: a contractor cannot walk into a
+    // distribution center, so the yard-only sum is LESS than the overall
+    // onHand, not equal to it. 5200 is the source's declared yard total —
+    // pinned in data/__tests__/catalog-seed.test.ts too.
+    const sum = paver?.stockByLocation.reduce((total, row) => total + row.onHand, 0);
+    expect(sum).toBe(5200);
+    expect(sum).toBeLessThan(paver?.onHand ?? 0);
   });
 
   it('offers alternates only within a substitutable class', () => {
@@ -284,11 +301,12 @@ describe('every catalog price comes from the ERP engine', () => {
   });
 
   it('surfaces the next volume break, and only when it is actually cheaper', () => {
-    const { products, categories, brands } = catalogStore.get();
+    const { products, categories, brands, locations } = catalogStore.get();
     const detail = buildProductDetail({
       products,
       categories,
       brands,
+      locations,
       productRef: 'AGG-HPB-BULK',
       qty: 4,
       quoteFor: quoteForAccount,

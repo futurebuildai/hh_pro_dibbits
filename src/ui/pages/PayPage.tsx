@@ -52,7 +52,27 @@ export function PayPage({ onOpenOrder }: Props) {
   const now = getContext().clock.nowIso();
 
   const [bucket, setBucket] = useState<AgingBucket | null>(null);
-  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+  /**
+   * Overdue invoices are pre-selected on arrival, still fully deselectable.
+   *
+   * This is a deliberate trade against the empty-state teaching text a few
+   * lines down ("Select invoices to pay"), which existed specifically so a
+   * contractor with nothing ticked would be told the mechanic instead of
+   * seeing a blank bar. The two do not actually conflict: pre-selecting only
+   * OVERDUE invoices means the teaching text still shows for the "I have
+   * open invoices but none are late" case, and for anyone who deselects
+   * everything by hand — it just no longer stands between a contractor who
+   * is already late and the button that fixes it.
+   *
+   * A lazy initializer, not an effect: it runs once, from whatever the store
+   * already holds at mount, and never re-fires and clobbers a contractor's
+   * own deselections when invoices/orders/projects change later (a payment
+   * landing, a reload).
+   */
+  const [selected, setSelected] = useState<ReadonlySet<string>>(() => {
+    const initialRows = buildInvoiceRows(invoices, orders, projects, now);
+    return new Set(initialRows.filter((row) => row.overdue).map((row) => row.invoice.id));
+  });
   const [payOpen, setPayOpen] = useState(false);
   /**
    * Frozen at the moment the sheet opens. Paid invoices drop straight out of

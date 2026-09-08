@@ -1,4 +1,4 @@
-import type { Brand, Category, PriceQuote, Product } from '../domain/catalog';
+import type { Brand, Category, Location, PriceQuote, Product } from '../domain/catalog';
 import { discountPercent, totalOnHand } from '../domain/catalog';
 import type { Order, Project, ScopeItem } from '../domain/project';
 import type { Collection } from '../stores/store';
@@ -309,12 +309,22 @@ export interface ProductDetail {
   /** Products sharing a specClass — "a cheaper 60mm paver". Never a cart nudge. */
   alternates: CatalogRow[];
   related: CatalogRow[];
+  /**
+   * On-hand by YARD, not the summed total — a dealer running more than one
+   * yard needs "which one has it", and `totalOnHand` throws that away before
+   * it ever reaches a selector. Warehouses (the DC) are excluded: a
+   * contractor cannot walk into a distribution center, so its count answers
+   * a question nobody on this screen is asking. Empty when there is only one
+   * yard — a breakdown with nothing to compare against is noise.
+   */
+  stockByLocation: { name: string; onHand: number }[];
 }
 
 export interface BuildProductDetailInput {
   products: readonly Product[];
   categories: readonly Category[];
   brands: readonly Brand[];
+  locations: readonly Location[];
   /** Product id or SKU — the URL carries the SKU, which is what people paste. */
   productRef: string;
   qty: number;
@@ -349,6 +359,20 @@ export function buildProductDetail(input: BuildProductDetailInput): ProductDetai
   const brand = input.brands.find((candidate) => candidate.id === product.brandId);
   const category = categoryById(input.categories, product.categoryId);
 
+  const yardIds = new Set(
+    input.locations.filter((location) => location.kind === 'yard').map((location) => location.id),
+  );
+  const stockByLocation =
+    yardIds.size > 1
+      ? product.stock
+          .filter((level) => yardIds.has(level.locationId))
+          .map((level) => ({
+            name: input.locations.find((location) => location.id === level.locationId)?.name ?? '',
+            onHand: level.onHand,
+          }))
+          .filter((row) => row.name !== '')
+      : [];
+
   return {
     product,
     ...(brand ? { brand } : {}),
@@ -363,6 +387,7 @@ export function buildProductDetail(input: BuildProductDetailInput): ProductDetai
     inStock,
     alternates,
     related,
+    stockByLocation,
   };
 }
 
