@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Mark">
+  <!-- Outline variant, for light grounds. Bars invert to navy; the ring is inset
+       to r=30 so the 4px stroke sits wholly inside the 64x64 box. -->
+  <circle cx="32" cy="32" r="30" fill="none" stroke="#0B2338" stroke-width="4"/>
+  <rect x="24.5" y="10" width="15" height="15" fill="#FFC313" transform="rotate(45 32 17.5)"/>
+  <rect x="16.5" y="31" width="31" height="5" fill="#0B2338"/>
+  <rect x="21" y="39" width="22" height="5" fill="#0B2338"/>
+</svg>

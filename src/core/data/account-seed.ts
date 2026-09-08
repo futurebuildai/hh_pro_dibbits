@@ -4,6 +4,7 @@ import type { Address } from '../domain/project';
 import { toCents } from '../lib/money';
 import type { PricingRule, PricingTier } from '../sim/pricing';
 import { categoryId } from './catalog-seed';
+import { DEMO_ACCOUNT_FACTS } from './demo-seed';
 
 /**
  * The demo contractor and the commercial terms the supplier has them on.
@@ -18,18 +19,13 @@ import { categoryId } from './catalog-seed';
  * None of this is visible to the contractor as rules — only as their price.
  */
 
-export const ACCOUNT_ID = 'acct_summit';
+export const ACCOUNT_ID = DEMO_ACCOUNT_FACTS.id;
 export const USER_ID = 'usr_demo';
 export const TIER_PRO_ID = 'tier_pro';
 
-const YARD_ADDRESS: Address = {
-  id: 'addr_shop',
-  label: 'Yard',
-  line1: '84 Bellevue Dr',
-  city: 'Belleville',
-  state: 'ON',
-  zip: 'K8N 4Z5',
-};
+// Place and identity come from the swappable demo layer; the COMMERCIAL terms
+// below stay here, because a pricing rule is logic, not locale.
+const YARD_ADDRESS: Address = DEMO_ACCOUNT_FACTS.yard;
 
 export const DEMO_ADDRESSES: Address[] = [YARD_ADDRESS];
 
@@ -40,7 +36,7 @@ export const PRICING_TIERS: PricingTier[] = [
   { id: TIER_PRO_ID, name: 'Pro', percentOffList: 12 },
 ];
 
-/** Category ids from the Dibbits catalog, named for readability. */
+/** Category ids from the dealer catalog, named for readability. */
 const CAT_HARDSCAPE = categoryId(1);
 const CAT_PAVERS = categoryId(11);
 const CAT_AGGREGATES = categoryId(3);
@@ -98,27 +94,27 @@ export const PRICING_RULES: PricingRule[] = [
 
 export const DEMO_ACCOUNT: Account = {
   id: ACCOUNT_ID,
-  name: 'Quinte Landscape & Design',
-  accountNumber: 'ACCT-1042',
+  name: DEMO_ACCOUNT_FACTS.name,
+  accountNumber: DEMO_ACCOUNT_FACTS.accountNumber,
   type: 'charge',
   paymentTermsCode: 'NET30',
   pricingTierId: TIER_PRO_ID,
   creditLimit: toCents(75_000),
   addresses: DEMO_ADDRESSES,
   branding: {
-    companyName: 'Quinte Landscape & Design',
-    contactName: 'Dana Reyes',
-    phone: '(613) 555-0142',
-    email: 'dana@quintelandscape.ca',
-    licenseNumber: 'Landscape Ontario #2291',
+    companyName: DEMO_ACCOUNT_FACTS.name,
+    contactName: DEMO_ACCOUNT_FACTS.contactName,
+    phone: DEMO_ACCOUNT_FACTS.phone,
+    email: DEMO_ACCOUNT_FACTS.email,
+    licenseNumber: DEMO_ACCOUNT_FACTS.licenseNumber,
   },
 };
 
 export const DEMO_USER: User = {
   id: USER_ID,
   accountId: ACCOUNT_ID,
-  name: 'Dana Reyes',
-  email: 'dana@quintelandscape.ca',
+  name: DEMO_ACCOUNT_FACTS.contactName,
+  email: DEMO_ACCOUNT_FACTS.email,
   role: 'owner',
   initials: 'DR',
 };

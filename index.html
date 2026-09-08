@@ -3,9 +3,67 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#ffffff" />
+    <!--
+      Fetched with the document, so this can never see the runtime brand custom
+      property the app sets on the root element. A fixed navy on purpose, and
+      the same reasoning the favicon carries: the browser chrome is painted
+      before a byte of JavaScript runs, and a dealer colour arriving a round
+      trip later would read as a flash of the wrong product.
+      The token name is written in prose, never literally, because a double
+      hyphen is illegal inside a comment.
+    -->
+    <meta name="theme-color" content="#0B2338" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <!--
+      The two faces that paint above the fold: body copy and the display face
+      the dealer wordmark is set in.
+      crossorigin is REQUIRED even though these are same origin. Fonts are
+      always fetched in CORS mode, so a preload without it lands in a different
+      cache partition than the one the stylesheet then asks for, and the
+      browser downloads the file twice.
+      JetBrains Mono is deliberately absent. It is the mono treatment for SKUs
+      and PO/SO numbers only, which are below the fold, and a preload nothing
+      uses in the first seconds logs a console warning that the end to end run
+      treats as a failure.
+    -->
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="/fonts/work-sans-latin-wght-normal.woff2"
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="/fonts/bitter-latin-wght-normal.woff2"
+    />
     <title>HH Pro</title>
+    <script>
+      // Stamp the viewer's saved light/dark choice BEFORE first paint.
+      // theme.css keys on this attribute, and the module that owns the
+      // preference does not run until the bundle has parsed - so without this
+      // a dark-mode viewer gets a white flash on every single load. Light is
+      // the default and removes the attribute entirely, which is the bare
+      // :root case the dealer branding tag is written against.
+      (function () {
+        try {
+          var c = localStorage.getItem('hh:theme') || 'light';
+          var dark =
+            c === 'dark' ||
+            (c === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+        } catch (e) {
+          /* Private window or blocked site data: light is the right default. */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

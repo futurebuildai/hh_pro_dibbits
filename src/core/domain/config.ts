@@ -1,3 +1,4 @@
+import { isLegibleFill, onColorFor, relativeLuminance } from '../lib/color';
 import { type Result, err, ok } from '../lib/result';
 
 /**
@@ -18,13 +19,45 @@ import { type Result, err, ok } from '../lib/result';
 
 export type FeatureKey = 'assistant' | 'customerQuotes' | 'payments' | 'willCall';
 
+/**
+ * The dealer's brand, as three ROLES rather than one colour.
+ *
+ * One `brandColor` was answering three different questions — what colour is
+ * this dealer as TEXT, what does a pressable FILL look like, and what colour is
+ * the SHELL around the content — and the answers genuinely differ. Painting
+ * white on whatever the single colour happened to be is how the recorded ERP
+ * gold (`#E8A74E`) shipped a control label at 2.09:1, less than half the AA bar.
+ *
+ * Flat, not nested `{light, dark}`: `parseConfig`'s doctrine is *a bad field
+ * costs THAT field*, and a nested object invites "a bad object costs the group".
+ *
+ * Every field past `brandColor` is OPTIONAL, and that is load-bearing.
+ * `mapBranding()` (`supplier/adapters/erp-map.ts`) builds a `DealerBranding`
+ * from three ERP wire fields and knows nothing about these; its contract tests
+ * assert the whole object with `toEqual({companyName, brandColor})`. A required
+ * field here would break an ERP read that has nothing to do with branding roles.
+ *
+ * See `docs/brand-tokens.md` — the frozen token contract this shape serves.
+ */
 export interface DealerBranding {
   /** Shown in the shell and on order documents. */
   companyName: string;
-  /** OKLCH or hex. Becomes --brand at runtime. */
+  /** Identity, used as TEXT. OKLCH or hex. Becomes --brand at runtime. */
   brandColor: string;
+  /** Identity in dark mode. Absent means "lift the light one" (see brandingCss). */
+  brandColorDark?: string | undefined;
+  /** The filled, pressable control. Absent means "use the identity colour". */
+  actionColor?: string | undefined;
+  /** The filled control in dark mode. Exists because gold must not invert. */
+  actionColorDark?: string | undefined;
+  /** The shell/frame ground. Absent means today's white chrome. */
+  chromeColor?: string | undefined;
+  /** The shell ground in dark mode. Absent reuses `chromeColor` unchanged. */
+  chromeColorDark?: string | undefined;
   /** Optional; must be a same-origin path or a data: URI, never a remote URL. */
   logoUrl?: string | undefined;
+  /** The mark for a dark ground. Same origin rules as `logoUrl`. */
+  logoDarkUrl?: string | undefined;
 }
 
 export interface AssistantConfig {
@@ -82,8 +115,18 @@ export interface DealerConfig {
 /** What ships when a dealer has configured nothing — today's hard-coded values. */
 export const DEFAULT_CONFIG: DealerConfig = {
   branding: {
-    companyName: 'Dibbits Landscape Supply',
-    brandColor: 'oklch(52% 0.19 255)',
+    companyName: 'Gable Landscape Supply',
+    brandColor: '#14497B', // Harbor — identity, as text on a card
+    brandColorDark: '#86BDF6', // Tide — the same identity, readable on a dark surface
+    actionColor: '#FFC313', // Gold — the filled, pressable control
+    actionColorDark: '#FFC313', // gold does NOT invert; see brandingCss rule 3
+    chromeColor: '#0B2338', // Navy — the shell around the content
+    chromeColorDark: '#0B2338', // measured: navy holds in dark, the divider carries the edge
+    // logoUrl / logoDarkUrl are deliberately UNSET, and must stay that way.
+    // `parseConfig` hardcodes '' as the logo fallback and never consults this
+    // object, so a default here would be silently dropped by every parse — and
+    // it would break `parseConfig({}) toEqual(DEFAULT_CONFIG)` on the way past.
+    // The built-in DealerMark is the fallback; there is no default logo PATH.
   },
   assistant: {
     model: 'claude-opus-4-8',
@@ -184,6 +227,40 @@ function clampNumber(value: unknown, fallback: number): number {
 }
 
 /**
+ * One optional dealer colour, resolved. A bad value costs THAT field and
+ * nothing else — the same rule `brandColor` has always followed, applied to the
+ * five colours the role split added. `''` means "the dealer has not set this
+ * role", which the emitter reads as "emit nothing for it".
+ */
+function resolveColor(value: unknown, fallback: string | undefined): string {
+  const requested = typeof value === 'string' ? value.trim() : '';
+  if (requested !== '' && isValidColor(requested)) return requested;
+  return fallback ?? '';
+}
+
+/**
+ * A FILL colour, which has a second bar to clear: something legible has to be
+ * printed on it.
+ *
+ * `onColorFor` picks the better of white and the platform ink, but there is a
+ * narrow band of mid-tones where NEITHER clears 4.5:1 — plain `#808080` is in
+ * it. A fill in that band is a control whose own label fails an audit while
+ * looking fine in a design review, so it is refused and the identity colour
+ * stands in.
+ *
+ * This gate applies to the action fill ONLY. It deliberately does not gate
+ * `brandColor`: `mapBranding()` never runs `parseConfig`, so gating there would
+ * let an ERP-supplied colour through one door and be refused at the other, and
+ * the recorded staging colour `#E8A74E` would be thrown out rather than simply
+ * being given the correct ink.
+ */
+function resolveFill(value: unknown, fallback: string | undefined, brand: string): string {
+  const resolved = resolveColor(value, fallback);
+  if (resolved === '') return '';
+  return isLegibleFill(resolved) ? resolved : brand;
+}
+
+/**
  * Validates and normalises an untrusted config payload.
  *
  * Returns the FULL config with defaults filled in, so a partial or hostile
@@ -196,6 +273,33 @@ export function parseConfig(raw: unknown): Result<DealerConfig> {
   const input = raw as Record<string, unknown>;
 
   const branding = (input.branding ?? {}) as Record<string, unknown>;
+
+  /**
+   * Whether the payload spoke about branding AT ALL.
+   *
+   * This decides what a MISSING optional colour means, and the two answers are
+   * genuinely different:
+   *
+   *   no `branding` block   -> nothing is configured, so ship the demo tenant
+   *                            whole. `parseConfig({})` is the path the app
+   *                            takes with no `.hhpro/config.json`, and it must
+   *                            produce the full default brand or the shipped
+   *                            demo loses its identity.
+   *
+   *   a `branding` block    -> this dealer HAS configured themselves, and a
+   *                            role they left out is a role they do not want —
+   *                            not an invitation to inherit the demo tenant's.
+   *
+   * Without the distinction, a dealer who sets only their own `brandColor`
+   * inherits the demo tenant's gold fill, its navy chrome, and — worst — its
+   * literal dark-mode identity colour, so THEIR brand silently becomes SOMEONE
+   * ELSE'S the moment a contractor switches to dark mode. Left unset instead,
+   * `brandingCss` derives the dark value from their own colour and omits the
+   * roles they never asked for, which is the byte-identical behaviour every
+   * pre-existing deployment already had.
+   */
+  const brandingConfigured = typeof input.branding === 'object' && input.branding !== null;
+  const fallback = <T>(value: T): T | undefined => (brandingConfigured ? undefined : value);
   const assistant = (input.assistant ?? {}) as Record<string, unknown>;
   const supplier = (input.supplier ?? {}) as Record<string, unknown>;
   const features = (input.features ?? {}) as Record<string, unknown>;
@@ -212,8 +316,35 @@ export function parseConfig(raw: unknown): Result<DealerConfig> {
   const requested = typeof branding.brandColor === 'string' ? branding.brandColor.trim() : '';
   const brandColor = isValidColor(requested) ? requested : DEFAULT_CONFIG.branding.brandColor;
 
+  const brandColorDark = resolveColor(
+    branding.brandColorDark,
+    fallback(DEFAULT_CONFIG.branding.brandColorDark),
+  );
+  const actionColor = resolveFill(
+    branding.actionColor,
+    fallback(DEFAULT_CONFIG.branding.actionColor),
+    brandColor,
+  );
+  const actionColorDark = resolveFill(
+    branding.actionColorDark,
+    fallback(DEFAULT_CONFIG.branding.actionColorDark),
+    brandColor,
+  );
+  const chromeColor = resolveColor(
+    branding.chromeColor,
+    fallback(DEFAULT_CONFIG.branding.chromeColor),
+  );
+  const chromeColorDark = resolveColor(
+    branding.chromeColorDark,
+    fallback(DEFAULT_CONFIG.branding.chromeColorDark),
+  );
+
   const requestedLogo = typeof branding.logoUrl === 'string' ? branding.logoUrl.trim() : '';
   const logoUrl = isValidLogo(requestedLogo) ? requestedLogo : '';
+
+  const requestedLogoDark =
+    typeof branding.logoDarkUrl === 'string' ? branding.logoDarkUrl.trim() : '';
+  const logoDarkUrl = isValidLogo(requestedLogoDark) ? requestedLogoDark : '';
 
   const model =
     typeof assistant.model === 'string' &&
@@ -283,7 +414,17 @@ export function parseConfig(raw: unknown): Result<DealerConfig> {
     branding: {
       companyName,
       brandColor,
+      // Every optional field is spread conditionally, never emitted as an
+      // explicit `undefined`: `exactOptionalPropertyTypes` is on, the config is
+      // JSON-serialised to disk, and `parseConfig({})` has to deep-equal
+      // DEFAULT_CONFIG — which carries no logo of either kind.
+      ...(brandColorDark ? { brandColorDark } : {}),
+      ...(actionColor ? { actionColor } : {}),
+      ...(actionColorDark ? { actionColorDark } : {}),
+      ...(chromeColor ? { chromeColor } : {}),
+      ...(chromeColorDark ? { chromeColorDark } : {}),
       ...(logoUrl ? { logoUrl } : {}),
+      ...(logoDarkUrl ? { logoDarkUrl } : {}),
     },
     assistant: { model, maxTokens, dailyRequestCap, houseRules },
     supplier: {
@@ -297,18 +438,128 @@ export function parseConfig(raw: unknown): Result<DealerConfig> {
   });
 }
 
+/** A colour the emitter is willing to interpolate, or undefined if it is not one. */
+function safeColor(value: string | undefined): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return isValidColor(trimmed) ? trimmed : undefined;
+}
+
+/**
+ * Every derived value is an opaque mix, never a transparency.
+ *
+ * `npm run contrast` paints a token to a canvas and reads the pixel back, so a
+ * translucent value would measure against whatever happened to be behind it —
+ * a number that is true for one screen and a fiction everywhere else.
+ */
+function mix(color: string, toward: 'black' | 'white', percent: number): string {
+  return `color-mix(in oklch, ${color}, ${toward} ${percent}%)`;
+}
+
+/**
+ * One role in the LIGHT block: the colour, its hover step, and the ink that
+ * reads on it.
+ *
+ * `--brand-on` is computed here rather than being a dealer field, because a
+ * settable on-colour is a settable way to write white-on-gold — the bug this
+ * whole split exists to fix.
+ */
+function roleLight(prefix: string, value: string): string {
+  return (
+    `${prefix}:${value};` +
+    `${prefix}-hover:${mix(value, 'black', 12)};` +
+    `${prefix}-on:${onColorFor(value)};`
+  );
+}
+
+/**
+ * The same role in the DARK block.
+ *
+ * With no explicit dark value the historical formulas stand exactly — `white
+ * 22%` for the colour, `white 38%` for the hover — so no existing dealer's dark
+ * mode moves by a single byte of rendered colour. An EXPLICIT dark value is
+ * already chosen for a dark surface and gets only a `white 16%` hover step; the
+ * big lift was compensating for a light-chosen hue, and re-applying it to gold
+ * washes it to pale yellow and loses the most recognisable colour in the kit.
+ *
+ * The ink is decided from a CONCRETE colour — the explicit dark value if there
+ * is one, otherwise the light value the mix starts from. `onColorFor` cannot
+ * evaluate a `color-mix()` (it reads as luminance 0 and would always answer
+ * white), and lifting a colour toward white only ever moves it further into
+ * ink's half of the range, so the light value's answer is never made wrong by
+ * the lift.
+ */
+function roleDark(prefix: string, light: string, dark: string | undefined): string {
+  const base = dark ?? mix(light, 'white', 22);
+  const hover = dark ? mix(dark, 'white', 16) : mix(light, 'white', 38);
+  return `${prefix}:${base};${prefix}-hover:${hover};${prefix}-on:${onColorFor(dark ?? light)};`;
+}
+
+/**
+ * The six chrome tokens for one ground.
+ *
+ * Chrome borrows the OPPOSITE theme's accent: a navy sidebar sitting in a light
+ * page needs the dark theme's dealer colour on its links, which is why there is
+ * no separate "sidebar link" field to get out of step. The polarity is the same
+ * luminance question `--brand-chrome-on` already answered, so it is one `if`
+ * and not a second opinion.
+ *
+ * `--brand-chrome-line` is `white 30%`, not the smaller lift the other steps
+ * take, and that is measured rather than tuned: at 16% the divider read 1.54:1
+ * against navy — invisible. In dark mode the chrome ground and the page ground
+ * are the same darkness by construction (no recognisably-navy value separates
+ * them), so this line is the ENTIRE boundary between the shell and the page.
+ */
+function chromeBlock(ground: string, brand: string, brandDark: string | undefined): string {
+  const on = onColorFor(ground);
+  const groundIsDark = relativeLuminance(ground) < relativeLuminance(on);
+  const accent = groundIsDark ? (brandDark ?? mix(brand, 'white', 22)) : brand;
+  return (
+    `--brand-chrome:${ground};` +
+    `--brand-chrome-2:${mix(ground, 'white', 10)};` +
+    `--brand-chrome-line:${mix(ground, 'white', 30)};` +
+    `--brand-chrome-on:${on};` +
+    `--brand-chrome-muted:color-mix(in oklch, ${on}, ${ground} 34%);` +
+    `--brand-chrome-accent:${accent};`
+  );
+}
+
 /**
  * The CSS the dealer's branding becomes. Only DEALER-layer tokens are emitted —
  * platform tokens (`--surface`, `--text`, the stage colours) are never
- * writable here, so "Order" looks the same on every dealer's deployment.
+ * writable here, so "Order" looks the same on every dealer's deployment. The
+ * `--brand` prefix IS the contract; `config.test.ts` parses every custom
+ * property back out of this string and refuses one that does not carry it.
+ *
+ * It may never NAME a platform token either, only inline its VALUE — the ink
+ * constants come back from `onColorFor` as literals for exactly that reason.
+ * A `var(--text)` here would both fail that test on sight and be a lie at emit
+ * time, since this block is injected BEFORE theme.css and the reference would
+ * resolve to whichever polarity the viewer's theme ends up in.
+ *
+ * Nothing is emitted for a role the dealer did not set. No action colour and
+ * theme.css's `--brand-fill: var(--brand)` stands; no chrome colour and the
+ * shell stays white. That omission is what keeps a deployment that configured
+ * only a brand colour byte-identical to what it renders today.
  *
  * Values are validated by parseConfig before reaching this, and re-checked
  * here so a hand-edited config file cannot inject a stylesheet either.
  */
 export function brandingCss(config: DealerConfig): string {
-  const color = isValidColor(config.branding.brandColor)
-    ? config.branding.brandColor
-    : DEFAULT_CONFIG.branding.brandColor;
+  const branding = config.branding;
+  const brand = safeColor(branding.brandColor) ?? DEFAULT_CONFIG.branding.brandColor;
+  const brandDark = safeColor(branding.brandColorDark);
+  const action = safeColor(branding.actionColor);
+  const actionDark = safeColor(branding.actionColorDark);
+  const chrome = safeColor(branding.chromeColor);
+  const chromeDark = safeColor(branding.chromeColorDark);
+
+  // The chrome ground does NOT take the dark-mode lift the other roles take.
+  // It is a ground, not a hue chosen against white: lifting a navy shell in
+  // dark mode makes it lighter than the page it frames. It also has to stay a
+  // concrete colour, because `--brand-chrome-on` and `--brand-chrome-muted` are
+  // computed FROM it and a `color-mix()` cannot be measured at emit time.
+  const chromeGroundDark = chromeDark ?? chrome;
 
   // Specificity, not source order, decides this. The stylesheet is injected by
   // the bundler AFTER this tag in dev, so a plain `:root` here loses the
@@ -316,13 +567,16 @@ export function brandingCss(config: DealerConfig): string {
   // what happened the first time. `:root:root` (0,2,0) beats theme.css's
   // `:root` (0,1,0); the dark rule beats `:root[data-theme="dark"]` (0,2,0)
   // the same way.
-  //
-  // Dark mode keeps the dealer's hue but lifts it, because a brand colour
-  // chosen against white is often unreadable on a dark surface — and the
-  // hover step reverses direction for the same reason.
   return [
-    `:root:root{--brand:${color};--brand-hover:color-mix(in oklch, ${color}, black 12%);}`,
-    `:root:root[data-theme="dark"]{--brand:color-mix(in oklch, ${color}, white 22%);` +
-      `--brand-hover:color-mix(in oklch, ${color}, white 38%);}`,
+    ':root:root{',
+    roleLight('--brand', brand),
+    action ? roleLight('--brand-fill', action) : '',
+    chrome ? chromeBlock(chrome, brand, brandDark) : '',
+    '}',
+    ':root:root[data-theme="dark"]{',
+    roleDark('--brand', brand, brandDark),
+    action ? roleDark('--brand-fill', action, actionDark) : '',
+    chromeGroundDark ? chromeBlock(chromeGroundDark, brand, brandDark) : '',
+    '}',
   ].join('');
 }

@@ -12,6 +12,7 @@ import { toCents } from '../lib/money';
 import { rngFor } from '../lib/rng';
 import rawBrands from './brands.json';
 import rawCategories from './categories.json';
+import { DC_LOCATION, DEMO_LOCATIONS, DEMO_YARDS, PRIMARY_YARD } from './demo-seed';
 import rawProducts from './products.json';
 
 /**
@@ -67,13 +68,11 @@ interface RawBrand {
   website?: string;
 }
 
-export const MAIN_YARD_ID = 'loc_yard';
-export const DC_ID = 'loc_dc';
+export const MAIN_YARD_ID = PRIMARY_YARD.id;
+export const DC_ID = DC_LOCATION.id;
 
-export const LOCATIONS: Location[] = [
-  { id: MAIN_YARD_ID, name: 'Main Yard', kind: 'yard' },
-  { id: DC_ID, name: 'Distribution Center', kind: 'warehouse' },
-];
+/** Two yards and a DC, from the swappable demo layer. */
+export const LOCATIONS: Location[] = DEMO_LOCATIONS;
 
 const KNOWN_UOMS: readonly Uom[] = ['EA', 'SF', 'LF', 'TON', 'CY', 'PLT', 'BG', 'BX', 'RL', 'BD'];
 
@@ -180,6 +179,32 @@ function derivePresentation(raw: RawProduct): Presentation {
   return chosen ? 'selection' : 'commodity';
 }
 
+/** Deterministic, exact split of a yard count across the dealer's yards. */
+function splitAcrossYards(total: number, rng: { int: (lo: number, hi: number) => number }) {
+  const [primary, ...satellites] = DEMO_YARDS;
+  const primaryId = primary?.id ?? MAIN_YARD_ID;
+  if (satellites.length === 0 || total < 4) {
+    return [{ locationId: primaryId, onHand: total, onOrder: total === 0 ? rng.int(0, 50) : 0 }];
+  }
+
+  // 60-95% at the primary yard. Drawn from the same per-SKU stream everything
+  // else here uses, so the same seed still replays the same catalog.
+  const primaryQty = Math.max(1, Math.round((total * rng.int(60, 95)) / 100));
+  const remainder = total - primaryQty;
+  const each = Math.floor(remainder / satellites.length);
+
+  const rows = [
+    { locationId: primaryId, onHand: primaryQty, onOrder: 0 },
+    ...satellites.map((yard) => ({ locationId: yard.id, onHand: each, onOrder: 0 })),
+  ];
+  // Any rounding dust lands on the primary, so the rows always re-sum to
+  // exactly what the source declared.
+  const dust = total - rows.reduce((sum, row) => sum + row.onHand, 0);
+  const head = rows[0];
+  if (head) head.onHand += dust;
+  return rows;
+}
+
 /**
  * Fills in stock and lead time. Honours whatever the source provided, and
  * invents the rest deterministically so every demo run agrees.
@@ -225,8 +250,19 @@ function deriveAvailability(
         : 0
       : rng.int(0, 120);
 
+  /**
+   * The dealer runs more than one yard, so on-hand is SPLIT rather than
+   * summed — and the split has to be exact. Every availability answer in the
+   * product goes through `totalOnHand`, which adds the rows up, so a rounding
+   * error here would silently change what the catalog says is in stock.
+   * Whatever the primary yard does not take, the satellite holds.
+   *
+   * A small count stays whole at the primary yard: a mountain satellite does
+   * not stock one of something, and splitting 3 into 2-and-1 invents a
+   * logistics story the demo cannot back up.
+   */
   const stock: StockLevel[] = [
-    { locationId: MAIN_YARD_ID, onHand: yardQty, onOrder: yardQty === 0 ? rng.int(0, 50) : 0 },
+    ...splitAcrossYards(yardQty, rng),
     { locationId: DC_ID, onHand: dcQty, onOrder: 0 },
   ];
 

@@ -1,4 +1,8 @@
 @import "tailwindcss";
+/* The logo mark's own colours. A separate file and a separate prefix because
+   they are identity constants, not dealer tokens: brandingCss emits only
+   --brand-* and must never be able to repaint the mark. */
+@import "./identity.css";
 
 /**
  * "Daylight Pro" — light-first, high-contrast.
@@ -27,9 +31,82 @@
  *      where the contractor's brand must win, not the dealer's.
  */
 
+/**
+ * Self-hosted, so the app never asks a third party for its typeface.
+ *
+ * Same reasoning `isValidLogo` already encodes for remote logos: a CDN font
+ * beacons every contractor's visit to someone else. It also keeps the
+ * screenshot gates honest — `npm run guide`, `a11y` and `e2e` drive a real
+ * browser against a prod build, and a webfont that fails mid-capture would
+ * silently re-render all 34 guide PNGs in system-ui with nothing failing.
+ *
+ * One variable file per family (latin subset), so 3 files instead of 8 and
+ * every weight is available without another request.
+ *
+ * `swap`, deliberately: the dealer wordmark is LIVE TEXT, not an image, so
+ * `block`'s 3s invisible period would hide the dealer's name rather than
+ * merely restyle it. A wrong face for one frame beats no name for three
+ * seconds.
+ *
+ * The weight ranges are MEASURED, not copied off the vendor's CSS. Bitter and
+ * Work Sans carry 100-900; JetBrains Mono clamps at 800, and claiming 900 for
+ * it would ask the browser to synthesise a weight the file does not hold.
+ */
+@font-face {
+  font-family: "Bitter";
+  src: url("/fonts/bitter-latin-wght-normal.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Work Sans";
+  src: url("/fonts/work-sans-latin-wght-normal.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2");
+  /* 800, not 900 — measured; the file clamps there. */
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /**
+   * Type. The @font-face rules live elsewhere; these names are the contract
+   * between them and every utility.
+   *
+   * Replacing the never-loaded "Inter" with a really-loaded "Work Sans" is the
+   * single largest visual change in this pass. Nothing in the repo has ever
+   * shipped an Inter file, so the first name in the stack has always missed
+   * and the app has rendered in system-ui since the fork — Roboto on Android,
+   * SF on iOS, Segoe on Windows, whatever the CI container had. Now that a
+   * real face resolves, EVERY SCREENSHOT CHANGES: metrics, weights, and line
+   * lengths all move. That is expected, not a regression.
+   */
+  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Headings and figures. Tailwind v4 mints `font-display` from the --font-*
+     namespace automatically — there is no config file to register it in. */
+  --font-display: "Bitter", ui-serif, Georgia, serif;
 
   --radius-card: 0.75rem;
   --radius-sheet: 1.25rem;
@@ -57,13 +134,59 @@
   --border: oklch(90% 0.008 260);
   --border-strong: oklch(82% 0.012 260);
 
-  /* Dealer brand — overwritten at runtime from branding config. */
+  /**
+   * Dealer brand — overwritten at runtime from branding config
+   * (`brandingCss`, injected at :root:root so it beats this block).
+   *
+   * One brandColor used to answer three different questions at once. It is now
+   * three roles, and the split is what stops white-on-gold happening again:
+   *
+   *   identity (--brand)        what colour is this dealer AS TEXT on a card?
+   *   action   (--brand-fill)   what does a filled, pressable control look like?
+   *   chrome   (--brand-chrome) what colour is the frame around the content?
+   *
+   * --brand keeps its old meaning exactly, so every existing `text-brand` site
+   * and every existing deployment is untouched; only `bg-brand` moves to
+   * `bg-brand-fill`.
+   *
+   * WHY THE NEW DEFAULTS ARE PLATFORM var()s, WHICH LOOKS LIKE AN OMISSION:
+   * a dealer who configures no action or chrome colour must see today's app,
+   * byte for byte. Pointing the defaults at the platform tokens means the
+   * shell can use chrome tokens UNCONDITIONALLY — PortalLayout needs no `if`,
+   * no fallback chain, and no knowledge of whether this dealer set a chrome
+   * colour. brandingCss emits nothing for a role the dealer left unset, and
+   * these defaults stand.
+   */
   --brand: oklch(52% 0.19 255);
   --brand-hover: oklch(46% 0.19 255);
   --brand-on: oklch(100% 0 0);
   --brand-tint: color-mix(in oklch, var(--brand), white 90%);
 
-  /* Contractor brand — customer quote page only. */
+  /* Action: the filled control. Defaults to identity, i.e. today's button. */
+  --brand-fill: var(--brand);
+  --brand-fill-hover: var(--brand-hover);
+  --brand-fill-on: var(--brand-on);
+
+  /* Chrome: the shell around the content. Defaults to the platform surface,
+     i.e. today's white frame. Note --brand-chrome-line, not -border: the
+     utility would otherwise read `border-brand-chrome-border`. */
+  --brand-chrome: var(--surface);
+  --brand-chrome-2: var(--surface-3);
+  --brand-chrome-line: var(--border);
+  --brand-chrome-on: var(--text);
+  --brand-chrome-muted: var(--text-muted);
+  --brand-chrome-accent: var(--brand);
+
+  /**
+   * Contractor brand — the customer quote page ONLY, where the contractor's
+   * brand must beat the dealer's because the homeowner is their client.
+   *
+   * CustomerQuotePage sets these two vars on its own root at runtime from
+   * `quote.contractor.accentColor`, with the ink chosen by `onColorFor` rather
+   * than assumed to be white — same rule as the dealer layer, on the one
+   * screen where somebody signs for money. The defaults below only matter if a
+   * quote carries no accent colour at all.
+   */
   --cbrand: var(--brand);
   --cbrand-on: var(--brand-on);
 
@@ -111,6 +234,22 @@
   --brand: oklch(70% 0.17 255);
   --brand-hover: oklch(76% 0.17 255);
   --brand-on: oklch(17% 0.012 265);
+  /**
+   * --brand-tint is the ONLY one of the ten brand-layer additions that has to
+   * be repeated here, and the absence of the other nine is deliberate, not an
+   * oversight.
+   *
+   * Custom properties substitute at COMPUTED-VALUE time against the same
+   * element. --brand-chrome: var(--surface) is declared on :root; this block
+   * also targets :root and, being more specific, wins for --surface. So the
+   * computed --brand-chrome on <html> resolves against THIS block's dark
+   * --surface. Every var()-defaulted token follows the theme for free, and
+   * re-listing them here would be nine lines that change nothing.
+   *
+   * --brand-tint is different because its FORMULA differs, not its input:
+   * mixing toward white 90% on a dark ground gives a pale wash nobody can read
+   * against it, so dark mixes toward black 78%.
+   */
   --brand-tint: color-mix(in oklch, var(--brand), black 78%);
 
   --stage-plan: oklch(66% 0.02 260);
@@ -145,6 +284,20 @@
   --color-brand-hover: var(--brand-hover);
   --color-brand-on: var(--brand-on);
   --color-brand-tint: var(--brand-tint);
+  --color-brand-fill: var(--brand-fill);
+  --color-brand-fill-hover: var(--brand-fill-hover);
+  --color-brand-fill-on: var(--brand-fill-on);
+  --color-brand-chrome: var(--brand-chrome);
+  --color-brand-chrome-2: var(--brand-chrome-2);
+  --color-brand-chrome-line: var(--brand-chrome-line);
+  --color-brand-chrome-on: var(--brand-chrome-on);
+  --color-brand-chrome-muted: var(--brand-chrome-muted);
+  --color-brand-chrome-accent: var(--brand-chrome-accent);
+  /* The contractor layer was defined but bridged to nothing and referenced by
+     zero files, so bg-cbrand did not exist and the quote page hand-rolled an
+     inline style instead. */
+  --color-cbrand: var(--cbrand);
+  --color-cbrand-on: var(--cbrand-on);
   --color-stage-plan: var(--stage-plan);
   --color-stage-quote: var(--stage-quote);
   --color-stage-order: var(--stage-order);

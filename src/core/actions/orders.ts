@@ -1,10 +1,17 @@
 import { getContext } from '../boot';
 import { isEnabled, supplierName } from '../config/runtime';
+import { ACCOUNT_ID } from '../data/account-seed';
 import type { Order, OrderStage, Project } from '../domain/project';
 import { type StageEffect, canMoveToStage, systemAdvanceToInvoice } from '../domain/stage';
 import { newId } from '../lib/ids';
 import { type Result, err, ok } from '../lib/result';
-import { ordersStore, projectsStore, salesOrdersStore, scopeStore } from '../stores/root';
+import {
+  ordersStore,
+  projectsStore,
+  salesOrdersStore,
+  scopeStore,
+  sessionStore,
+} from '../stores/root';
 import { listOf, patch, upsert } from '../stores/store';
 import { requireCapability } from './team';
 
@@ -153,13 +160,27 @@ export function createProject(input: CreateProjectInput): Result<Project> {
   const now = clock.nowIso();
   const id = newId('prj');
 
+  /**
+   * A new project belongs to the signed-in account and sits in that account's
+   * own state — not in a state literal.
+   *
+   * Both of those were hardcoded: `'acct_summit'`, and `state: 'SD'`, a Sioux
+   * Falls code inherited from the LumberNow fork. Every project a contractor
+   * created — through the board OR through the assistant, which calls this
+   * same action — was stamped South Dakota. It never showed because the only
+   * place a project address renders is `city, state`, and the city was
+   * whatever they typed.
+   */
+  const account = sessionStore.get().account;
+  const homeState = account?.addresses[0]?.state ?? '';
+
   const project: Project = {
     id,
-    accountId: 'acct_summit',
+    accountId: account?.id ?? ACCOUNT_ID,
     name,
     ...(input.clientName ? { clientName: input.clientName } : {}),
     ...(input.city
-      ? { address: { id: `addr_${id}`, line1: '—', city: input.city, state: 'SD', zip: '' } }
+      ? { address: { id: `addr_${id}`, line1: '—', city: input.city, state: homeState, zip: '' } }
       : {}),
     createdAt: now,
     updatedAt: now,

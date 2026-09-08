@@ -1,14 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <!--
-    Three stacked boards, end-on. Chosen because it still reads as a lumber
-    stack at 16px, where anything with fine detail becomes mush.
-    Deliberately a fixed blue rather than var(--brand): a favicon is fetched
-    outside the document, so it cannot see the dealer's runtime tokens.
+    A 16px-TUNED variant of brand/mark.svg, deliberately not identical to it.
+    The mark's two roofline bars are 5/64 tall around a 3/64 gap: at 16px that
+    is 1.25px of bar either side of 0.75px of gap, and they grey into one blur.
+    So one thicker bar and a larger diamond. The bar is grid-aligned (12/36/40/8,
+    all multiples of 4) so it lands on whole pixels at 16px and 32px.
+    Colours are hard-coded and never read the dealer's brand custom property:
+    a favicon is fetched outside the document and cannot see runtime tokens.
+    That token name is written in prose, never literally, because a double
+    hyphen is illegal inside an XML comment. Spelling it out is what made the
+    previous favicon.svg unparseable, and it silently failed to render.
   -->
-  <rect width="32" height="32" rx="7" fill="#1e40af"/>
-  <g fill="#fff">
-    <rect x="6"  y="8"  width="20" height="5" rx="1.4" opacity=".95"/>
-    <rect x="6"  y="14.5" width="20" height="5" rx="1.4" opacity=".8"/>
-    <rect x="6"  y="21" width="20" height="5" rx="1.4" opacity=".62"/>
-  </g>
+  <circle cx="32" cy="32" r="32" fill="#0B2338"/>
+  <rect x="22.5" y="9.5" width="19" height="19" fill="#FFC313" transform="rotate(45 32 19)"/>
+  <rect x="12" y="36" width="40" height="8" fill="#F5F7FA"/>
 </svg>

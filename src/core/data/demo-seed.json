@@ -1,0 +1,108 @@
+{
+  "$schema": "./demo-seed.ts — DemoSeed",
+  "$comment": [
+    "The demo tenant's PLACES AND PEOPLE, in one swappable file.",
+    "",
+    "Everything here is locale: yards, the contractor account, its crew, and the",
+    "towns their jobs sit in. It is JSON rather than TypeScript because none of",
+    "it is logic — a different dealer demo replaces this file and changes no",
+    "code. The scenario's structure (which order is in which stage, which guard",
+    "each one exercises) stays in scenario.ts, because that IS logic.",
+    "",
+    "The catalog is deliberately NOT here. products.json and product-colours.json",
+    "describe real manufacturers and carry researched colour provenance; see the",
+    "note in demo-seed.ts."
+  ],
+
+  "region": "San Diego County, California",
+
+  "yards": [
+    {
+      "id": "loc_yard_pointloma",
+      "name": "Point Loma",
+      "kind": "yard",
+      "primary": true,
+      "line1": "1849 Catalina Blvd",
+      "city": "San Diego",
+      "state": "CA",
+      "zip": "92107",
+      "phone": "(619) 555-0184"
+    },
+    {
+      "id": "loc_yard_julian",
+      "name": "Julian",
+      "kind": "yard",
+      "primary": false,
+      "line1": "5743 Shady Acres Ln",
+      "city": "Julian",
+      "state": "CA",
+      "zip": "92036",
+      "phone": "(760) 555-0142"
+    }
+  ],
+
+  "distributionCenter": {
+    "id": "loc_dc",
+    "name": "Distribution Center",
+    "kind": "warehouse"
+  },
+
+  "account": {
+    "id": "acct_summit",
+    "name": "Cabrillo Landscape & Design",
+    "accountNumber": "ACCT-1042",
+    "yard": {
+      "id": "addr_shop",
+      "label": "Yard",
+      "line1": "3142 Cañon St",
+      "city": "San Diego",
+      "state": "CA",
+      "zip": "92106"
+    },
+    "contactName": "Dana Reyes",
+    "phone": "(619) 555-0142",
+    "email": "dana@cabrillolandscape.com",
+    "licenseNumber": "CSLB #1082291"
+  },
+
+  "team": [
+    {
+      "id": "tm_dana",
+      "name": "Dana Reyes",
+      "role": "owner",
+      "email": "dana@cabrillolandscape.com",
+      "initials": "DR",
+      "createdAt": "2026-07-01T14:00:00.000Z"
+    },
+    {
+      "id": "tm_marcus",
+      "name": "Marcus Webb",
+      "role": "pm",
+      "email": "marcus@cabrillolandscape.com",
+      "initials": "MW",
+      "createdAt": "2026-07-01T14:05:00.000Z"
+    },
+    {
+      "id": "tm_robin",
+      "name": "Robin Alvarez",
+      "role": "ap",
+      "email": "robin@cabrillolandscape.com",
+      "initials": "RA",
+      "createdAt": "2026-07-01T14:10:00.000Z"
+    },
+    {
+      "id": "tm_ty",
+      "name": "Ty Nguyen",
+      "role": "field",
+      "initials": "TN",
+      "createdAt": "2026-07-08T09:00:00.000Z"
+    }
+  ],
+
+  "sites": {
+    "prj_miller": { "city": "Ocean Beach", "state": "CA", "zip": "92107" },
+    "prj_anderson": { "city": "La Mesa", "state": "CA", "zip": "91942" },
+    "prj_wilson": { "city": "Rancho Santa Fe", "state": "CA", "zip": "92067" },
+    "prj_kirkland": { "city": "Ramona", "state": "CA", "zip": "92065" }
+  }
+}

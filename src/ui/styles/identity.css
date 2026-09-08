@@ -1,0 +1,44 @@
+/**
+ * Identity constants — the logo mark's own four colours.
+ *
+ * These are NOT part of the dealer contract. `brandingCss` may only emit
+ * `--brand`-prefixed properties (`config.test.ts` asserts it), and these are
+ * deliberately outside that prefix so a dealer cannot repaint the mark that
+ * identifies the product. A separate prefix in a separate file is the cheapest
+ * way to make "not overridable" structural rather than a comment somebody has
+ * to remember.
+ *
+ * WHY CSS VARS AND NOT REACT PROPS
+ * --------------------------------
+ * The mark has to flip between a filled disc on light and an outline on dark.
+ * `data-theme` is an attribute set on `<html>`, and React never observes it:
+ * there is no in-app theme toggle, no theme context, and no theme hook
+ * anywhere in `src/ui/`. A component that picked its variant in JS would
+ * therefore have nothing to re-render on — it would read the attribute once at
+ * mount and then be wrong for the rest of the session, and even if it did
+ * subscribe (a MutationObserver, say) the correct colours would land one frame
+ * late, as a visible flash of the wrong mark.
+ *
+ * CSS custom properties resolve against the element's own cascade, so the
+ * selector below does the switch with no JS, no subscription, and no flash.
+ * The mark's SVG just paints `var(--logo-fill)` etc. and is theme-agnostic.
+ *
+ * Imported from theme.css immediately after `@import "tailwindcss"`, so these
+ * are in scope everywhere the design system is.
+ */
+
+:root {
+  --logo-fill: #0b2338; /* the disc */
+  --logo-stroke: transparent;
+  --logo-accent: #ffc313; /* the gable diamond */
+  --logo-bars: #f5f7fa; /* the roofline courses */
+}
+
+:root[data-theme="dark"] {
+  /* Outline treatment on a dark ground: the disc drops out and the edge is
+     drawn instead, so the mark does not sit as a navy hole in a navy page. */
+  --logo-fill: transparent;
+  --logo-stroke: #f5f7fa;
+  --logo-accent: #ffc313;
+  --logo-bars: #f5f7fa;
+}

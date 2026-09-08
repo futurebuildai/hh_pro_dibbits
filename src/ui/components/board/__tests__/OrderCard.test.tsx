@@ -30,7 +30,7 @@ function cardFor(overrides: Partial<BoardCard> = {}): BoardCard {
       id: 'prj_1',
       accountId: 'acct_1',
       name: 'Miller Residence — Deck',
-      address: { id: 'a1', line1: '1 Main', city: 'Sioux Falls', state: 'SD', zip: '57104' },
+      address: { id: 'a1', line1: '1 Main', city: 'Ocean Beach', state: 'CA', zip: '92107' },
       createdAt: NOW,
       updatedAt: NOW,
     },

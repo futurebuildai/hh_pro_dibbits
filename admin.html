@@ -5,7 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- An admin surface must never be indexed or previewed by a crawler. -->
     <meta name="robots" content="noindex, nofollow" />
+    <!--
+      Fetched with the document, so this can never see the runtime brand custom
+      property the app sets on the root element. A fixed navy on purpose, the
+      same as the contractor entry: the browser chrome is painted before a byte
+      of JavaScript runs.
+      The token name is written in prose, never literally, because a double
+      hyphen is illegal inside a comment.
+    -->
+    <meta name="theme-color" content="#0B2338" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!--
+      No manifest here on purpose. This surface is noindex and must not be
+      installable: an admin console on a home screen is a standing invitation
+      to open it on a phone that is not the dealer's.
+      Work Sans only. The console has no dealer wordmark to set, so the display
+      face never paints above the fold, and an unused preload logs a console
+      warning. crossorigin is required even same origin or the file is fetched
+      twice.
+    -->
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="/fonts/work-sans-latin-wght-normal.woff2"
+    />
     <title>HH Pro admin</title>
   </head>
   <body>

@@ -111,6 +111,8 @@ describe('dealer identity', () => {
     renderShell();
 
     expect(screen.getByText('Cascade Building Supply')).toBeInTheDocument();
-    expect(screen.queryByText('Dibbits Landscape Supply')).not.toBeInTheDocument();
+    // The default, not a literal: a stale literal here would pass forever while
+    // asserting nothing the moment the demo dealer is renamed.
+    expect(screen.queryByText(DEFAULT_CONFIG.branding.companyName)).not.toBeInTheDocument();
   });
 });

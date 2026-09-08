@@ -734,7 +734,7 @@ also a signal colour spent on a sentence that reports no state.
 
 `companyName` was settable in the admin console while the demo dealer's name
 was hardcoded into ~40 contractor-facing sentences, so a deployment for anyone
-else still told its contractors that "Dibbits Landscape Supply will price this". Every such
+else still told its contractors that "Gable Landscape Supply will price this". Every such
 sentence now goes through `supplierName()` (`core/config/runtime.ts`).
 
 - **Build the sentence where it is rendered.** Module-level string constants

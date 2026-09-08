@@ -36,14 +36,24 @@ const META_KEY = `${KEY_PREFIX}meta`;
  * restore straight past the seed and show an empty Team screen.
  *
  * v4 is the hardscape fork: the entire catalog, pricing and scenario changed
- * from building materials to Dibbits' paver and aggregate lines. Without the
+ * from building materials to the dealer's paver and aggregate lines. Without the
  * bump a browser carrying LumberNow-era state restored it wholesale, and the
  * regenerated user guide came out showing deck framing in Sioux Falls — the
  * whole point of this file's warning, demonstrated. There is no MIGRATIONS
  * entry on purpose: old demo state cannot carry forward into a different
  * vertical, so a missing step means "reseed", which is exactly right here.
+ *
+ * v5 is the dealer rebrand. Branding itself is injected config and would need
+ * no bump — but supplierName() is interpolated at SEED time into data that IS
+ * persisted: scenario.ts bakes `Order received by ${supplierName()}.` into
+ * three seeded SalesOrder.tracking arrays, and sim/index.ts does the same for
+ * activity entries. Both stores are in PERSISTED_STORES. Without the bump a
+ * browser holding v4 state restores past the seeding block and shows the OLD
+ * dealer's name on the tracking page of the newly-rebranded demo, with no way
+ * back short of Demo Reset. No MIGRATIONS entry, for the v4 reason: the old
+ * name cannot be carried forward, so "reseed" is the correct answer.
  */
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 export interface PersistMeta {
   schemaVersion: number;

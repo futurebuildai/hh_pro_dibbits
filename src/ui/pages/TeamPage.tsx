@@ -13,6 +13,7 @@ import {
   can,
 } from '@core/domain/team';
 import { teamStore } from '@core/stores/root';
+import { AppearanceCard } from '@ui/components/settings/AppearanceCard';
 import { Avatar } from '@ui/components/team/Avatar';
 import { PersonSwitcher } from '@ui/components/team/PersonSwitcher';
 import { Button } from '@ui/components/ui/Button';
@@ -136,6 +137,11 @@ export function TeamPage() {
           ))}
         </ul>
       </section>
+
+      {/* Appearance sits under More alongside the team: both are "about this
+          person's setup", and the theme is per-device the way the acting
+          person is per-window. */}
+      <AppearanceCard />
 
       <PersonSwitcher open={switching} onOpenChange={setSwitching} />
       <EditMemberSheet member={editing} onClose={() => setEditing(null)} onFlash={flash} />

@@ -9,7 +9,7 @@ import {
 } from '../actions/customer-quote';
 import { buildCustomerQuote, quoteForOrder } from '../actions/customer-quote';
 import { requestDeliveryReschedule } from '../actions/fulfillment';
-import { moveOrderToStage, updateOrder } from '../actions/orders';
+import { createProject, moveOrderToStage, updateOrder } from '../actions/orders';
 import { toolByName } from '../ai/tools';
 import { boot, getContext } from '../boot';
 import { resetConfigCache } from '../config/runtime';
@@ -25,6 +25,7 @@ import {
   quotesStore,
   salesOrdersStore,
   scopeStore,
+  sessionStore,
   simStore,
 } from '../stores/root';
 import { listOf } from '../stores/store';
@@ -380,7 +381,7 @@ describe('the dealer name is configuration, not a literal', () => {
   /**
    * `companyName` is settable in the admin console, but the demo dealer's name
    * was written into ~40 contractor-facing sentences — so a deployment for
-   * anyone else told its contractors that "Dibbits Landscape Supply will price this".
+   * anyone else told its contractors that "Gable Landscape Supply will price this".
    *
    * The behavioural half: a refusal a contractor actually reads.
    */
@@ -406,8 +407,28 @@ describe('the dealer name is configuration, not a literal', () => {
    * The durable half. One rename is a bug; forty is a class of bug, and only a
    * whole-tree check keeps the forty-first from landing. Comments are stripped
    * — they describe the demo dealer and are not shipped to anyone.
+   *
+   * The needle is CASE-SENSITIVE and WORD-BOUNDED, and both halves are load-
+   * bearing for this particular name:
+   *   - lowercase `gable` is a substring of `draggable`, which the board's
+   *     drag-and-drop code says constantly;
+   *   - `gablelbm.com` is the SIBLING product's ERP host, a real hostname that
+   *     has nothing to do with this dealer's copy.
+   * A naive `includes('gable')` would fire on both and the gate would be
+   * disabled within a day for being noise.
+   *
+   * The meta-assertion below is the other half. A needle that no longer matches
+   * the name it is supposed to be guarding passes forever while asserting
+   * nothing — which is exactly what happens on the next rename if nobody
+   * remembers this file exists.
    */
   it('leaves no hardcoded dealer name in shipped copy', () => {
+    const needle = /\bGable\b/;
+    expect(
+      needle.test(DEFAULT_CONFIG.branding.companyName),
+      'the needle no longer matches the configured dealer name — this gate is grading nothing',
+    ).toBe(true);
+
     const root = fileURLToPath(new URL('../..', import.meta.url));
     const offenders: string[] = [];
 
@@ -425,12 +446,90 @@ describe('the dealer name is configuration, not a literal', () => {
         const code = readFileSync(full, 'utf8')
           .replace(/\/\*[\s\S]*?\*\//g, '')
           .replace(/\/\/.*$/gm, '');
-        if (code.includes('Dibbits')) offenders.push(full.slice(root.length));
+        if (needle.test(code)) offenders.push(full.slice(root.length));
       }
     };
     walk(root);
 
     expect(offenders).toEqual([]);
+  });
+
+  /**
+   * The chrome tokens are the SHELL's, and only the shell's.
+   *
+   * `--brand-chrome*` paints the frame — sidebar, header, tab bar — in the
+   * dealer's own colour. The content inside `<main>` stays platform-coloured,
+   * because that is what makes a job in "Order" look like Order on every
+   * dealer's deployment. A chrome token leaking onto a board card or a sheet
+   * would put the dealer's navy behind a stage colour that was measured
+   * against a white card.
+   *
+   * The allowlist is a PAIR, not one file: `Avatar` renders in the shell (the
+   * sidebar and the mobile header) as well as under `<main>` on the Team page,
+   * so it carries a chrome variant behind an explicit `onChrome` prop. That is
+   * the intended shape — the token is present in the file, gated at the call
+   * site — and a single-file allowlist would fail on it.
+   */
+  it('keeps the dealer chrome tokens inside the shell', () => {
+    const root = fileURLToPath(new URL('../..', import.meta.url));
+    const allowed = [
+      join('ui', 'layouts', 'PortalLayout.tsx'),
+      join('ui', 'components', 'team', 'Avatar.tsx'),
+      // Same shape as Avatar: the mark's `tone="reverse"` treatment paints
+      // itself in the chrome's own ink, because a navy badge on a navy
+      // sidebar is not a badge. Opted into at the call site, not ambient.
+      join('ui', 'components', 'brand', 'DealerMark.tsx'),
+      // The emitter that WRITES these tokens necessarily names them.
+      join('core', 'domain', 'config.ts'),
+    ];
+    const offenders: string[] = [];
+
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name !== '__tests__') walk(full);
+          continue;
+        }
+        if (!/\.tsx?$/.test(entry.name)) continue;
+        if (allowed.some((suffix) => full.endsWith(suffix))) continue;
+
+        const code = readFileSync(full, 'utf8')
+          .replace(/\/\*[\s\S]*?\*\//g, '')
+          .replace(/\/\/.*$/gm, '');
+        if (code.includes('brand-chrome')) offenders.push(full.slice(root.length));
+      }
+    };
+    walk(root);
+
+    expect(offenders).toEqual([]);
+  });
+});
+
+describe('a new project belongs to the account that made it', () => {
+  /**
+   * `createProject` hardcoded `accountId: 'acct_summit'` and, worse,
+   * `state: 'SD'` — a Sioux Falls code inherited from the LumberNow fork.
+   * Every project a contractor created was stamped South Dakota, through the
+   * board AND through the assistant, which calls this same action.
+   *
+   * Nothing caught it because the only place a project address renders is
+   * `city, state`, and the city was whatever the contractor typed — so the
+   * wrong half sat next to a right half on screen for two milestones.
+   */
+  it('takes its state from the account, not a literal', () => {
+    const account = sessionStore.get().account;
+    expect(account).toBeTruthy();
+    const home = account?.addresses[0]?.state;
+    expect(home).toBeTruthy();
+
+    const made = createProject({ name: 'Coronado courtyard', city: 'Coronado' });
+    expect(made.ok).toBe(true);
+    if (!made.ok) return;
+
+    expect(made.value.address?.state).toBe(home);
+    expect(made.value.address?.state).not.toBe('SD');
+    expect(made.value.accountId).toBe(account?.id);
   });
 });
 
