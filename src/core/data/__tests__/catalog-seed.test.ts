@@ -19,7 +19,7 @@ describe('catalog seed', () => {
   });
 
   it('converts known dollar prices exactly', () => {
-    const paver = catalog.products.find((p) => p.sku === 'PVR-OAK-YORK60');
+    const paver = catalog.products.find((p) => p.sku === 'PVR-ACK-COMBO60');
     expect(paver?.listPrice).toBe(813); // $8.13/sf
   });
 
@@ -67,7 +67,7 @@ describe('manufactured availability', () => {
     // yards, so this now asserts the YARD TOTAL rather than one row — which is
     // the stronger claim: it proves the split across yards is exact, and an
     // off-by-one in the split would change what the catalog says is in stock.
-    const paver = seedProducts(7).find((p) => p.sku === 'PVR-TB-BLU60-SM');
+    const paver = seedProducts(7).find((p) => p.sku === 'PVR-ACK-PASEO60');
     const yardRows = (paver?.stock ?? []).filter((s) => s.locationId.startsWith('loc_yard'));
     expect(yardRows.length).toBeGreaterThan(0);
     expect(yardRows.reduce((sum, row) => sum + row.onHand, 0)).toBe(5200);

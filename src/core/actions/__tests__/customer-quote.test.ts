@@ -79,8 +79,8 @@ describe('what the customer sees', () => {
 
     // The paver field is something a homeowner chose.
     expect(selections.length).toBeGreaterThan(0);
-    expect(selections.some((l) => l.name.toLowerCase().includes('yorkville'))).toBe(true);
-    // And the base order is all commodity — nobody picks the screenings.
+    expect(selections.some((l) => l.name.toLowerCase().includes('combo stone'))).toBe(true);
+    // And the base order is all commodity — nobody picks the base rock.
     expect(build(MILLER_FRAME).lines.every((l) => l.presentation === 'commodity')).toBe(true);
     expect(commodities.length + selections.length).toBe(quote.lines.length);
   });
@@ -112,7 +112,7 @@ describe('what the customer sees', () => {
     const products = catalogStore.get().products;
     const bySku = (sku: string) => products.find((p) => p.sku === sku);
 
-    expect(bySku('PVR-OAK-YORK60')?.presentation).toBe('selection');
+    expect(bySku('PVR-ACK-COMBO60')?.presentation).toBe('selection');
     expect(bySku('AGG-SCREEN-BULK')?.presentation).toBe('commodity');
     expect(bySku('AGG-HPB-BULK')?.presentation).toBe('commodity');
     // Geotextile is tagged for the patio it goes under — buried must win.

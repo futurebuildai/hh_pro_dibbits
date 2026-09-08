@@ -277,7 +277,7 @@ function sortRows(
       // Relevance means "the order the search gave us", so a search is left
       // alone. With no search there is no relevance to preserve — and pure
       // alphabetical opens the catalogue on `1" River Rock`, `2-6" River
-      // Rock`, `3/4" Clearstone`, which is a list sorted by punctuation. The
+      // Rock`, `3/4" Crushed Gravel`, which is a list sorted by punctuation. The
       // dealer's own category order puts pavers at the top, the way the yard
       // is laid out.
       if (hasQuery) return;

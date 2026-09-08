@@ -182,3 +182,30 @@ the tree was restored with `git checkout`.
 `npm run e2e` gained the journey that was originally on this list: browse →
 product → add to a plan → open the plan, plus an assertion that a plan the
 supplier already holds is never offered as a destination. 15/15.
+
+---
+
+## SoCal relocalization (2026-09-08) — applied, with open questions
+
+The Canadian vendor set was replaced per the research in `NOTES-handoff.md` §2:
+pavers → Acker-Stone (13 SKUs, `PVR-ACK-*`), walls → Keystone via RCP
+(`WAL-KEY-*`), steppers → Unilock/RCP (`STP-UNL-BHILL`, `STP-RCP-*`), porcelain
+→ RCP (`POR-RCP-QUARTZO24`), fire pit → Bella Vista (`FIR-BLV-SEMPLICE`).
+Verified aggregate renames applied (HPB → Class II Road Base, screenings → DG,
+clearstone → 3/4" crushed gravel, topsoil → Amended Topsoil). `SCHEMA_VERSION`
+bumped 5→6 because seeded orders bake SKU strings into persisted state.
+
+**Left unchanged because the research could not verify a SoCal equivalent —
+revisit with a quarry/aggregate-facing source (Vulcan, Cemex) or a mulch
+supplier (Agromin, Oxnard) before renaming:**
+
+- **Black Granite Chip** (`DEC-GRANITE-BLK`) — the real black decorative rock at
+  RCP is cinder/pebble (Black Cinder, Criva Black, Black Beach Pebble), not
+  granite, despite San Diego County being granite country. Likely wrong as
+  named.
+- **Red/Black Cedar Mulch** (`MLC-CEDAR-RED-CY`, `MLC-CEDAR-BLK-CY`) — RCP does
+  not sell mulch at all. "Gorilla Hair" (shredded redwood) is the famous SoCal
+  product but was not independently verified.
+- **Triple Mix** (`SOL-TRIPLE-CY`) — an Ontario blend concept; the closest
+  verified SoCal product is "Amended Topsoil", which the Screened Topsoil SKU
+  already took. Keeping both would collide.

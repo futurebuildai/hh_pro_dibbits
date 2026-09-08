@@ -304,8 +304,8 @@ async function main() {
 
     await page.getByRole('button', { name: /Clear filters/ }).click();
     await page.waitForTimeout(250);
-    await page.getByRole('button', { name: /Techo-Bloc Blu 60 Smooth/ }).click();
-    await page.waitForURL(/\/catalog\/PVR-TB-BLU60-SM/);
+    await page.getByRole('button', { name: /Acker-Stone Paseo 4PC 60mm/ }).click();
+    await page.waitForURL(/\/catalog\/PVR-ACK-PASEO60/);
     await expectText(page, 'Your account price');
     // A real patio, so the volume break has something to say.
     await page.getByLabel(/Quantity in/).fill('480');
@@ -393,7 +393,7 @@ async function main() {
 
     // ---- 21. Product narrative -------------------------------------------
     await page
-      .getByRole('button', { name: /Yorkville/ })
+      .getByRole('button', { name: /Combo Stone/ })
       .first()
       .click();
     await expectText(page, 'Product details');

@@ -38,7 +38,7 @@ describe('adding scope', () => {
   beforeEach(() => boot({ reset: true, seed: 20_260_730 }));
 
   it('prices a catalog line through the ERP on the way in', () => {
-    const result = addCatalogItem({ orderId: PERGOLA, product: 'PVR-OAK-YORK60', qty: 10 });
+    const result = addCatalogItem({ orderId: PERGOLA, product: 'PVR-ACK-COMBO60', qty: 10 });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -97,7 +97,7 @@ describe('quantity changes re-ask the ERP for a price', () => {
   beforeEach(() => boot({ reset: true, seed: 20_260_730 }));
 
   it('drops the unit price when a volume break is crossed', () => {
-    const added = addCatalogItem({ orderId: PERGOLA, product: 'PVR-TB-BLU60-SM', qty: 10 });
+    const added = addCatalogItem({ orderId: PERGOLA, product: 'PVR-ACK-PASEO60', qty: 10 });
     if (!added.ok) throw new Error(added.error);
     const before = added.value.unitPrice as number;
 
@@ -112,7 +112,7 @@ describe('quantity changes re-ask the ERP for a price', () => {
   });
 
   it('raises it again when the quantity falls back below the break', () => {
-    const added = addCatalogItem({ orderId: PERGOLA, product: 'PVR-TB-BLU60-SM', qty: 700 });
+    const added = addCatalogItem({ orderId: PERGOLA, product: 'PVR-ACK-PASEO60', qty: 700 });
     if (!added.ok) throw new Error(added.error);
 
     const reduced = updateItemQtyDetailed(added.value.id, 50);
@@ -123,7 +123,7 @@ describe('quantity changes re-ask the ERP for a price', () => {
   });
 
   it('reports no price change when the quantity stays in the same band', () => {
-    const added = addCatalogItem({ orderId: PERGOLA, product: 'PVR-TB-BLU60-SM', qty: 10 });
+    const added = addCatalogItem({ orderId: PERGOLA, product: 'PVR-ACK-PASEO60', qty: 10 });
     if (!added.ok) throw new Error(added.error);
 
     const nudged = updateItemQtyDetailed(added.value.id, 12);

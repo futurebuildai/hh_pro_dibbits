@@ -132,7 +132,7 @@ describe('board flow', () => {
   });
 
   it('flags a lead time that cannot make the requested date', () => {
-    // The Borealis slab on the Miller patio surface is a stated three-week
+    // The 24x24 slab on the Miller patio surface is a stated three-week
     // special order, against a delivery date sixteen days away.
     const card = cardFor('ord_miller_deck');
     const daysOut = 16;

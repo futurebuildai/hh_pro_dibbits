@@ -95,7 +95,7 @@ Tap a line for the full detail.
 > **About the product images.** Gable's catalogue has no photography in this
 > build, so every product shows a measured colour-and-texture swatch rather
 > than a picture. The colours were taken from the manufacturers' own published
-> swatches — Blu 60 really is Beige Cream, Borealis really is Hazelnut Brandy —
+> swatches — Paseo really is Antique Pewter, Palermo really is Graphite —
 > and the handful that are inferred from the product type are marked as such in
 > the data. A swatch shows you the material without pretending to be a
 > photograph of the exact unit that will arrive, which matters when you are
@@ -155,7 +155,7 @@ all.
 
 The prices are the same ones the board uses. There is no separate "catalog
 price" that turns into something else once it is on an order — the contract
-price your rep negotiated on Yorkville shows up here as 22% off list while
+price your rep negotiated on Combo Stone shows up here as 22% off list while
 everything else in Hardscape shows 18%, because it is the same pricing engine
 answering.
 

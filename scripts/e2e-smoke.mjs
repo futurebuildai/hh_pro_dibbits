@@ -197,8 +197,11 @@ async function main() {
 
     const rows = page.locator('li label');
     if ((await rows.count()) > 0) {
-      await rows.first().click();
-      await page.getByRole('button', { name: /Pay \d+ invoice/ }).click();
+      // Overdue invoices arrive pre-selected, so the button may already be up —
+      // clicking a row then would DESELECT it and take the button away.
+      const payButton = page.getByRole('button', { name: /Pay \d+ invoice/ });
+      if ((await payButton.count()) === 0) await rows.first().click();
+      await payButton.click();
       await page.waitForTimeout(500);
       check(
         'the payment sheet names the fee before charging',
