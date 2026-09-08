@@ -34,7 +34,7 @@ const SCREENS = [
   { name: 'tracking', path: '/orders/ord_wilson_frame/tracking', wait: 'text=Out for delivery' },
   { name: 'pay', path: '/pay', wait: 'text=Outstanding balance' },
   { name: 'project', path: '/projects/prj_wilson', wait: 'text=across' },
-  { name: 'team', path: '/more', wait: 'text=Team' },
+  { name: 'profile', path: '/', wait: 'text=What each role can do' },
   { name: 'admin', path: '/admin.html', wait: 'text=Admin token' },
 ];
 
@@ -108,6 +108,9 @@ async function main() {
 
     for (const screen of SCREENS) {
       await page.goto(`${BASE}${screen.path}`, { waitUntil: 'networkidle' });
+      if (screen.name === 'profile') {
+        await page.getByRole('button', { name: /open profile/i }).click();
+      }
       // Webfonts are self-hosted with `font-display: swap`, so contrast and
       // target-size checks must run against the real face, not the fallback
       // metrics that render for the first frame.

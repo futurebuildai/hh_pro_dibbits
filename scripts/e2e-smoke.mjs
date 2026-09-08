@@ -163,7 +163,10 @@ async function main() {
     );
 
     // --- Role gating: the same app, a different person -----------------------
-    await page.goto(`${BASE}/more`, { waitUntil: 'networkidle' });
+    // The order page renders without the app chrome, so go home first — the
+    // avatar (and the profile sheet behind it) only exists inside the chrome.
+    await page.goto(BASE, { waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: /open profile/i }).click();
     await page.getByRole('button', { name: 'Switch person', exact: true }).click();
     await page.getByRole('dialog').getByText('Robin Alvarez').click();
     await page.waitForTimeout(400);
@@ -178,7 +181,7 @@ async function main() {
       (await page.getByText(/payments are made by/).count()) === 0,
     );
 
-    await page.goto(`${BASE}/more`, { waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: /open profile/i }).click();
     await page.getByRole('button', { name: 'Switch person', exact: true }).click();
     await page.getByRole('dialog').getByText('Ty Nguyen').click();
     await page.waitForTimeout(400);
@@ -189,7 +192,7 @@ async function main() {
     );
 
     // --- Back to the owner, and pay something --------------------------------
-    await page.goto(`${BASE}/more`, { waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: /open profile/i }).click();
     await page.getByRole('button', { name: 'Switch person', exact: true }).click();
     await page.getByRole('dialog').getByText('Dana Reyes').click();
     await page.waitForTimeout(400);

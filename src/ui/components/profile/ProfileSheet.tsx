@@ -24,17 +24,21 @@ import { ArrowLeftRight, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 /**
- * The team, under More.
+ * The profile sheet: team, acting-person switcher, and appearance.
  *
- * A contractor's company is a handful of people wearing specific hats, so the
- * screen is a list of faces with hats — not an admin console. Role changes and
- * removals are owner-only through the same actions the assistant would use,
- * so the refusals read identically everywhere.
+ * Opened from the avatar in the chrome rather than a nav tab, so the four
+ * destinations stay focused on work. Everything here is "about this window" —
+ * who is acting, who is on the crew, and how this device looks.
  */
 
 const ROLE_ORDER: TeamRole[] = ['owner', 'pm', 'ap', 'field'];
 
-export function TeamPage() {
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function ProfileSheet({ open, onOpenChange }: Props) {
   useStore(teamStore, (state) => state);
   const [switching, setSwitching] = useState(false);
   const [editing, setEditing] = useState<TeamMember | null>(null);
@@ -51,97 +55,99 @@ export function TeamPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl space-y-6 p-4 pb-24">
-      {/* Who you are right now — the demo's stand-in for login. */}
-      {acting ? (
-        <section className="rounded-[var(--radius-card)] border border-border bg-surface p-4">
-          <div className="flex items-center gap-3">
-            <Avatar initials={acting.initials} role={acting.role} size="lg" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-semibold text-[15px]">{acting.name}</p>
-              <p className="truncate text-[12.5px] text-text-muted">
-                {ROLE_LABELS[acting.role]} — {ROLE_DESCRIPTIONS[acting.role]}
-              </p>
+    <Sheet open={open} onOpenChange={onOpenChange} title="Profile">
+      <div className="space-y-6 pb-4">
+        {/* Who you are right now — the demo's stand-in for login. */}
+        {acting ? (
+          <section className="rounded-[var(--radius-card)] border border-border bg-surface p-4">
+            <div className="flex items-center gap-3">
+              <Avatar initials={acting.initials} role={acting.role} size="lg" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold text-[15px]">{acting.name}</p>
+                <p className="truncate text-[12.5px] text-text-muted">
+                  {ROLE_LABELS[acting.role]} — {ROLE_DESCRIPTIONS[acting.role]}
+                </p>
+              </div>
             </div>
+            <Button variant="outline" full className="mt-3" onClick={() => setSwitching(true)}>
+              <ArrowLeftRight size={15} strokeWidth={2} />
+              Switch person
+            </Button>
+          </section>
+        ) : null}
+
+        <section>
+          <div className="mb-2 flex items-baseline justify-between">
+            <h2 className="font-semibold text-[15px]">Team</h2>
+            <span className="text-[12px] text-text-subtle">
+              {members.length} {members.length === 1 ? 'person' : 'people'}
+            </span>
           </div>
-          <Button variant="outline" full className="mt-3" onClick={() => setSwitching(true)}>
-            <ArrowLeftRight size={15} strokeWidth={2} />
-            Switch person
-          </Button>
+
+          <ul className="divide-y divide-border rounded-[var(--radius-card)] border border-border bg-surface">
+            {members.map((member) => (
+              <li key={member.id}>
+                <button
+                  type="button"
+                  onClick={() => canManage && setEditing(member)}
+                  className={cn(
+                    'flex min-h-16 w-full items-center gap-3 px-3 text-left',
+                    canManage && 'transition-colors hover:bg-surface-2',
+                  )}
+                >
+                  <Avatar initials={member.initials} role={member.role} />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="truncate font-medium text-[14px]">{member.name}</span>
+                      {member.id === acting?.id ? (
+                        <span className="rounded-full bg-brand-tint px-2 py-0.5 font-medium text-[10.5px] text-brand">
+                          you
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="block truncate text-[12px] text-text-muted">
+                      {ROLE_LABELS[member.role]}
+                      {member.email ? ` · ${member.email}` : ''}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {canManage ? (
+            <Button variant="secondary" full className="mt-2" onClick={() => setAdding(true)}>
+              <Plus size={15} strokeWidth={2.5} />
+              Add a teammate
+            </Button>
+          ) : (
+            <p className="mt-2 text-[12px] text-text-subtle">
+              Only an owner can add people or change roles.
+            </p>
+          )}
         </section>
-      ) : null}
 
-      <section>
-        <div className="mb-2 flex items-baseline justify-between">
-          <h2 className="font-semibold text-[15px]">Team</h2>
-          <span className="text-[12px] text-text-subtle">
-            {members.length} {members.length === 1 ? 'person' : 'people'}
-          </span>
-        </div>
-
-        <ul className="divide-y divide-border rounded-[var(--radius-card)] border border-border bg-surface">
-          {members.map((member) => (
-            <li key={member.id}>
-              <button
-                type="button"
-                onClick={() => canManage && setEditing(member)}
-                className={cn(
-                  'flex min-h-16 w-full items-center gap-3 px-3 text-left',
-                  canManage && 'transition-colors hover:bg-surface-2',
-                )}
-              >
-                <Avatar initials={member.initials} role={member.role} />
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-2">
-                    <span className="truncate font-medium text-[14px]">{member.name}</span>
-                    {member.id === acting?.id ? (
-                      <span className="rounded-full bg-brand-tint px-2 py-0.5 font-medium text-[10.5px] text-brand">
-                        you
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className="block truncate text-[12px] text-text-muted">
-                    {ROLE_LABELS[member.role]}
-                    {member.email ? ` · ${member.email}` : ''}
-                  </span>
+        {/* What the hats mean — the legend that makes the roles self-explaining. */}
+        <section className="rounded-[var(--radius-card)] border border-border bg-surface-inset p-4">
+          <h3 className="mb-2 font-medium text-[13px]">What each role can do</h3>
+          <ul className="space-y-2">
+            {ROLE_ORDER.map((role) => (
+              <li key={role} className="flex gap-2.5 text-[12.5px] leading-snug">
+                <Avatar initials={ROLE_LABELS[role][0] ?? '?'} role={role} size="sm" />
+                <span>
+                  <span className="font-medium">{ROLE_LABELS[role]}.</span>{' '}
+                  <span className="text-text-muted">{ROLE_DESCRIPTIONS[role]}</span>
                 </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-        {canManage ? (
-          <Button variant="secondary" full className="mt-2" onClick={() => setAdding(true)}>
-            <Plus size={15} strokeWidth={2.5} />
-            Add a teammate
-          </Button>
-        ) : (
-          <p className="mt-2 text-[12px] text-text-subtle">
-            Only an owner can add people or change roles.
-          </p>
-        )}
-      </section>
-
-      {/* What the hats mean — the legend that makes the roles self-explaining. */}
-      <section className="rounded-[var(--radius-card)] border border-border bg-surface-inset p-4">
-        <h3 className="mb-2 font-medium text-[13px]">What each role can do</h3>
-        <ul className="space-y-2">
-          {ROLE_ORDER.map((role) => (
-            <li key={role} className="flex gap-2.5 text-[12.5px] leading-snug">
-              <Avatar initials={ROLE_LABELS[role][0] ?? '?'} role={role} size="sm" />
-              <span>
-                <span className="font-medium">{ROLE_LABELS[role]}.</span>{' '}
-                <span className="text-text-muted">{ROLE_DESCRIPTIONS[role]}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* Appearance sits under More alongside the team: both are "about this
-          person's setup", and the theme is per-device the way the acting
-          person is per-window. */}
-      <AppearanceCard />
+        {/* Appearance sits alongside the team: both are "about this person's
+            setup", and the theme is per-device the way the acting person is
+            per-window. */}
+        <AppearanceCard />
+      </div>
 
       <PersonSwitcher open={switching} onOpenChange={setSwitching} />
       <EditMemberSheet member={editing} onClose={() => setEditing(null)} onFlash={flash} />
@@ -152,7 +158,7 @@ export function TeamPage() {
           {toast}
         </div>
       ) : null}
-    </div>
+    </Sheet>
   );
 }
 

@@ -2,6 +2,7 @@ import { boot } from '@core/boot';
 import { resetConfigCache } from '@core/config/runtime';
 import { DEFAULT_CONFIG, type DealerConfig } from '@core/domain/config';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { PortalLayout } from '../PortalLayout';
 
@@ -67,6 +68,9 @@ afterEach(() => resetConfigCache());
 describe('with everything enabled', () => {
   it('shows every destination and the assistant', () => {
     renderShell();
+    expect(screen.getAllByText('Today').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Board').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Catalog').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Pay').length).toBeGreaterThan(0);
     expect(screen.getAllByRole('button', { name: 'Ask the assistant' }).length).toBeGreaterThan(0);
   });
@@ -79,6 +83,7 @@ describe('when the dealer turns payments off', () => {
 
     expect(screen.queryByText('Pay')).not.toBeInTheDocument();
     // The rest of the shell is untouched.
+    expect(screen.getAllByText('Today').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Board').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Catalog').length).toBeGreaterThan(0);
   });
@@ -114,5 +119,17 @@ describe('dealer identity', () => {
     // The default, not a literal: a stale literal here would pass forever while
     // asserting nothing the moment the demo dealer is renamed.
     expect(screen.queryByText(DEFAULT_CONFIG.branding.companyName)).not.toBeInTheDocument();
+  });
+});
+
+describe('profile sheet', () => {
+  it('opens from the avatar button', async () => {
+    renderShell();
+
+    const button = screen.getByRole('button', { name: /open profile/i });
+    await userEvent.click(button);
+
+    expect(screen.getByRole('dialog', { name: 'Profile' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Switch person' })).toBeInTheDocument();
   });
 });

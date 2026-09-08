@@ -472,9 +472,12 @@ async function main() {
     await page.getByRole('button', { name: 'Ask the assistant' }).click();
     await expectText(page, 'material list');
     await shoot(page, '29-assistant', 'Hand it your list — typed, spoken, or photographed');
+    // The assistant panel has no Escape handling — close it by its own control.
+    await page.getByRole('button', { name: 'Close assistant' }).click();
+    await page.waitForTimeout(250);
 
     // ---- 30. The team -----------------------------------------------------
-    await page.goto(`${BASE}/more`);
+    await page.getByRole('button', { name: /open profile/i }).click();
     await expectText(page, 'What each role can do');
     await shoot(page, '30-team', 'Your crew, and what each role may do', { fullPage: true });
 
