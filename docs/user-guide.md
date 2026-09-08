@@ -12,7 +12,7 @@ see your pricing, and move an order forward.
 > [What isn't built yet](#what-isnt-built-yet) rather than being implied.
 
 **You are:** Dana Reyes of **Summit Ridge Builders**, a Pro-tier charge account
-at **Dibbits Landscape Supply** on Net-30 terms.
+at **Gable Landscape Supply** on Net-30 terms.
 
 ---
 
@@ -37,25 +37,26 @@ abandon halfway through.
 ![The Procurement Board, Plan stage](screenshots/01-board-plan.png)
 
 **Every card is an order** — a package of materials with one delivery date and
-one fulfillment method. A card is *not* a whole job: "Wilson Custom Home" has a
-framing package that's already shipping, a roof package on the way, and interior
-trim still being planned. Those are three cards in three different columns,
-because they genuinely need three different things from you.
+one fulfillment method. A card is *not* a whole job: "Wilson Estate — Grounds"
+has a terrace retaining wall already out for delivery, a front walkway and steps
+confirmed behind it, and beds & plantings still being planned. Those are three
+cards, sitting in different columns, because they genuinely need three different
+things from you.
 
 Read a card top-down:
 
 | What you see | What it means |
 |---|---|
-| **Miller Residence — Deck** | The project. This is how you think about the work. |
-| Deck framing & footings | The order. What's actually being bought. |
-| **$690.44** / saved $146.28 | Your price, and what your account terms saved against list. |
-| 🚚 Aug 9 · Sioux Falls · product photos | Delivery method, requested date, site, and what is on it. |
+| **Miller Residence — Patio** | The project. This is how you think about the work. |
+| Paver field & coping | The order. What's actually being bought. |
+| **$6,080.88** / saved $1,558.72 | Your price, and what your account terms saved against list. |
+| 🚚 Sep 24 · Ocean Beach · product swatches | Delivery method, requested date, site, and what is on it. |
 | ⚠ 1 needs pricing | Something on this order has no dealer price yet. |
-| 🕐 Can't make Aug 9 — 23d lead | **A line can't physically arrive by your date.** |
+| 🕐 Can't make Sep 24 — 21d lead | **A line can't physically arrive by your date.** |
 
-That last one is worth pausing on. The concrete on the Miller framing order is
-out of stock and 23 days out, but you asked for delivery in 9. Nothing else
-would have told you that until the truck didn't show up.
+That last one is worth pausing on. A line on the Miller paver order is out of
+stock and 21 days out, but you asked for delivery sooner than that. Nothing else
+would have told you until the truck didn't show up.
 
 ### Moving between stages
 
@@ -91,7 +92,7 @@ Tap a line for the full detail.
 
 ## 3. Adding materials
 
-> **About the product images.** Dibbits' catalogue has no photography in this
+> **About the product images.** Gable's catalogue has no photography in this
 > build, so every product shows a measured colour-and-texture swatch rather
 > than a picture. The colours were taken from the manufacturers' own published
 > swatches — Blu 60 really is Beige Cream, Borealis really is Hazelnut Brandy —
@@ -131,7 +132,7 @@ anything you already had.
 
 This is the one that keeps a job from leaving the portal. Describe the custom
 door, the odd trim profile, the special-order rail kit. It goes on the order
-**unpriced** with an `SO-` tag, and routes automatically to Dibbits Landscape Supply's quote desk
+**unpriced** with an `SO-` tag, and routes automatically to Gable Landscape Supply's quote desk
 for a firm number.
 
 It is deliberately *not* given a made-up price. A number nobody has stood behind
@@ -179,7 +180,7 @@ filtered catalog is a link you can send to your PM.
 Not "0 results". *"Nothing in Pavers matches “mahogany door”."* — the words you
 typed and the place you were looking, because "wrong word" and "wrong category"
 are different problems with different fixes. Searching the whole catalog for
-something Dibbits Landscape Supply genuinely does not stock points you at the
+something Gable Landscape Supply genuinely does not stock points you at the
 special-order route instead, which is where that job actually gets done.
 
 ### One product, at the quantity you need
@@ -208,7 +209,7 @@ date, no site, and nothing on the board to remind you it exists. So the button
 asks the question a cart never does — **which plan?**
 
 - Every plan listed is a Plan-stage order that already belongs to a job.
-- Plans Dibbits Landscape Supply already holds are not offered at all. The
+- Plans Gable Landscape Supply already holds are not offered at all. The
   scope is locked once they are pricing or picking it, so a destination that
   would refuse on tap is not shown as a destination.
 - If the plan already carries that SKU, the row says so **before** you tap, and
@@ -251,16 +252,16 @@ language — because dragging a card is about to put work on someone's desk or
 commit you to a purchase. You should never find that out afterwards.
 
 > **Invoice is the supplier's move.** You can't drag a card there. Orders arrive
-> in Invoice when Dibbits Landscape Supply delivers and bills them.
+> in Invoice when Gable Landscape Supply delivers and bills them.
 
 ---
 
-## 6. Dibbits Landscape Supply works while you don't
+## 6. Gable Landscape Supply works while you don't
 
 Once you send an order, the card tells you what's happening on their side without
 you opening anything.
 
-![The card shows what Dibbits Landscape Supply is doing](screenshots/15-at-quote-desk.png)
+![The card shows what Gable Landscape Supply is doing](screenshots/15-at-quote-desk.png)
 
 The desk takes hours, not milliseconds — a person is pricing it, and an instant
 answer would be a lie. Which is a problem for a demo, so:
@@ -282,7 +283,7 @@ Skip forward twice and the quote comes back:
 ![The quote comes back priced, and the block clears](screenshots/17-quote-priced.png)
 
 Compare this card to before. The total went from **$1,160.04 to $2,228.61** —
-Dibbits Landscape Supply priced the special-order rail kit. The "1 needs pricing" warning is gone,
+Gable Landscape Supply priced the special-order rail kit. The "1 needs pricing" warning is gone,
 replaced by **"✓ Priced — ready to order"**. The lead time updated to the 24 days
 the desk actually quoted. And the move that was blocked five minutes ago now
 works.
@@ -291,7 +292,7 @@ works.
 
 ![What the supplier did while you weren't looking](screenshots/18-activity.png)
 
-The bell counts things Dibbits Landscape Supply did. Sim events are frequent at speed, so they
+The bell counts things Gable Landscape Supply did. Sim events are frequent at speed, so they
 accumulate here behind a badge rather than interrupting you with toasts.
 
 Note the timestamps: sent at 1:24 PM, acknowledged at 2:54, priced at 7:54.
@@ -308,10 +309,10 @@ in supplier time. Come back and it's waiting for you.
 
 ### Dealer pricing doesn't last forever
 
-Dibbits Landscape Supply holds a quoted price for 14 days, because lumber moves. When it lapses,
+Gable Landscape Supply holds a quoted price for 14 days, because lumber moves. When it lapses,
 the order that was ready to place becomes blocked again — and says so plainly:
 
-> Dibbits Landscape Supply's pricing on 1 item has expired (Trex Transcend rail kit — Pebble Grey).
+> Gable Landscape Supply's pricing on 1 item has expired (Trex Transcend rail kit — Pebble Grey).
 > Send this order back to the quote desk for a fresh price.
 
 That's deliberately worded differently from "needs dealer pricing." A price that
@@ -326,11 +327,11 @@ Open any order and tap **Customer quote**.
 
 ![The quote studio: markup, labor, and your margin](screenshots/19-quote-studio.png)
 
-This is your document, not Dibbits Landscape Supply's. Set a material markup, add labor and
+This is your document, not Gable Landscape Supply's. Set a material markup, add labor and
 overhead, and your **gross margin stays on screen the whole time** — this is the
 one place in the app where the number that matters is yours.
 
-The **Valid until** date is capped by Dibbits Landscape Supply's pricing. If their quote expires in
+The **Valid until** date is capped by Gable Landscape Supply's pricing. If their quote expires in
 9 days, you can't offer your customer 30 — you'd be holding a price nobody is
 protecting you on. The app says so rather than letting you find out later.
 
@@ -338,7 +339,7 @@ protecting you on. The app says so rather than letting you find out later.
 
 ![What the homeowner sees — contractor-branded](screenshots/20-customer-quote.png)
 
-Your brand, your phone number, your license. **Dibbits Landscape Supply appears nowhere**,
+Your brand, your phone number, your license. **Gable Landscape Supply appears nowhere**,
 and neither does your cost. It's a proposal, and it reads like one on the phone
 it'll actually be opened on.
 
@@ -377,13 +378,13 @@ one**, so a superseded proposal can't still be accepted.
 
 ## 8. Tracking what's on the way
 
-Once Dibbits Landscape Supply holds an order, open it and tap **Track this order**.
+Once Gable Landscape Supply holds an order, open it and tap **Track this order**.
 
 ![Tracking an order through fulfillment](screenshots/24-order-tracking.png)
 
 The headline answers the only question that matters — *when is it arriving* —
 before anything else. Below it, the full history in the supplier's own words:
-confirmed, pulled from the Main Yard, loaded on truck 12.
+confirmed, pulled from the Point Loma yard, loaded on truck 12.
 
 Two things you can do from here while they still make sense:
 
@@ -400,7 +401,7 @@ Two things you can do from here while they still make sense:
 
 ![Open invoices with aging — including counter sales](screenshots/25-pay.png)
 
-Everything you owe Dibbits Landscape Supply, aged the way an AR statement does it. Tap a bucket to
+Everything you owe Gable Landscape Supply, aged the way an AR statement does it. Tap a bucket to
 filter.
 
 Note the second line: **"In-store purchase · Counter sale."** Material bought at
@@ -450,7 +451,7 @@ list into order lines**. Give it the list however you already have it —
   or attach a PDF
 
 It matches each line to a real SKU, prices it through your account, and puts it
-on an order. Anything Dibbits Landscape Supply doesn't carry goes on as a special-order line —
+on an order. Anything Gable Landscape Supply doesn't carry goes on as a special-order line —
 unpriced, flagged for the quote desk — rather than being quietly swapped for
 something else.
 
@@ -469,7 +470,7 @@ the Trex?"*, *"what's blocking the Anderson order?"*
 | **Runs and tells you** | Adding, removing, and re-quantifying lines; setting dates; drafting a customer quote — all your own draft, all reversible |
 | **Asks first, every time** | Sending to the quote desk, placing an order, sending a customer quote, paying an invoice |
 
-Anything that reaches Dibbits Landscape Supply or moves money stops and waits for you.
+Anything that reaches Gable Landscape Supply or moves money stops and waits for you.
 You'll see exactly what it's about to do, and it doesn't happen unless you tap
 **Approve**.
 
@@ -583,11 +584,11 @@ guarded by the same rules whether the button is on screen or not.
 | Stage | What it means | How an order leaves it |
 |---|---|---|
 | **Plan** | Building the scope. Your account pricing is live here. | You send it to the quote desk, or place it directly if it's fully priced. |
-| **Quote** | With Dibbits Landscape Supply's quote desk for pricing. Required when the scope has special-order lines. | Pricing comes back, then you place it. |
-| **Order** | Placed with Dibbits Landscape Supply. Delivery or will-call tracking. | Dibbits Landscape Supply delivers and bills it. |
+| **Quote** | With Gable Landscape Supply's quote desk for pricing. Required when the scope has special-order lines. | Pricing comes back, then you place it. |
+| **Order** | Placed with Gable Landscape Supply. Delivery or will-call tracking. | Gable Landscape Supply delivers and bills it. |
 | **Invoice** | Delivered and billed. | You pay it. |
 
-**Scope locks once Dibbits Landscape Supply has the order.** You can edit freely in Plan; once an
+**Scope locks once Gable Landscape Supply has the order.** You can edit freely in Plan; once an
 order is at the quote desk or placed, the lines are read-only and the reason is
 shown. Pull it back to Plan to change it.
 
@@ -639,7 +640,7 @@ doesn't:
 | Feature | Milestone |
 |---|---|
 | AI-generated takeoffs from drawings or dimensions | separate widget, later |
-| A real ERP connection (today Dibbits Landscape Supply is simulated) | M9+ |
+| A real ERP connection (today Gable Landscape Supply is simulated) | M9+ |
 | A deployed home for all of this | M9 |
 
 **Catalog browsing has moved off this list** — it is [section 4](#4-the-catalog)

@@ -1,5 +1,7 @@
+import { DEMO_ACCOUNT } from '@core/data/account-seed';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { boot, getContext } from '../../boot';
+import { DEFAULT_CONFIG } from '../../domain/config';
 import { computeQuoteTotals } from '../../domain/customer-quote';
 import { catalogStore, customerQuotesStore } from '../../stores/root';
 import { listOf } from '../../stores/store';
@@ -332,8 +334,11 @@ describe('sending and signing', () => {
     // unitCost exists on the line for math, but no supplier identity travels
     // with the document.
     const serialized = JSON.stringify(sent);
-    expect(serialized).not.toContain('Dibbits');
-    expect(sent.contractor.companyName).toBe('Quinte Landscape & Design');
+    // The configured dealer name, not a literal. This is the assertion that
+    // guarantees no supplier identity reaches the homeowner's page, and a stale
+    // literal would keep passing while guarding nothing.
+    expect(serialized).not.toContain(DEFAULT_CONFIG.branding.companyName);
+    expect(sent.contractor.companyName).toBe(DEMO_ACCOUNT.branding.companyName);
   });
 });
 

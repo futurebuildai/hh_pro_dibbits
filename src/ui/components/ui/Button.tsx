@@ -19,7 +19,7 @@ const button = cva(
     variants: {
       variant: {
         primary:
-          'bg-brand text-brand-on hover:bg-brand-hover disabled:bg-surface-3 disabled:text-text-subtle',
+          'bg-brand-fill text-brand-fill-on hover:bg-brand-fill-hover disabled:bg-surface-3 disabled:text-text-subtle',
         secondary: 'bg-surface-3 text-text hover:bg-border disabled:text-text-subtle',
         outline:
           'border border-border-strong bg-surface text-text hover:bg-surface-2 disabled:border-border disabled:text-text-subtle',

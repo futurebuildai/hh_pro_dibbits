@@ -5,6 +5,7 @@ import type { Invoice, SalesOrder } from '../domain/supplier';
 import { type IsoDateTime, addDays } from '../lib/time';
 import type { PricingEngine, PricingInput } from '../sim/pricing';
 import { ACCOUNT_ID, TIER_PRO_ID } from './account-seed';
+import { PRIMARY_YARD, siteFor } from './demo-seed';
 
 /**
  * The showcase demo state.
@@ -46,25 +47,18 @@ export function buildScenario(ctx: Ctx): ScenarioData {
 
   let itemSeq = 0;
 
-  function project(
-    id: string,
-    name: string,
-    clientName: string,
-    city: string,
-    createdDaysAgo: number,
-  ): Project {
+  function project(id: string, name: string, clientName: string, createdDaysAgo: number): Project {
     const record: Project = {
       id,
       accountId: ACCOUNT_ID,
       name,
       clientName,
-      address: {
-        id: `addr_${id}`,
-        line1: '—',
-        city,
-        state: 'SD',
-        zip: '57104',
-      },
+      // The town comes from the demo layer keyed by project id. It used to be
+      // a `city` argument next to a hardcoded `state: 'SD', zip: '57104'` —
+      // a Sioux Falls postcode left over from the LumberNow fork, under an
+      // Ontario city name. It never showed because the UI renders only
+      // `city, state`, which is exactly how it survived two milestones.
+      address: { id: `addr_${id}`, line1: '—', ...siteFor(id) },
       createdAt: addDays(ctx.now, -createdDaysAgo),
       updatedAt: addDays(ctx.now, -Math.floor(createdDaysAgo / 2)),
     };
@@ -151,7 +145,7 @@ export function buildScenario(ctx: Ctx): ScenarioData {
   // IDs are kept from the LumberNow scenario on purpose: tests, the a11y audit
   // and the guide capture all address orders by id, and renaming them would
   // churn every one of those for no user-visible gain.
-  const miller = project('prj_miller', 'Miller Residence — Patio', 'Dana Miller', 'Belleville', 21);
+  const miller = project('prj_miller', 'Miller Residence — Patio', 'Dana Miller', 21);
 
   // Everything buried: base, bedding, fabric and restraint. Fully priced, so
   // it can go straight Plan -> Order without the quote desk.
@@ -177,7 +171,7 @@ export function buildScenario(ctx: Ctx): ScenarioData {
   special(millerSurface.id, 'SO-COPING-BULL', 'Bullnose coping — sawn granite, 24" radius', 18);
 
   // --- Anderson: sitting at the quote desk ---------------------------------
-  const anderson = project('prj_anderson', 'Anderson Driveway', 'Ray Anderson', 'Trenton', 30);
+  const anderson = project('prj_anderson', 'Anderson Driveway', 'Ray Anderson', 30);
   const andersonDrive = order('ord_anderson', anderson.id, 'Permeable driveway', 'quote', {
     inDays: 24,
     sortOrder: 0,
@@ -188,7 +182,7 @@ export function buildScenario(ctx: Ctx): ScenarioData {
   special(andersonDrive.id, 'SO-DRAIN-TRENCH', 'Trench drain — 12m run with cast grate', 1);
 
   // --- Wilson: one project, three stages at once ---------------------------
-  const wilson = project('prj_wilson', 'Wilson Estate — Grounds', 'Priya Wilson', 'Kingston', 62);
+  const wilson = project('prj_wilson', 'Wilson Estate — Grounds', 'Priya Wilson', 62);
 
   const wilsonWall = order('ord_wilson_frame', wilson.id, 'Terrace retaining wall', 'order', {
     inDays: 2,
@@ -215,7 +209,7 @@ export function buildScenario(ctx: Ctx): ScenarioData {
   line(wilsonBeds.id, 'MLC-CEDAR-BLK-CY', 22);
 
   // --- Kirkland: billed, awaiting payment ----------------------------------
-  const kirkland = project('prj_kirkland', 'Kirkland Fire Terrace', 'Tom Kirkland', 'Napanee', 75);
+  const kirkland = project('prj_kirkland', 'Kirkland Fire Terrace', 'Tom Kirkland', 75);
   const kirklandTerrace = order('ord_kirkland', kirkland.id, 'Fire pit terrace', 'invoice', {
     inDays: -12,
     fulfillment: 'willcall',
@@ -275,7 +269,7 @@ export function buildScenario(ctx: Ctx): ScenarioData {
     seedSalesOrder(SO_WILSON_FRAME, wilsonWall, 'SO-5087', 'out-for-delivery', 6, [
       ['submitted', `Order received by ${supplierName()}.`, 6],
       ['confirmed', `Order confirmed by ${supplierName()}.`, 6],
-      ['picking', 'Pulled from the Main Yard.', 4],
+      ['picking', `Pulled from the ${PRIMARY_YARD.name} yard.`, 4],
       ['out-for-delivery', 'Loaded on truck 12.', 1],
     ]),
     seedSalesOrder(SO_WILSON_ROOF, wilsonWalk, 'SO-5091', 'confirmed', 3, [
@@ -286,7 +280,7 @@ export function buildScenario(ctx: Ctx): ScenarioData {
       ['submitted', `Order received by ${supplierName()}.`, 40],
       ['confirmed', `Order confirmed by ${supplierName()}.`, 40],
       ['picking', 'Staged on the dock.', 39],
-      ['ready-willcall', 'Ready at the Main Yard will-call counter.', 39],
+      ['ready-willcall', `Ready for pickup at ${PRIMARY_YARD.pickupLine}.`, 39],
       ['delivered', 'Collected from will-call.', 38],
       ['invoiced', 'Invoiced as INV-8874.', 38],
     ]),
@@ -334,7 +328,7 @@ export function buildScenario(ctx: Ctx): ScenarioData {
       dueAt: addDays(ctx.now, 18),
       subtotal: 47_431,
       balance: 47_431,
-      description: 'Counter sale — Main Yard, 7/18',
+      description: `Counter sale — ${PRIMARY_YARD.name}, 7/18`,
     },
   ];
 

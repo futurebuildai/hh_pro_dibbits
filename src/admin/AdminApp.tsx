@@ -1,4 +1,5 @@
 import {
+  type DealerBranding,
   type DealerConfig,
   FEATURE_DESCRIPTIONS,
   FEATURE_LABELS,
@@ -7,7 +8,9 @@ import {
   MAX_TOKENS_LIMIT,
   SELECTABLE_MODELS,
   isValidColor,
+  isValidLogo,
 } from '@core/domain/config';
+import { contrastRatio, isLegibleFill, onColorFor } from '@core/lib/color';
 import { Button } from '@ui/components/ui/Button';
 import { cn } from '@ui/lib/cn';
 import { AlertTriangle, Check, Eye, EyeOff, KeyRound, LogOut, Trash2 } from 'lucide-react';
@@ -177,12 +180,45 @@ function Console({
    * whole config — right for a hand-edited file, wrong as a silent outcome
    * here, where it would replace the dealer's saved colour with the product default.
    * So the console refuses to send it.
+   *
+   * Every role joins this gate, not just the identity colour. Six colours of
+   * which only the first is checked is worse than no check at all: a typo in
+   * the chrome field leaves Save enabled, the server quietly drops that role,
+   * and the dealer gets a white shell with nothing on screen saying why.
+   *
+   * A blank optional colour is VALID and means "this dealer does not want this
+   * role"; only a non-empty string that is not a colour is refused.
    */
-  const colorValid = isValidColor(draft.branding.brandColor);
+  const colorValid =
+    isValidColor(draft.branding.brandColor) &&
+    optionalColorOk(draft.branding.brandColorDark) &&
+    optionalColorOk(draft.branding.chromeColor) &&
+    optionalColorOk(draft.branding.chromeColorDark) &&
+    // The two fills clear a second bar: something has to be legible printed on
+    // them. `parseConfig` silently substitutes `brandColor` for a fill in the
+    // dead zone, so without this the dealer's button would come back a
+    // different colour than the one they typed with no explanation.
+    fillOk(draft.branding.actionColor) &&
+    fillOk(draft.branding.actionColorDark);
+
+  const logoValid =
+    isValidLogo(draft.branding.logoUrl ?? '') && isValidLogo(draft.branding.logoDarkUrl ?? '');
 
   function patch(next: Partial<DealerConfig>) {
     setDraft((current) => ({ ...current, ...next }));
     setStatus(null);
+  }
+
+  /**
+   * One branding field, changed.
+   *
+   * An emptied field is patched to `undefined`, never `''`: `JSON.stringify`
+   * drops an undefined key, so clearing a role restores byte-identical JSON to
+   * what an unconfigured dealer has — which is what keeps `dirty` honest and
+   * stops a cleared-then-restored field reading as an unsaved change forever.
+   */
+  function patchBranding(next: Partial<DealerBranding>) {
+    patch({ branding: { ...draft.branding, ...next } });
   }
 
   async function save() {
@@ -229,7 +265,11 @@ function Console({
           </div>
           <div className="flex items-center gap-2">
             {dirty ? <span className="text-[12px] text-text-muted">Unsaved changes</span> : null}
-            <Button size="sm" disabled={!dirty || saving || !colorValid} onClick={save}>
+            <Button
+              size="sm"
+              disabled={!dirty || saving || !colorValid || !logoValid}
+              onClick={save}
+            >
               Save changes
             </Button>
             <Button size="sm" variant="ghost" onClick={onSignOut} aria-label="Sign out">
@@ -273,44 +313,113 @@ function Console({
               <input
                 {...field}
                 value={draft.branding.companyName}
-                onChange={(event) =>
-                  patch({ branding: { ...draft.branding, companyName: event.target.value } })
-                }
+                onChange={(event) => patchBranding({ companyName: event.target.value })}
                 className={inputClass}
               />
             )}
           </Field>
 
-          <Field label="Brand colour" hint="Hex like #1E40AF, or an oklch() value.">
-            {(field) => (
-              <>
-                <div className="flex items-center gap-2">
-                  <input
-                    {...field}
-                    value={draft.branding.brandColor}
-                    onChange={(event) =>
-                      patch({ branding: { ...draft.branding, brandColor: event.target.value } })
-                    }
-                    className={cn(inputClass, 'text-data')}
-                  />
-                  <span
-                    aria-hidden
-                    className="h-11 w-11 shrink-0 rounded-lg border border-border"
-                    style={{
-                      background: isValidColor(draft.branding.brandColor)
-                        ? draft.branding.brandColor
-                        : 'var(--surface-3)',
-                    }}
-                  />
-                </div>
-                {!isValidColor(draft.branding.brandColor) ? (
-                  <p className="mt-1 text-[12px]" style={{ color: 'var(--danger)' }}>
-                    Not a colour this will accept.
-                  </p>
-                ) : null}
-              </>
-            )}
-          </Field>
+          {/* Three ROLES, not six colour boxes. One colour was answering three
+              different questions — what colour is this dealer as TEXT, what
+              does a pressable FILL look like, what colour is the SHELL — and a
+              flat list of six fields makes a dealer guess which is which. */}
+          <p className="rounded-lg bg-surface-inset p-3 text-[12px] leading-relaxed text-text-muted">
+            Your colour is three roles, each with a light and a dark value.{' '}
+            <strong className="font-semibold">Leaving a role blank is a choice, not a gap.</strong>{' '}
+            An unset role is not inherited from anywhere — the app falls back to its own platform
+            default: a white shell, or an action button in your identity colour. Blank is how you
+            opt out of a role.
+          </p>
+
+          <Role
+            title="Identity"
+            detail="Links, active navigation, and your colour wherever it is printed as text.
+              This is the one role that must be set."
+          >
+            <ColorField
+              label="Identity — light"
+              hint="Hex like #1E40AF, or an oklch() value."
+              required
+              value={draft.branding.brandColor}
+              onChange={(next) => patchBranding({ brandColor: next })}
+            />
+            <ColorField
+              label="Identity — dark"
+              hint="Blank lightens the light one."
+              value={draft.branding.brandColorDark}
+              onChange={(next) => patchBranding({ brandColorDark: next || undefined })}
+            />
+          </Role>
+
+          <Role
+            title="Action"
+            detail="The filled buttons a contractor presses — send to the quote desk, place the
+              order, pay. Blank uses your identity colour."
+          >
+            <ColorField
+              label="Action — light"
+              fill
+              value={draft.branding.actionColor}
+              onChange={(next) => patchBranding({ actionColor: next || undefined })}
+            />
+            <ColorField
+              label="Action — dark"
+              hint="Set it if the colour must not wash out."
+              fill
+              value={draft.branding.actionColorDark}
+              onChange={(next) => patchBranding({ actionColorDark: next || undefined })}
+            />
+          </Role>
+
+          <Role
+            title="Shell"
+            detail="The frame around the content: sidebar, header, and the phone's tab bar. Blank
+              leaves the frame white."
+          >
+            <ColorField
+              label="Shell — light"
+              value={draft.branding.chromeColor}
+              onChange={(next) => patchBranding({ chromeColor: next || undefined })}
+            />
+            <ColorField
+              label="Shell — dark"
+              hint="Blank reuses the light one."
+              value={draft.branding.chromeColorDark}
+              onChange={(next) => patchBranding({ chromeColorDark: next || undefined })}
+            />
+          </Role>
+
+          <Role
+            title="Logo"
+            detail="Optional, and blank is normal rather than a missing setting: with no logo the
+              app renders its built-in mark. A logo you supply is used verbatim and cannot flip
+              for dark mode, which is what the second field is for."
+          >
+            <LogoField
+              label="Logo"
+              value={draft.branding.logoUrl}
+              onChange={(next) => patchBranding({ logoUrl: next || undefined })}
+            />
+            <LogoField
+              label="Logo — dark ground"
+              value={draft.branding.logoDarkUrl}
+              onChange={(next) => patchBranding({ logoDarkUrl: next || undefined })}
+            />
+            {/* Why a path and not a paste. `renderConfigTags()` inlines the
+                whole config into a head-prepended <script> in EVERY document,
+                before first paint, so a pasted data: URI is not stored once —
+                it is re-downloaded as render-blocking head script on every page
+                load, on a phone, forever. */}
+            <p className="text-[11.5px] leading-relaxed text-text-subtle sm:col-span-2">
+              Put the file on this server and give the path, like{' '}
+              <span className="text-data">/brand/logo.svg</span>. A pasted{' '}
+              <span className="text-data">data:</span> URI is accepted, but this config is inlined
+              into a script tag at the top of every page before anything paints — so a 200&nbsp;KB
+              logo becomes 200&nbsp;KB of render-blocking markup on every page load, on a phone,
+              forever. A remote URL is refused outright: it would beacon every contractor's visit to
+              a third party and let that party swap your mark later.
+            </p>
+          </Role>
         </Section>
 
         <Section
@@ -392,7 +501,7 @@ function Console({
                 rows={4}
                 value={draft.assistant.houseRules}
                 maxLength={MAX_HOUSE_RULES}
-                placeholder="e.g. Quote lead times from the Trenton yard unless asked otherwise."
+                placeholder="e.g. Quote lead times from the Julian yard unless asked otherwise."
                 onChange={(event) =>
                   patch({ assistant: { ...draft.assistant, houseRules: event.target.value } })
                 }
@@ -596,6 +705,45 @@ function CredentialSection({
 const inputClass =
   'min-h-11 w-full rounded-lg border border-border bg-surface px-3 text-[14px] outline-none focus:border-brand';
 
+/**
+ * An optional dealer colour: blank is a valid answer, a typo is not.
+ *
+ * Blank means "this dealer does not want this role" and `brandingCss` emits
+ * nothing for it. That is the ONLY way to opt out, so treating blank as an
+ * error would make the opt-out unreachable.
+ */
+function optionalColorOk(value: string | undefined): boolean {
+  const trimmed = (value ?? '').trim();
+  return trimmed === '' || isValidColor(trimmed);
+}
+
+/**
+ * A fill has a second bar: something legible has to print on it.
+ *
+ * `parseConfig` substitutes `brandColor` for a fill in the dead zone rather
+ * than refusing the save, which is right for a hand-edited file and wrong as a
+ * silent outcome here — the dealer would get back a button in a colour they
+ * never typed. Refusing in the console keeps the two honest.
+ */
+function fillOk(value: string | undefined): boolean {
+  const trimmed = (value ?? '').trim();
+  if (!optionalColorOk(trimmed)) return false;
+  return trimmed === '' || isLegibleFill(trimmed);
+}
+
+/**
+ * Why a fill was refused, WITH the number.
+ *
+ * "Not allowed" leaves someone stuck. The ratio is computed through the same
+ * `onColorFor`/`contrastRatio` pair the emitter uses, so the figure on screen
+ * is the figure that decided it — a hardcoded one would drift the first time
+ * the ink constant moves.
+ */
+function illegibleFillMessage(fill: string): string {
+  const ratio = contrastRatio(onColorFor(fill), fill);
+  return `Neither white nor ink reads on this — ${ratio.toFixed(2)}:1. Buttons need 4.5:1. Darken it or lighten it.`;
+}
+
 function Centered({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-surface-2 p-6">{children}</div>
@@ -656,6 +804,148 @@ function Field({
       </label>
       {children({ id, ...(hint ? { 'aria-describedby': hintId } : {}) })}
     </div>
+  );
+}
+
+/**
+ * One brand ROLE — its name, what it does, and its light/dark pair.
+ *
+ * The grouping is the point. Six colour boxes in a column is a dealer guessing
+ * which one paints the sidebar; naming the role and putting the two themes side
+ * by side means the pair is read as one decision, which is what it is.
+ */
+function Role({
+  title,
+  detail,
+  children,
+}: {
+  title: string;
+  detail: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border border-border p-3">
+      <p className="font-semibold text-[13px]">{title}</p>
+      <p className="mt-0.5 mb-3 max-w-prose text-[12px] leading-relaxed text-text-muted">
+        {detail}
+      </p>
+      <div className="grid gap-4 sm:grid-cols-2">{children}</div>
+    </div>
+  );
+}
+
+/**
+ * A dealer colour: the value, a live swatch, and the reason it is refused.
+ *
+ * `fill` turns on the second check, and only the ACTION role passes it.
+ * Identity is text and chrome is a ground; both get an ink chosen for them, and
+ * gating them on `isLegibleFill` would reject legitimate values — including the
+ * recorded ERP colour `#E8A74E`, which is perfectly readable with the right ink.
+ */
+function ColorField({
+  label,
+  hint,
+  value,
+  onChange,
+  required = false,
+  fill = false,
+}: {
+  label: string;
+  hint?: string | undefined;
+  value: string | undefined;
+  onChange: (next: string) => void;
+  /** Identity only. A blank required colour is an error; a blank role is not. */
+  required?: boolean | undefined;
+  /** Action only — see `fillOk`. */
+  fill?: boolean | undefined;
+}) {
+  const raw = value ?? '';
+  const trimmed = raw.trim();
+  const blank = trimmed === '';
+  const malformed = blank ? required : !isValidColor(trimmed);
+  const illegible = !blank && !malformed && fill && !isLegibleFill(trimmed);
+
+  return (
+    <Field label={label} {...(hint ? { hint } : {})}>
+      {(field) => (
+        <>
+          <div className="flex items-center gap-2">
+            <input
+              {...field}
+              value={raw}
+              spellCheck={false}
+              placeholder={required ? '' : 'Not set — platform default'}
+              onChange={(event) => onChange(event.target.value)}
+              className={cn(inputClass, 'text-data')}
+            />
+            <span
+              aria-hidden
+              className="h-11 w-11 shrink-0 rounded-lg border border-border"
+              style={{ background: isValidColor(trimmed) ? trimmed : 'var(--surface-3)' }}
+            />
+          </div>
+          {malformed ? (
+            <p className="mt-1 text-[12px]" style={{ color: 'var(--danger)' }}>
+              Not a colour this will accept.
+            </p>
+          ) : null}
+          {illegible ? (
+            <p className="mt-1 text-[12px] leading-snug" style={{ color: 'var(--danger)' }}>
+              {illegibleFillMessage(trimmed)}
+            </p>
+          ) : null}
+        </>
+      )}
+    </Field>
+  );
+}
+
+/**
+ * A dealer logo: a same-origin path or an inline image, with a live preview.
+ *
+ * The preview is the whole verification story here — nothing else tells a
+ * dealer whether the path they typed actually resolves to their mark, and a
+ * broken path is otherwise discovered by a contractor.
+ */
+function LogoField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string | undefined;
+  onChange: (next: string) => void;
+}) {
+  const raw = value ?? '';
+  const trimmed = raw.trim();
+  const bad = trimmed !== '' && !isValidLogo(trimmed);
+
+  return (
+    <Field label={label} hint="A path on this server, or blank.">
+      {(field) => (
+        <>
+          <input
+            {...field}
+            value={raw}
+            spellCheck={false}
+            placeholder="/brand/logo.svg"
+            onChange={(event) => onChange(event.target.value)}
+            className={cn(inputClass, 'text-data')}
+          />
+          {bad ? (
+            <p className="mt-1 text-[12px] leading-snug" style={{ color: 'var(--danger)' }}>
+              Not a logo this will accept. Use a path starting with / on this server, or a
+              data:image URI. A remote URL is refused.
+            </p>
+          ) : null}
+          {trimmed !== '' && !bad ? (
+            <span className="mt-2 flex h-12 items-center justify-center rounded-lg border border-border bg-surface-inset px-3">
+              <img src={trimmed} alt="" aria-hidden className="max-h-8 max-w-full" />
+            </span>
+          ) : null}
+        </>
+      )}
+    </Field>
   );
 }
 

@@ -108,6 +108,10 @@ async function main() {
 
     for (const screen of SCREENS) {
       await page.goto(`${BASE}${screen.path}`, { waitUntil: 'networkidle' });
+      // Webfonts are self-hosted with `font-display: swap`, so contrast and
+      // target-size checks must run against the real face, not the fallback
+      // metrics that render for the first frame.
+      await page.evaluate(() => document.fonts.ready);
       /**
        * `:visible` matters, and the audit ran for weeks without it: the
        * desktop sidebar is the first `button` in DOM order and is never

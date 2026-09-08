@@ -35,6 +35,18 @@ const shots = [];
 
 async function shoot(page, name, caption, opts = {}) {
   const file = join(OUT, `${name}.png`);
+
+  /**
+   * Block on the webfonts before measuring or shooting anything.
+   *
+   * The three families are self-hosted with `font-display: swap`, so a shot
+   * taken before they decode is laid out in system-ui at different metrics.
+   * That would not fail — it would just silently produce a guide in the wrong
+   * typeface, intermittently, on whichever shots lost the race. Intermittent
+   * is the worst way for a screenshot gate to be wrong, because the diff looks
+   * plausible every time.
+   */
+  await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(opts.settle ?? 350);
 
   /**
@@ -329,7 +341,7 @@ async function main() {
     // ---- 15. The supplier is working --------------------------------------
     await page.getByRole('tab', { name: /Quote/ }).click();
     await expectText(page, 'Sent to quote desk');
-    await shoot(page, '15-at-quote-desk', 'The card shows what Gable is doing');
+    await shoot(page, '15-at-quote-desk', 'The card shows what the supplier is doing');
 
     // ---- 16. Demo controls ------------------------------------------------
     await page.getByRole('button', { name: 'Demo controls' }).click();

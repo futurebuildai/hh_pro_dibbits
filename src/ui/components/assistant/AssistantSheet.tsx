@@ -320,6 +320,11 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   if (message.role === 'user') {
     return (
       <div className="flex justify-end">
+        {/* Identity, not action: a message bubble is not a control you press.
+            Gold is the scarce token that marks the one pressable thing on a
+            screen, and spending it here is what stops the Send button reading
+            as the action. It also measures ~1.61:1 as a fill against the
+            sheet's surface — a bubble with no edge. */}
         <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-brand px-3.5 py-2 text-[13.5px] text-brand-on">
           {message.text}
         </p>

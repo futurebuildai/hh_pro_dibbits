@@ -1,4 +1,5 @@
 import { supplierName } from '../config/runtime';
+import { PRIMARY_YARD } from '../data/demo-seed';
 import type { SalesOrder, SalesOrderStatus, TrackingEvent } from '../domain/supplier';
 import { newId } from '../lib/ids';
 import { rngFor } from '../lib/rng';
@@ -21,7 +22,7 @@ import type { SimContext } from './types';
  */
 
 const PICK_NOTES = [
-  'Pulled from the Main Yard.',
+  `Pulled from the ${PRIMARY_YARD.name} yard.`,
   'Staged on the dock.',
   'Bundled and wrapped for transport.',
 ];
@@ -96,7 +97,7 @@ export function registerOrderLifecycle(ctx: SimContext): void {
       advance(
         id,
         'ready-willcall',
-        'Ready at the Main Yard will-call counter.',
+        `Ready for pickup at ${PRIMARY_YARD.pickupLine}.`,
         'order.ready',
         (o) => `${o.number} is ready for pickup`,
       );

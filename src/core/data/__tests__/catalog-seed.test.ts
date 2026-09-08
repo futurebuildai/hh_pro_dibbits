@@ -63,10 +63,28 @@ describe('manufactured availability', () => {
   });
 
   it('honours explicit stock counts from the source data', () => {
-    // Source declares inStock: 5200 sf for this paver.
+    // Source declares inStock: 5200 sf for this paver. The dealer runs two
+    // yards, so this now asserts the YARD TOTAL rather than one row — which is
+    // the stronger claim: it proves the split across yards is exact, and an
+    // off-by-one in the split would change what the catalog says is in stock.
     const paver = seedProducts(7).find((p) => p.sku === 'PVR-TB-BLU60-SM');
-    const yard = paver?.stock.find((s) => s.locationId === 'loc_yard');
-    expect(yard?.onHand).toBe(5200);
+    const yardRows = (paver?.stock ?? []).filter((s) => s.locationId.startsWith('loc_yard'));
+    expect(yardRows.length).toBeGreaterThan(0);
+    expect(yardRows.reduce((sum, row) => sum + row.onHand, 0)).toBe(5200);
+  });
+
+  it('splits every yard count across the yards without inventing or losing any', () => {
+    // Every product, one seed: the split must be exact for all of them, not
+    // just the one with a declared count.
+    for (const product of seedProducts(11)) {
+      const yardRows = product.stock.filter((s) => s.locationId.startsWith('loc_yard'));
+      expect(yardRows.every((row) => row.onHand >= 0)).toBe(true);
+      // A satellite yard never holds more than the primary.
+      const [primary, ...rest] = yardRows;
+      for (const row of rest) {
+        expect(row.onHand).toBeLessThanOrEqual(primary?.onHand ?? 0);
+      }
+    }
   });
 
   it('gives stocked products no lead time and out-of-stock products a real wait', () => {

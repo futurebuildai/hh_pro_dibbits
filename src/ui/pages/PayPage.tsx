@@ -238,7 +238,7 @@ export function PayPage({ onOpenOrder }: Props) {
               'flex min-h-12 w-full items-center justify-between gap-3 rounded-lg px-5 font-medium transition-colors',
               paying.length === 0
                 ? 'bg-surface-3 text-text-muted'
-                : 'bg-brand text-brand-on hover:bg-brand-hover',
+                : 'bg-brand-fill text-brand-fill-on hover:bg-brand-fill-hover',
             )}
           >
             <span className="text-[15px]">
